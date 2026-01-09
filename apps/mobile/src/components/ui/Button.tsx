@@ -3,7 +3,7 @@ import { theme } from "../../theme";
 
 interface ButtonProps extends TouchableOpacityProps {
   children: string;
-  variant?: "primary" | "secondary" | "accent";
+  variant?: "primary" | "secondary" | "accent" | "ghost" | "danger";
 }
 
 export function Button({
@@ -16,6 +16,8 @@ export function Button({
     primary: { backgroundColor: theme.colors.primary },
     secondary: { backgroundColor: theme.colors.secondary },
     accent: { backgroundColor: theme.colors.accent },
+    ghost: { backgroundColor: "transparent", borderWidth: 1, borderColor: theme.colors.border },
+    danger: { backgroundColor: theme.colors.danger },
   };
 
   return (
@@ -27,7 +29,9 @@ export function Button({
       ]}
       {...props}
     >
-      <Text style={styles.buttonText}>{children}</Text>
+      <Text style={[styles.buttonText, variant === "ghost" && styles.ghostButtonText]}>
+        {children}
+      </Text>
     </TouchableOpacity>
   );
 }
@@ -44,5 +48,8 @@ const styles = StyleSheet.create({
     color: theme.colors.surface,
     fontSize: theme.typography.sizes.body.fontSize,
     fontWeight: theme.typography.weights.medium,
+  },
+  ghostButtonText: {
+    color: theme.colors.primary,
   },
 });
