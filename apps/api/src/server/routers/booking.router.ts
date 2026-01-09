@@ -87,4 +87,8 @@ export const bookingRouter = router({
     .query(async ({ input }) => {
       return bookingService.getProBookings(input.proId);
     }),
+
+  myBookings: protectedProcedure.query(async ({ ctx }) => {
+    return bookingService.getClientBookings(ctx.actor.id);
+  }),
 });

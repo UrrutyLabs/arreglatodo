@@ -36,3 +36,14 @@ export const ProStatus = {
 } as const
 
 export type ProStatus = (typeof ProStatus)[keyof typeof ProStatus]
+
+
+export const Category = {
+  plumbing: 'plumbing',
+  electrical: 'electrical',
+  cleaning: 'cleaning',
+  handyman: 'handyman',
+  painting: 'painting'
+} as const
+
+export type Category = (typeof Category)[keyof typeof Category]

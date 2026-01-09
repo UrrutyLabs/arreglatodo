@@ -7,6 +7,7 @@ import type {
   Booking,
   BookingCreateInput,
   BookingCreateOutput,
+  Category,
 } from "@repo/domain";
 import { BookingStatus } from "@repo/domain";
 import type { Actor } from "../auth/roles";
@@ -43,13 +44,14 @@ export class BookingService {
       throw new Error("Pro is suspended");
     }
 
-    // Create booking via repository (adapting to new schema)
+    // Create booking via repository
     const booking = await bookingRepository.create({
       clientUserId: actor.id,
       proProfileId: input.proId,
+      category: input.category as string,
       scheduledAt: input.scheduledAt,
       hoursEstimate: input.estimatedHours,
-      addressText: input.description, // Temporary mapping
+      addressText: input.description,
     });
 
     // Adapt to domain type for router compatibility
@@ -248,8 +250,14 @@ export class BookingService {
   async getBookingById(id: string): Promise<Booking | null> {
     const booking = await bookingRepository.findById(id);
     if (!booking) return null;
-    // Note: This is a simplified adaptation - full mapping would require additional data
-    return booking as unknown as Booking;
+    
+    // Get pro to get hourly rate
+    const pro = booking.proProfileId
+      ? await proRepository.findById(booking.proProfileId)
+      : null;
+    const hourlyRate = pro?.hourlyRate ?? 0;
+    
+    return this.mapBookingEntityToDomain(booking, hourlyRate);
   }
 
   /**
@@ -257,7 +265,24 @@ export class BookingService {
    */
   async getClientBookings(clientId: string): Promise<Booking[]> {
     const bookings = await bookingRepository.findByClientUserId(clientId);
-    return bookings as unknown as Booking[];
+    
+    // Get pros for all bookings to get hourly rates
+    const proIds = bookings
+      .map((b) => b.proProfileId)
+      .filter((id): id is string => id !== null);
+    const pros = await Promise.all(
+      proIds.map((id) => proRepository.findById(id))
+    );
+    const proMap = new Map(
+      pros.filter((p): p is NonNullable<typeof p> => p !== null).map((p) => [p.id, p.hourlyRate])
+    );
+    
+    return bookings.map((booking) => {
+      const hourlyRate = booking.proProfileId
+        ? proMap.get(booking.proProfileId) ?? 0
+        : 0;
+      return this.mapBookingEntityToDomain(booking, hourlyRate);
+    });
   }
 
   /**
@@ -265,7 +290,14 @@ export class BookingService {
    */
   async getProBookings(proId: string): Promise<Booking[]> {
     const bookings = await bookingRepository.findByProProfileId(proId);
-    return bookings as unknown as Booking[];
+    
+    // Get pro to get hourly rate
+    const pro = await proRepository.findById(proId);
+    const hourlyRate = pro?.hourlyRate ?? 0;
+    
+    return bookings.map((booking) =>
+      this.mapBookingEntityToDomain(booking, hourlyRate)
+    );
   }
 
   /**
@@ -319,6 +351,31 @@ export class BookingService {
       clientId: entity.clientUserId,
       proId: entity.proProfileId || input.proId,
       category: input.category,
+      description: entity.addressText,
+      status: entity.status,
+      scheduledAt: entity.scheduledAt,
+      completedAt: undefined,
+      cancelledAt: undefined,
+      hourlyRate,
+      estimatedHours: entity.hoursEstimate,
+      totalAmount: hourlyRate * entity.hoursEstimate,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    };
+  }
+
+  /**
+   * Map BookingEntity to Booking domain type
+   */
+  private mapBookingEntityToDomain(
+    entity: BookingEntity,
+    hourlyRate: number
+  ): Booking {
+    return {
+      id: entity.id,
+      clientId: entity.clientUserId,
+      proId: entity.proProfileId || "",
+      category: entity.category as Category,
       description: entity.addressText,
       status: entity.status,
       scheduledAt: entity.scheduledAt,

@@ -8,6 +8,7 @@ export interface BookingEntity {
   id: string;
   clientUserId: string;
   proProfileId: string | null;
+  category: string; // Category enum value
   status: BookingStatus;
   scheduledAt: Date;
   hoursEstimate: number;
@@ -22,6 +23,7 @@ export interface BookingEntity {
 export interface BookingCreateInput {
   clientUserId: string;
   proProfileId?: string;
+  category: string; // Category enum value
   scheduledAt: Date;
   hoursEstimate: number;
   addressText: string;
@@ -56,6 +58,7 @@ class BookingRepositoryImpl implements BookingRepository {
       data: {
         clientUserId: input.clientUserId,
         proProfileId: input.proProfileId ?? null,
+        category: input.category as any, // Prisma expects Category enum, but we pass string
         scheduledAt: input.scheduledAt,
         hoursEstimate: input.hoursEstimate,
         addressText: input.addressText,
@@ -132,6 +135,7 @@ class BookingRepositoryImpl implements BookingRepository {
     id: string;
     clientUserId: string;
     proProfileId: string | null;
+    category: string;
     status: string;
     scheduledAt: Date;
     hoursEstimate: number;
@@ -143,6 +147,7 @@ class BookingRepositoryImpl implements BookingRepository {
       id: prismaBooking.id,
       clientUserId: prismaBooking.clientUserId,
       proProfileId: prismaBooking.proProfileId,
+      category: prismaBooking.category,
       status: prismaBooking.status as BookingStatus,
       scheduledAt: prismaBooking.scheduledAt,
       hoursEstimate: prismaBooking.hoursEstimate,

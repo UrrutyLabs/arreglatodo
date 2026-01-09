@@ -30,6 +30,14 @@ enum ProStatus {
   suspended
 }
 
+enum Category {
+  plumbing
+  electrical
+  cleaning
+  handyman
+  painting
+}
+
 model User {
   id        String   @id @default(cuid())
   role      Role     @default(client)
@@ -47,8 +55,12 @@ model ProProfile {
   id          String     @id @default(cuid())
   userId      String     @unique
   displayName String
+  email       String
+  phone       String?
   bio         String?
   hourlyRate  Float
+  categories  Category[]
+  serviceArea String?
   status      ProStatus  @default(pending)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -83,6 +95,7 @@ model Booking {
   id             String        @id @default(cuid())
   clientUserId   String
   proProfileId   String?
+  category       Category
   status         BookingStatus @default(pending)
   scheduledAt    DateTime
   hoursEstimate  Float
@@ -99,6 +112,7 @@ model Booking {
   @@index([proProfileId])
   @@index([status])
   @@index([scheduledAt])
+  @@index([category])
   @@map("bookings")
 }
 

@@ -830,8 +830,12 @@ export const ProProfileScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   displayName: 'displayName',
+  email: 'email',
+  phone: 'phone',
   bio: 'bio',
   hourlyRate: 'hourlyRate',
+  categories: 'categories',
+  serviceArea: 'serviceArea',
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -857,6 +861,7 @@ export const BookingScalarFieldEnum = {
   id: 'id',
   clientUserId: 'clientUserId',
   proProfileId: 'proProfileId',
+  category: 'category',
   status: 'status',
   scheduledAt: 'scheduledAt',
   hoursEstimate: 'hoursEstimate',
@@ -962,6 +967,20 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Float[]'
  */
 export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Category[]'
+ */
+export type ListEnumCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Category[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Category'
+ */
+export type EnumCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Category'>
     
 
 

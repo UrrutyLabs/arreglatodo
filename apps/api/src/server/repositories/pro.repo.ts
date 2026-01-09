@@ -7,8 +7,12 @@ export interface ProProfileEntity {
   id: string;
   userId: string;
   displayName: string;
+  email: string;
+  phone: string | null;
   bio: string | null;
   hourlyRate: number;
+  categories: string[]; // Category enum values
+  serviceArea: string | null;
   status: "pending" | "active" | "suspended";
   createdAt: Date;
   updatedAt: Date;
@@ -20,8 +24,12 @@ export interface ProProfileEntity {
 export interface ProProfileCreateInput {
   userId: string;
   displayName: string;
+  email: string;
+  phone?: string;
   bio?: string;
   hourlyRate: number;
+  categories: string[]; // Category enum values
+  serviceArea?: string;
 }
 
 /**
@@ -52,8 +60,12 @@ class ProRepositoryImpl implements ProRepository {
       data: {
         userId: input.userId,
         displayName: input.displayName,
+        email: input.email,
+        phone: input.phone ?? null,
         bio: input.bio,
         hourlyRate: input.hourlyRate,
+        categories: input.categories as any, // Prisma expects Category[] enum, but we pass string[]
+        serviceArea: input.serviceArea ?? null,
         status: "pending",
       },
     });
@@ -101,30 +113,30 @@ class ProRepositoryImpl implements ProRepository {
     id: string,
     data: Partial<ProProfileCreateInput>
   ): Promise<ProProfileEntity | null> {
+    const updateData: any = { ...data };
+    if (data.categories) {
+      updateData.categories = data.categories as any;
+    }
+    
     const proProfile = await prisma.proProfile.update({
       where: { id },
-      data,
+      data: updateData,
     });
 
     return this.mapPrismaToDomain(proProfile);
   }
 
-  private mapPrismaToDomain(prismaProProfile: {
-    id: string;
-    userId: string;
-    displayName: string;
-    bio: string | null;
-    hourlyRate: number;
-    status: string;
-    createdAt: Date;
-    updatedAt: Date;
-  }): ProProfileEntity {
+  private mapPrismaToDomain(prismaProProfile: any): ProProfileEntity {
     return {
       id: prismaProProfile.id,
       userId: prismaProProfile.userId,
       displayName: prismaProProfile.displayName,
-      bio: prismaProProfile.bio,
+      email: prismaProProfile.email ?? "",
+      phone: prismaProProfile.phone ?? null,
+      bio: prismaProProfile.bio ?? null,
       hourlyRate: prismaProProfile.hourlyRate,
+      categories: (prismaProProfile.categories ?? []) as string[],
+      serviceArea: prismaProProfile.serviceArea ?? null,
       status: prismaProProfile.status as "pending" | "active" | "suspended",
       createdAt: prismaProProfile.createdAt,
       updatedAt: prismaProProfile.updatedAt,

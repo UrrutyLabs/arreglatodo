@@ -1,9 +1,11 @@
 import { proRepository, type ProProfileEntity } from "../repositories/pro.repo";
+import { reviewRepository } from "../repositories/review.repo";
 import { userRepository } from "../repositories/user.repo";
 import type {
   Pro,
   ProOnboardInput,
   ProSetAvailabilityInput,
+  Category,
 } from "@repo/domain";
 import { Role } from "@repo/domain";
 
@@ -26,12 +28,16 @@ export class ProService {
     const proProfile = await proRepository.create({
       userId: user.id,
       displayName: input.name,
+      email: input.email,
+      phone: input.phone,
       bio: undefined,
       hourlyRate: input.hourlyRate,
+      categories: input.categories.map((c) => c as string),
+      serviceArea: input.serviceArea,
     });
 
-    // Adapt to domain type for router compatibility
-    return this.adaptToDomain(proProfile, input);
+    // Map to domain type
+    return this.mapToDomain(proProfile);
   }
 
   /**
@@ -40,7 +46,7 @@ export class ProService {
   async getProById(id: string): Promise<Pro | null> {
     const proProfile = await proRepository.findById(id);
     if (!proProfile) return null;
-    return proProfile as unknown as Pro;
+    return this.mapToDomain(proProfile);
   }
 
   /**
@@ -48,7 +54,7 @@ export class ProService {
    */
   async getAllPros(): Promise<Pro[]> {
     const proProfiles = await proRepository.findAll();
-    return proProfiles as unknown as Pro[];
+    return Promise.all(proProfiles.map((profile) => this.mapToDomain(profile)));
   }
 
   /**
@@ -72,22 +78,48 @@ export class ProService {
       throw new Error("Failed to update pro");
     }
 
-    return updated as unknown as Pro;
+    return this.mapToDomain(updated);
   }
 
-  private adaptToDomain(entity: ProProfileEntity, input: ProOnboardInput): Pro {
+  /**
+   * Map ProProfileEntity to Pro domain type
+   * Calculates rating and reviewCount from reviews
+   */
+  private async mapToDomain(entity: ProProfileEntity): Promise<Pro> {
+    // Get reviews for this pro to calculate rating and reviewCount
+    const reviews = await reviewRepository.findByProProfileId(entity.id);
+
+    // Calculate average rating
+    const rating =
+      reviews.length > 0
+        ? reviews.reduce((sum, review) => sum + review.rating, 0) /
+          reviews.length
+        : undefined;
+
+    // Get review count
+    const reviewCount = reviews.length;
+
+    // Map status enum to boolean flags
+    const isApproved = entity.status === "active";
+    const isSuspended = entity.status === "suspended";
+
+    // Map categories from string[] to Category[]
+    const categories = entity.categories.map(
+      (c) => c as Category
+    ) as Category[];
+
     return {
       id: entity.id,
       name: entity.displayName,
-      email: "", // Not in new schema - would need to be fetched from user
-      phone: input.phone,
+      email: entity.email,
+      phone: entity.phone ?? undefined,
       hourlyRate: entity.hourlyRate,
-      categories: input.categories,
-      serviceArea: input.serviceArea,
-      rating: undefined,
-      reviewCount: 0,
-      isApproved: entity.status === "active",
-      isSuspended: entity.status === "suspended",
+      categories,
+      serviceArea: entity.serviceArea ?? undefined,
+      rating,
+      reviewCount,
+      isApproved,
+      isSuspended,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };

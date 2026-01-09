@@ -202,8 +202,10 @@ export default function TestPage() {
                     proOnboard.mutateAsync({
                       name: "Test Pro",
                       email: "test@example.com",
+                      phone: "+598 99 123 456",
                       hourlyRate: 50,
-                      categories: [Category.PLUMBING],
+                      categories: [Category.PLUMBING, Category.ELECTRICAL],
+                      serviceArea: "Montevideo",
                     })
                   )
                 }
