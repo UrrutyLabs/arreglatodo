@@ -16,6 +16,14 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "docs#dev": {
+      "cache": false,
+      "persistent": false
+    },
+    "web#dev": {
+      "cache": false,
+      "persistent": false
     }
   }
 }
