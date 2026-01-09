@@ -27,3 +27,19 @@ export {
   type ProOnboardInput,
   type ProSetAvailabilityInput,
 } from "./schemas/pro.schema";
+
+// Review schemas
+export {
+  reviewSchema,
+  reviewCreateInputSchema,
+  reviewCreateOutputSchema,
+  type Review,
+  type ReviewCreateInput,
+  type ReviewCreateOutput,
+} from "./schemas/review.schema";
+
+// Client schemas
+export {
+  clientSearchProsInputSchema,
+  type ClientSearchProsInput,
+} from "./schemas/client.schema";

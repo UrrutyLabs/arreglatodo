@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { TRPCProvider } from "@/components/trpc-provider";
+import { TRPCProvider } from "@/lib/trpc/Provider";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -10,8 +10,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ArreglaTodo - Client",
-  description: "Uruguay Services Marketplace - Client App",
+  title: "Arreglatodo - Soluciones confiables para tu hogar",
+  description: "Encontrá, reservá y pagá profesionales verificados para arreglos y servicios cotidianos en Uruguay.",
 };
 
 export default function RootLayout({
@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="es" className={inter.variable}>
       <body className="font-sans antialiased">
         <TRPCProvider>{children}</TRPCProvider>
       </body>
