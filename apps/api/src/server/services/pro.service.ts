@@ -58,6 +58,15 @@ export class ProService {
   }
 
   /**
+   * Get pro by user ID (for authenticated pro)
+   */
+  async getProByUserId(userId: string): Promise<Pro | null> {
+    const proProfile = await proRepository.findByUserId(userId);
+    if (!proProfile) return null;
+    return this.mapToDomain(proProfile);
+  }
+
+  /**
    * Set pro availability
    * Business rules:
    * - Pro must exist

@@ -6,24 +6,23 @@ import { BookingCard } from "../../components/presentational/BookingCard";
 import { theme } from "../../theme";
 import { trpc } from "../../lib/trpc/client";
 import { BookingStatus } from "@repo/domain";
-import type { Booking } from "@repo/domain";
 
 export function JobsScreen() {
   const router = useRouter();
   
-  // TODO: Implement booking.proJobs endpoint in API
-  // For now, using mock data
-  const mockBookings: Booking[] = [];
-  const isLoading = false;
-  const error = null;
+  // Fetch pro jobs bookings
+  const { data: bookings = [], isLoading, error } = trpc.booking.proJobs.useQuery(
+    undefined,
+    { retry: false, refetchOnWindowFocus: false }
+  );
 
   // Filter bookings into upcoming (accepted) and completed
   const { upcoming, completed } = useMemo(() => {
-    const upcomingBookings = mockBookings.filter(
+    const upcomingBookings = bookings.filter(
       (booking) => booking.status === BookingStatus.ACCEPTED
     );
     
-    const completedBookings = mockBookings.filter(
+    const completedBookings = bookings.filter(
       (booking) => booking.status === BookingStatus.COMPLETED
     );
 
@@ -31,7 +30,7 @@ export function JobsScreen() {
       upcoming: upcomingBookings,
       completed: completedBookings,
     };
-  }, [mockBookings]);
+  }, [bookings]);
 
   const handleCardPress = (bookingId: string) => {
     router.push(`/booking/${bookingId}`);

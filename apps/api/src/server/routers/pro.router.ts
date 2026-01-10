@@ -39,14 +39,42 @@ export const proRouter = router({
     return proService.getAllPros();
   }),
 
+  getMyProfile: proProcedure.query(async ({ ctx }) => {
+    try {
+      const pro = await proService.getProByUserId(ctx.actor.id);
+      if (!pro) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Pro profile not found",
+        });
+      }
+      return pro;
+    } catch (error) {
+      if (error instanceof TRPCError) {
+        throw error;
+      }
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message:
+          error instanceof Error ? error.message : "Failed to get pro profile",
+      });
+    }
+  }),
+
   setAvailability: proProcedure
     .input(proSetAvailabilityInputSchema)
     .mutation(async ({ input, ctx }) => {
-      // Use authenticated pro's ID from context
-      const proId = ctx.actor.id;
+      // Get pro profile from user ID
+      const proProfile = await proService.getProByUserId(ctx.actor.id);
+      if (!proProfile) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Pro profile not found",
+        });
+      }
 
       try {
-        return await proService.setAvailability(proId, input);
+        return await proService.setAvailability(proProfile.id, input);
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",

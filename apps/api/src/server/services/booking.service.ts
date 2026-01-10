@@ -301,6 +301,20 @@ export class BookingService {
   }
 
   /**
+   * Get bookings for authenticated pro (by user ID)
+   * Returns all bookings for the pro
+   */
+  async getProBookingsByUserId(userId: string): Promise<Booking[]> {
+    // Get pro profile from user ID
+    const proProfile = await proRepository.findByUserId(userId);
+    if (!proProfile) {
+      return [];
+    }
+
+    return this.getProBookings(proProfile.id);
+  }
+
+  /**
    * Get booking or throw error
    */
   private async getBookingOrThrow(bookingId: string): Promise<BookingEntity> {

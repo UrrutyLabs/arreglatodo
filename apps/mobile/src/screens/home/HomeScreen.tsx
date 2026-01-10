@@ -4,25 +4,25 @@ import { useMemo } from "react";
 import { Text } from "../../components/ui/Text";
 import { BookingCard } from "../../components/presentational/BookingCard";
 import { theme } from "../../theme";
+import { trpc } from "../../lib/trpc/client";
 import { BookingStatus } from "@repo/domain";
-import type { Booking } from "@repo/domain";
 
 export function HomeScreen() {
   const router = useRouter();
   
-  // TODO: Implement booking.proInbox endpoint in API
-  // For now, using mock data
-  const mockBookings: Booking[] = [];
-  const isLoading = false;
-  const error = null;
+  // Fetch pro inbox bookings
+  const { data: bookings = [], isLoading, error } = trpc.booking.proInbox.useQuery(
+    undefined,
+    { retry: false, refetchOnWindowFocus: false }
+  );
 
   // Filter bookings into pending and accepted
   const { pending, upcoming } = useMemo(() => {
-    const pendingBookings = mockBookings.filter(
+    const pendingBookings = bookings.filter(
       (booking) => booking.status === BookingStatus.PENDING
     );
     
-    const upcomingBookings = mockBookings.filter(
+    const upcomingBookings = bookings.filter(
       (booking) => booking.status === BookingStatus.ACCEPTED
     );
 
@@ -30,7 +30,7 @@ export function HomeScreen() {
       pending: pendingBookings,
       upcoming: upcomingBookings,
     };
-  }, [mockBookings]);
+  }, [bookings]);
 
   const handleCardPress = (bookingId: string) => {
     router.push(`/booking/${bookingId}`);
