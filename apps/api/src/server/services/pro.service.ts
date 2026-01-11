@@ -1,4 +1,8 @@
-import { proRepository, type ProProfileEntity } from "../repositories/pro.repo";
+import {
+  proRepository,
+  type ProProfileEntity,
+  type ProProfileCreateInput,
+} from "../repositories/pro.repo";
 import { reviewRepository } from "../repositories/review.repo";
 import { userRepository } from "../repositories/user.repo";
 import type {
@@ -43,10 +47,14 @@ export class ProService {
   /**
    * Convert an existing user to PRO role and create their pro profile
    * Used when a user signs up via pro_mobile app
+   * 
+   * Note: With user metadata approach, users from pro_mobile are created with PRO role
+   * in the context. This method serves as a safety check and ensures pro profile is created.
+   * 
    * Business rules:
    * - User must exist (created by context on first API call)
    * - User must not already have a pro profile
-   * - User role will be updated from CLIENT to PRO (if not already PRO)
+   * - User role will be updated to PRO if not already PRO (safety check)
    */
   async convertUserToPro(
     userId: string,
@@ -131,6 +139,53 @@ export class ProService {
 
     if (!updated) {
       throw new Error("Failed to update pro");
+    }
+
+    return this.mapToDomain(updated);
+  }
+
+  /**
+   * Update pro profile
+   * Business rules:
+   * - Pro must exist
+   * - Only update provided fields
+   */
+  async updateProfile(
+    userId: string,
+    input: Partial<ProOnboardInput>
+  ): Promise<Pro> {
+    const proProfile = await proRepository.findByUserId(userId);
+    if (!proProfile) {
+      throw new Error("Pro profile not found");
+    }
+
+    // Map ProOnboardInput fields to ProProfileCreateInput fields
+    const updateData: Partial<ProProfileCreateInput> = {};
+    
+    if (input.name !== undefined) {
+      updateData.displayName = input.name;
+    }
+    if (input.email !== undefined) {
+      updateData.email = input.email;
+    }
+    if (input.phone !== undefined) {
+      updateData.phone = input.phone;
+    }
+    if (input.hourlyRate !== undefined) {
+      updateData.hourlyRate = input.hourlyRate;
+    }
+    if (input.categories !== undefined) {
+      updateData.categories = input.categories.map((c) => c as string);
+    }
+    if (input.serviceArea !== undefined) {
+      updateData.serviceArea = input.serviceArea;
+    }
+
+    // Update pro profile
+    const updated = await proRepository.update(proProfile.id, updateData);
+    
+    if (!updated) {
+      throw new Error("Failed to update pro profile");
     }
 
     return this.mapToDomain(updated);

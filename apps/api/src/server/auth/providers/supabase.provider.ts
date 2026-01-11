@@ -29,7 +29,9 @@ export class SupabaseAuthProvider implements AuthProvider {
     });
   }
 
-  async verifyAccessToken(token: string): Promise<{ userId: string } | null> {
+  async verifyAccessToken(
+    token: string
+  ): Promise<{ userId: string; userMetadata?: Record<string, unknown> } | null> {
     try {
       const {
         data: { user },
@@ -40,7 +42,10 @@ export class SupabaseAuthProvider implements AuthProvider {
         return null;
       }
 
-      return { userId: user.id };
+      return {
+        userId: user.id,
+        userMetadata: user.user_metadata,
+      };
     } catch (error) {
       console.error("Error verifying Supabase token:", error);
       return null;

@@ -32,6 +32,20 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="auth/login" options={{ title: "Iniciar sesión" }} />
         <Stack.Screen name="auth/signup" options={{ title: "Registrarse" }} />
+        <Stack.Screen
+          name="auth/confirm-email"
+          options={{
+            title: "Confirmar email",
+            headerBackVisible: false,
+          }}
+        />
+        <Stack.Screen
+          name="onboarding"
+          options={{
+            title: "Completar perfil",
+            headerBackVisible: false,
+          }}
+        />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="booking/[bookingId]" options={{ title: "Detalle de reserva" }} />
       </Stack>

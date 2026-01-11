@@ -37,13 +37,20 @@ export async function createContext(req: Request): Promise<{ actor: Actor | null
   }
 
   const supabaseUserId = authResult.userId;
+  const userMetadata = authResult.userMetadata;
 
   // Lookup user in our database
   let user = await userRepository.findById(supabaseUserId);
 
-  // If user doesn't exist, create it with default CLIENT role
+  // If user doesn't exist, create it with role from metadata or default CLIENT
   if (!user) {
-    user = await userRepository.create(Role.CLIENT, supabaseUserId);
+    // Check for intended role in user metadata (set during signup)
+    // This allows pro_mobile app to create users with PRO role directly
+    const intendedRole = userMetadata?.intendedRole;
+    const role =
+      intendedRole === "pro" ? Role.PRO : Role.CLIENT;
+
+    user = await userRepository.create(role, supabaseUserId);
   }
 
   return {

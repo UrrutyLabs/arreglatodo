@@ -21,7 +21,8 @@ export function LoginScreen() {
       setLoading(true);
       setError(null);
       await signIn(email, password);
-      router.replace("/(tabs)/home" as any);
+      // Redirect to index route, which will check onboarding status and redirect appropriately
+      router.replace("/" as any);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al iniciar sesión");
     } finally {

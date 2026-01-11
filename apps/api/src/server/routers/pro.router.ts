@@ -101,4 +101,20 @@ export const proRouter = router({
         });
       }
     }),
+
+  updateProfile: proProcedure
+    .input(proOnboardInputSchema.partial())
+    .mutation(async ({ input, ctx }) => {
+      try {
+        return await proService.updateProfile(ctx.actor.id, input);
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to update profile",
+        });
+      }
+    }),
 });

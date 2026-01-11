@@ -1,4 +1,5 @@
 import { prisma } from "../db/prisma";
+import { Category } from "@repo/domain";
 
 /**
  * ProProfile entity (plain object)
@@ -64,7 +65,7 @@ class ProRepositoryImpl implements ProRepository {
         phone: input.phone ?? null,
         bio: input.bio,
         hourlyRate: input.hourlyRate,
-        categories: input.categories as any, // Prisma expects Category[] enum, but we pass string[]
+        categories: input.categories as Category[], // Prisma expects Category[] enum, but we pass string[]
         serviceArea: input.serviceArea ?? null,
         status: "pending",
       },
@@ -113,9 +114,37 @@ class ProRepositoryImpl implements ProRepository {
     id: string,
     data: Partial<ProProfileCreateInput>
   ): Promise<ProProfileEntity | null> {
-    const updateData: any = { ...data };
-    if (data.categories) {
-      updateData.categories = data.categories as any;
+    // Build update data object, only including provided fields
+    const updateData: {
+      displayName?: string;
+      email?: string;
+      phone?: string | null;
+      bio?: string | null;
+      hourlyRate?: number;
+      categories?: Category[];
+      serviceArea?: string | null;
+    } = {};
+    
+    if (data.displayName !== undefined) {
+      updateData.displayName = data.displayName;
+    }
+    if (data.email !== undefined) {
+      updateData.email = data.email;
+    }
+    if (data.phone !== undefined) {
+      updateData.phone = data.phone ?? null;
+    }
+    if (data.bio !== undefined) {
+      updateData.bio = data.bio ?? null;
+    }
+    if (data.hourlyRate !== undefined) {
+      updateData.hourlyRate = data.hourlyRate;
+    }
+    if (data.categories !== undefined) {
+      updateData.categories = data.categories as Category[]; // Prisma expects Category[] enum
+    }
+    if (data.serviceArea !== undefined) {
+      updateData.serviceArea = data.serviceArea ?? null;
     }
     
     const proProfile = await prisma.proProfile.update({
@@ -126,7 +155,20 @@ class ProRepositoryImpl implements ProRepository {
     return this.mapPrismaToDomain(proProfile);
   }
 
-  private mapPrismaToDomain(prismaProProfile: any): ProProfileEntity {
+  private mapPrismaToDomain(prismaProProfile: {
+    id: string;
+    userId: string;
+    displayName: string;
+    email: string;
+    phone: string | null;
+    bio: string | null;
+    hourlyRate: number;
+    categories: string[] | Category[]; // Prisma returns Category[] enum, but we convert to string[]
+    serviceArea: string | null;
+    status: string; // Prisma returns ProStatus enum (pending | active | suspended)
+    createdAt: Date;
+    updatedAt: Date;
+  }): ProProfileEntity {
     return {
       id: prismaProProfile.id,
       userId: prismaProProfile.userId,

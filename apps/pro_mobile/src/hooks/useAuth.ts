@@ -20,13 +20,19 @@ export function useAuth() {
       setLoading(false);
     });
 
-    // Listen for auth changes
+    // Listen for auth changes (including email confirmation)
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+
+      // Handle email confirmation
+      if (event === "SIGNED_IN" && session?.user?.email_confirmed_at) {
+        // User confirmed email and signed in
+        // Navigation will be handled by app/index.tsx based on role/profile
+      }
     });
 
     return () => subscription.unsubscribe();
