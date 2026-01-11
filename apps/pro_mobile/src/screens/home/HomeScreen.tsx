@@ -6,14 +6,25 @@ import { BookingCard } from "../../components/presentational/BookingCard";
 import { trpc } from "../../lib/trpc/client";
 import { BookingStatus } from "@repo/domain";
 import { theme } from "../../theme";
+import { useSmartPolling } from "../../hooks/useSmartPolling";
 
 export function HomeScreen() {
   const router = useRouter();
   
-  // Fetch pro inbox bookings
+  // Smart polling: pauses when app is in background, resumes in foreground
+  const pollingOptions = useSmartPolling({
+    interval: 10000, // Poll every 10 seconds when in foreground
+    enabled: true,
+    refetchOnForeground: true,
+  });
+  
+  // Fetch pro inbox bookings with smart polling for near real-time updates
   const { data: bookings = [], isLoading, error } = trpc.booking.proInbox.useQuery(
     undefined,
-    { retry: false, refetchOnWindowFocus: false }
+    { 
+      retry: false,
+      ...pollingOptions, // Spread smart polling options
+    }
   );
 
   // Filter bookings into pending and accepted

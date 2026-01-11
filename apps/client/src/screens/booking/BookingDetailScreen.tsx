@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Navigation } from "@/components/presentational/Navigation";
 import { trpc } from "@/lib/trpc/client";
 import { BookingStatus } from "@repo/domain";
+import { useSmartPolling } from "@/hooks/useSmartPolling";
 
 const STATUS_LABELS: Record<BookingStatus, string> = {
   [BookingStatus.PENDING]: "Pendiente",
@@ -59,10 +60,19 @@ export function BookingDetailScreen() {
   const router = useRouter();
   const bookingId = params.bookingId as string;
 
+  // Smart polling: pauses when page is hidden, resumes when visible
+  const pollingOptions = useSmartPolling({
+    interval: 5000, // Poll every 5 seconds when page is visible (more frequent for detail view)
+    enabled: !!bookingId,
+    refetchOnForeground: true,
+  });
+
   const { data: booking, isLoading, error } = trpc.booking.getById.useQuery(
     { id: bookingId },
     {
+      enabled: !!bookingId,
       retry: false,
+      ...pollingOptions, // Spread smart polling options
     }
   );
 

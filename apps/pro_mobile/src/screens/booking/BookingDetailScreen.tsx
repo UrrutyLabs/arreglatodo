@@ -9,6 +9,7 @@ import { useBookingActions } from "../../hooks/useBookingActions";
 import { trpc } from "../../lib/trpc/client";
 import { BookingStatus, Category } from "@repo/domain";
 import { theme } from "../../theme";
+import { useSmartPolling } from "../../hooks/useSmartPolling";
 
 const categoryLabels: Record<string, string> = {
   [Category.PLUMBING]: "Plomería",
@@ -40,10 +41,21 @@ export function BookingDetailScreen() {
   const { bookingId } = useLocalSearchParams<{ bookingId: string }>();
   const [localStatus, setLocalStatus] = useState<BookingStatus | null>(null);
 
-  // Fetch booking by id
+  // Smart polling: pauses when app is in background, resumes in foreground
+  const pollingOptions = useSmartPolling({
+    interval: 5000, // Poll every 5 seconds when in foreground (more frequent for detail view)
+    enabled: !!bookingId,
+    refetchOnForeground: true,
+  });
+
+  // Fetch booking by id with smart polling for near real-time updates
   const { data: booking, isLoading, error, refetch } = trpc.booking.getById.useQuery(
     { id: bookingId || "" },
-    { enabled: !!bookingId, retry: false }
+    { 
+      enabled: !!bookingId, 
+      retry: false,
+      ...pollingOptions, // Spread smart polling options
+    }
   );
 
   const { acceptBooking, rejectBooking, arriveBooking, completeBooking, isAccepting, isRejecting, isArriving, isCompleting, error: actionError } = useBookingActions(() => {
