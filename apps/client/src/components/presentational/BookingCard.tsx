@@ -7,6 +7,7 @@ import { BookingStatus } from "@repo/domain";
 
 interface BookingCardProps {
   booking: Booking;
+  hasReview?: boolean;
 }
 
 const STATUS_LABELS: Record<BookingStatus, string> = {
@@ -45,10 +46,12 @@ function formatDate(date: Date): string {
   }).format(date);
 }
 
-export function BookingCard({ booking }: BookingCardProps) {
+export function BookingCard({ booking, hasReview = false }: BookingCardProps) {
   const statusLabel = STATUS_LABELS[booking.status];
   const statusVariant = STATUS_VARIANTS[booking.status];
   const categoryLabel = CATEGORY_LABELS[booking.category] || booking.category;
+  const showReviewPrompt =
+    booking.status === BookingStatus.COMPLETED && !hasReview;
 
   return (
     <Link href={`/my-bookings/${booking.id}`}>
@@ -57,7 +60,12 @@ export function BookingCard({ booking }: BookingCardProps) {
           <Text variant="h2" className="text-text">
             {categoryLabel}
           </Text>
-          <Badge variant={statusVariant}>{statusLabel}</Badge>
+          <div className="flex gap-2 items-center">
+            {showReviewPrompt && (
+              <Badge variant="warning">Pendiente de reseña</Badge>
+            )}
+            <Badge variant={statusVariant}>{statusLabel}</Badge>
+          </div>
         </div>
         <Text variant="body" className="text-muted mb-2 line-clamp-2">
           {booking.description}
@@ -69,9 +77,20 @@ export function BookingCard({ booking }: BookingCardProps) {
           <Text variant="small" className="text-text font-medium">
             ${booking.totalAmount.toFixed(0)}
           </Text>
-          <Text variant="small" className="text-muted">
-            Ver detalles →
-          </Text>
+          <div className="flex items-center gap-2">
+            {showReviewPrompt && (
+              <Link
+                href={`/my-bookings/${booking.id}/review`}
+                onClick={(e) => e.stopPropagation()}
+                className="text-primary hover:underline text-sm font-medium"
+              >
+                Calificar
+              </Link>
+            )}
+            <Text variant="small" className="text-muted">
+              Ver detalles →
+            </Text>
+          </div>
         </div>
       </Card>
     </Link>

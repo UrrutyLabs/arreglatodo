@@ -10,7 +10,7 @@ import { useMyBookings } from "@/hooks/useMyBookings";
 import { BookingStatus } from "@repo/domain";
 
 export function MyBookingsScreen() {
-  const { bookings, isLoading } = useMyBookings();
+  const { bookings, isLoading, reviewStatusMap } = useMyBookings();
 
   const { upcoming, past } = useMemo(() => {
     const now = new Date();
@@ -96,7 +96,11 @@ export function MyBookingsScreen() {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {past.map((booking) => (
-                      <BookingCard key={booking.id} booking={booking} />
+                      <BookingCard
+                        key={booking.id}
+                        booking={booking}
+                        hasReview={reviewStatusMap[booking.id] ?? false}
+                      />
                     ))}
                   </div>
                 )}

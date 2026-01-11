@@ -1,6 +1,8 @@
+import { useMemo } from "react";
 import { trpc } from "@/lib/trpc/client";
 import { useAuth } from "./useAuth";
 import { useSmartPolling } from "./useSmartPolling";
+import { BookingStatus } from "@repo/domain";
 
 export function useMyBookings() {
   const { user } = useAuth();
@@ -21,9 +23,27 @@ export function useMyBookings() {
     }
   );
 
+  // Get booking IDs for completed bookings
+  const completedBookingIds = useMemo(() => {
+    if (!bookings) return [];
+    return bookings
+      .filter((b) => b.status === BookingStatus.COMPLETED)
+      .map((b) => b.id);
+  }, [bookings]);
+
+  // Fetch review status for completed bookings
+  const { data: reviewStatusMap = {} } = trpc.review.statusByBookingIds.useQuery(
+    { bookingIds: completedBookingIds },
+    {
+      enabled: completedBookingIds.length > 0 && !!user,
+      retry: false,
+    }
+  );
+
   return {
     bookings: bookings ?? [],
     isLoading,
     error,
+    reviewStatusMap,
   };
 }

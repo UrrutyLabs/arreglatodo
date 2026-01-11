@@ -7,6 +7,7 @@ import { Text } from "@/components/ui/Text";
 import { Card } from "@/components/ui/Card";
 import { Navigation } from "@/components/presentational/Navigation";
 import { ReviewForm } from "@/components/forms/ReviewForm";
+import { BookingStatus } from "@repo/domain";
 
 export function ReviewCreateScreen() {
   const params = useParams();
@@ -15,11 +16,23 @@ export function ReviewCreateScreen() {
 
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [wantsSupportContact, setWantsSupportContact] = useState(false);
+  const [whatHappened, setWhatHappened] = useState("");
 
   // Fetch booking to verify it exists
   const { data: booking, isLoading: isLoadingBooking } = trpc.booking.getById.useQuery(
     { id: bookingId },
     {
+      enabled: !!bookingId,
+      retry: false,
+    }
+  );
+
+  // Fetch existing review for this booking
+  const { data: existingReview, isLoading: isLoadingReview } = trpc.review.byBooking.useQuery(
+    { bookingId },
+    {
+      enabled: !!bookingId,
       retry: false,
     }
   );
@@ -45,7 +58,11 @@ export function ReviewCreateScreen() {
     }
   };
 
-  if (isLoadingBooking) {
+  const handleCancel = () => {
+    router.push(`/my-bookings/${bookingId}`);
+  };
+
+  if (isLoadingBooking || isLoadingReview) {
     return (
       <div className="min-h-screen bg-bg">
         <Navigation showLogin={false} showProfile={true} />
@@ -88,6 +105,48 @@ export function ReviewCreateScreen() {
     );
   }
 
+  // Gating: Check if booking is not completed
+  if (booking.status !== BookingStatus.COMPLETED) {
+    return (
+      <div className="min-h-screen bg-bg">
+        <Navigation showLogin={false} showProfile={true} />
+        <div className="px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            <Text variant="h1" className="mb-6 text-primary">
+              Dejar reseña
+            </Text>
+            <Card className="p-6 text-center">
+              <Text variant="body" className="text-muted">
+                La reseña está disponible cuando el trabajo esté completado.
+              </Text>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Gating: Check if review already exists
+  if (existingReview) {
+    return (
+      <div className="min-h-screen bg-bg">
+        <Navigation showLogin={false} showProfile={true} />
+        <div className="px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            <Text variant="h1" className="mb-6 text-primary">
+              Dejar reseña
+            </Text>
+            <Card className="p-6 text-center">
+              <Text variant="body" className="text-muted">
+                Ya dejaste una reseña para este trabajo.
+              </Text>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-bg">
       <Navigation showLogin={false} showProfile={true} />
@@ -101,9 +160,14 @@ export function ReviewCreateScreen() {
             <ReviewForm
               rating={rating}
               comment={comment}
+              wantsSupportContact={wantsSupportContact}
+              whatHappened={whatHappened}
               onRatingChange={setRating}
               onCommentChange={setComment}
+              onWantsSupportContactChange={setWantsSupportContact}
+              onWhatHappenedChange={setWhatHappened}
               onSubmit={handleSubmit}
+              onCancel={handleCancel}
               loading={createReview.isPending}
               error={createReview.error?.message}
             />

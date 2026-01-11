@@ -47,6 +47,7 @@ model User {
   // Relations
   proProfile ProProfile?
   bookingsAsClient Booking[] @relation("ClientBookings")
+  reviewsAsClient  Review[]  @relation("ClientReviews")
 
   @@index([role])
   @@map("users")
@@ -70,6 +71,7 @@ model ProProfile {
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   availability Availability[]
   bookings    Booking[]    @relation("ProBookings")
+  reviews     Review[]
 
   @@index([userId])
   @@index([status])
@@ -118,14 +120,21 @@ model Booking {
 }
 
 model Review {
-  id        String   @id @default(cuid())
-  bookingId String   @unique
-  rating    Int      // 1-5
-  comment   String?
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  bookingId    String   @unique
+  proProfileId String
+  clientUserId String
+  rating       Int      // 1-5
+  comment      String?
+  createdAt    DateTime @default(now())
 
   // Relations
-  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  booking    Booking    @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  proProfile ProProfile @relation(fields: [proProfileId], references: [id], onDelete: Cascade)
+  client     User       @relation("ClientReviews", fields: [clientUserId], references: [id], onDelete: Cascade)
 
+  @@index([proProfileId])
+  @@index([clientUserId])
+  @@index([bookingId])
   @@map("reviews")
 }

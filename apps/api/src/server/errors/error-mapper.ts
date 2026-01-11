@@ -4,6 +4,11 @@ import {
   UnauthorizedBookingActionError,
   BookingNotFoundError,
 } from "./booking.errors";
+import {
+  BookingNotCompletedError,
+  ReviewAlreadyExistsError,
+  UnauthorizedReviewError,
+} from "./review.errors";
 
 /**
  * Maps domain errors to tRPC errors
@@ -26,6 +31,27 @@ export function mapDomainErrorToTRPCError(error: unknown): TRPCError {
   if (error instanceof BookingNotFoundError) {
     return new TRPCError({
       code: "NOT_FOUND",
+      message: error.message,
+    });
+  }
+
+  if (error instanceof BookingNotCompletedError) {
+    return new TRPCError({
+      code: "BAD_REQUEST",
+      message: error.message,
+    });
+  }
+
+  if (error instanceof ReviewAlreadyExistsError) {
+    return new TRPCError({
+      code: "CONFLICT",
+      message: error.message,
+    });
+  }
+
+  if (error instanceof UnauthorizedReviewError) {
+    return new TRPCError({
+      code: "FORBIDDEN",
       message: error.message,
     });
   }

@@ -85,6 +85,15 @@ export function BookingDetailScreen() {
     }
   );
 
+  // Fetch existing review for this booking
+  const { data: existingReview } = trpc.review.byBooking.useQuery(
+    { bookingId },
+    {
+      enabled: !!bookingId && booking?.status === BookingStatus.COMPLETED,
+      retry: false,
+    }
+  );
+
   // Cancel mutation
   const cancelBooking = trpc.booking.cancel.useMutation({
     onSuccess: () => {
@@ -299,15 +308,30 @@ export function BookingDetailScreen() {
           )}
 
           {booking.status === BookingStatus.COMPLETED && (
-            <Card className="p-6">
-              <Text variant="body" className="text-muted">
-                Esta reserva fue completada el{" "}
-                {booking.completedAt
-                  ? formatDateShort(booking.completedAt)
-                  : formatDateShort(booking.updatedAt)}
-                .
-              </Text>
-            </Card>
+            <>
+              {!existingReview && (
+                <Card className="p-6 mb-6 bg-primary/5 border-primary/20">
+                  <Text variant="h2" className="mb-3 text-text">
+                    ¿Cómo te fue con este trabajo?
+                  </Text>
+                  <Text variant="body" className="text-muted mb-4">
+                    Compartí tu experiencia y ayudá a otros a encontrar el mejor profesional.
+                  </Text>
+                  <Link href={`/my-bookings/${bookingId}/review`}>
+                    <Button variant="primary">Dejar reseña</Button>
+                  </Link>
+                </Card>
+              )}
+              <Card className="p-6">
+                <Text variant="body" className="text-muted">
+                  Esta reserva fue completada el{" "}
+                  {booking.completedAt
+                    ? formatDateShort(booking.completedAt)
+                    : formatDateShort(booking.updatedAt)}
+                  .
+                </Text>
+              </Card>
+            </>
           )}
 
           {booking.status === BookingStatus.CANCELLED && (
