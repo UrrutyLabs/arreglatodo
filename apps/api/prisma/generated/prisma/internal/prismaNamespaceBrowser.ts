@@ -53,6 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   ProProfile: 'ProProfile',
+  ClientProfile: 'ClientProfile',
   Availability: 'Availability',
   Booking: 'Booking',
   Review: 'Review',
@@ -101,6 +102,20 @@ export const ProProfileScalarFieldEnum = {
 } as const
 
 export type ProProfileScalarFieldEnum = (typeof ProProfileScalarFieldEnum)[keyof typeof ProProfileScalarFieldEnum]
+
+
+export const ClientProfileScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  phone: 'phone',
+  preferredContactMethod: 'preferredContactMethod',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ClientProfileScalarFieldEnum = (typeof ClientProfileScalarFieldEnum)[keyof typeof ClientProfileScalarFieldEnum]
 
 
 export const AvailabilityScalarFieldEnum = {

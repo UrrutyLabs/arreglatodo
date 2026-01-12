@@ -76,3 +76,12 @@ export const Category = {
 } as const
 
 export type Category = (typeof Category)[keyof typeof Category]
+
+
+export const PreferredContactMethod = {
+  EMAIL: 'EMAIL',
+  WHATSAPP: 'WHATSAPP',
+  PHONE: 'PHONE'
+} as const
+
+export type PreferredContactMethod = (typeof PreferredContactMethod)[keyof typeof PreferredContactMethod]

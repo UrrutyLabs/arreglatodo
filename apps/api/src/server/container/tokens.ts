@@ -12,6 +12,7 @@ export const TOKENS = {
   ProRepository: "ProRepository",
   ReviewRepository: "ReviewRepository",
   UserRepository: "UserRepository",
+  ClientProfileRepository: "ClientProfileRepository",
   AvailabilityRepository: "AvailabilityRepository",
 
   // Services
@@ -20,6 +21,7 @@ export const TOKENS = {
   PaymentServiceFactory: "PaymentServiceFactory",
   ProService: "ProService",
   ReviewService: "ReviewService",
+  ClientProfileService: "ClientProfileService",
 
   // Infrastructure
   Logger: "Logger",

@@ -21,6 +21,7 @@ import {
 import { TOKENS } from "@/server/container";
 import type { PaymentServiceFactory } from "@/server/container";
 import type { PaymentRepository } from "@modules/payment/payment.repo";
+import type { ClientProfileService } from "@modules/user/clientProfile.service";
 
 /**
  * Booking service
@@ -37,7 +38,9 @@ export class BookingService {
     @inject(TOKENS.PaymentServiceFactory)
     private readonly paymentServiceFactory: PaymentServiceFactory,
     @inject(TOKENS.PaymentRepository)
-    private readonly paymentRepository: PaymentRepository
+    private readonly paymentRepository: PaymentRepository,
+    @inject(TOKENS.ClientProfileService)
+    private readonly clientProfileService: ClientProfileService
   ) {}
   /**
    * Create a new booking
@@ -49,6 +52,9 @@ export class BookingService {
     actor: Actor,
     input: BookingCreateInput
   ): Promise<BookingCreateOutput> {
+    // Ensure client profile exists (lazy creation)
+    await this.clientProfileService.ensureClientProfileExists(actor.id);
+
     // Validate pro exists
     const pro = await this.proRepository.findById(input.proId);
     if (!pro) {

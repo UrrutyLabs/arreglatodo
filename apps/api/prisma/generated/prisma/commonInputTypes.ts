@@ -171,6 +171,23 @@ export type EnumProStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumProStatusFilter<$PrismaModel>
 }
 
+export type EnumPreferredContactMethodNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreferredContactMethod | Prisma.EnumPreferredContactMethodFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PreferredContactMethod[] | Prisma.ListEnumPreferredContactMethodFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.PreferredContactMethod[] | Prisma.ListEnumPreferredContactMethodFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumPreferredContactMethodNullableFilter<$PrismaModel> | $Enums.PreferredContactMethod | null
+}
+
+export type EnumPreferredContactMethodNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreferredContactMethod | Prisma.EnumPreferredContactMethodFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PreferredContactMethod[] | Prisma.ListEnumPreferredContactMethodFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.PreferredContactMethod[] | Prisma.ListEnumPreferredContactMethodFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumPreferredContactMethodNullableWithAggregatesFilter<$PrismaModel> | $Enums.PreferredContactMethod | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreferredContactMethodNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreferredContactMethodNullableFilter<$PrismaModel>
+}
+
 export type IntFilter<$PrismaModel = never> = {
   equals?: number | Prisma.IntFieldRefInput<$PrismaModel>
   in?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel>
@@ -529,6 +546,23 @@ export type NestedEnumProStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumProStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumProStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumPreferredContactMethodNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreferredContactMethod | Prisma.EnumPreferredContactMethodFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PreferredContactMethod[] | Prisma.ListEnumPreferredContactMethodFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.PreferredContactMethod[] | Prisma.ListEnumPreferredContactMethodFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumPreferredContactMethodNullableFilter<$PrismaModel> | $Enums.PreferredContactMethod | null
+}
+
+export type NestedEnumPreferredContactMethodNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PreferredContactMethod | Prisma.EnumPreferredContactMethodFieldRefInput<$PrismaModel> | null
+  in?: $Enums.PreferredContactMethod[] | Prisma.ListEnumPreferredContactMethodFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.PreferredContactMethod[] | Prisma.ListEnumPreferredContactMethodFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumPreferredContactMethodNullableWithAggregatesFilter<$PrismaModel> | $Enums.PreferredContactMethod | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPreferredContactMethodNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPreferredContactMethodNullableFilter<$PrismaModel>
 }
 
 export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {

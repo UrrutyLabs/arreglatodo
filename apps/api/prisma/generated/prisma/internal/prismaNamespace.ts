@@ -386,6 +386,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   ProProfile: 'ProProfile',
+  ClientProfile: 'ClientProfile',
   Availability: 'Availability',
   Booking: 'Booking',
   Review: 'Review',
@@ -406,7 +407,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "proProfile" | "availability" | "booking" | "review" | "payment" | "paymentEvent"
+    modelProps: "user" | "proProfile" | "clientProfile" | "availability" | "booking" | "review" | "payment" | "paymentEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -555,6 +556,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ProProfileCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ProProfileCountAggregateOutputType> | number
+        }
+      }
+    }
+    ClientProfile: {
+      payload: Prisma.$ClientProfilePayload<ExtArgs>
+      fields: Prisma.ClientProfileFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ClientProfileFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientProfilePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ClientProfileFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientProfilePayload>
+        }
+        findFirst: {
+          args: Prisma.ClientProfileFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientProfilePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ClientProfileFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientProfilePayload>
+        }
+        findMany: {
+          args: Prisma.ClientProfileFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientProfilePayload>[]
+        }
+        create: {
+          args: Prisma.ClientProfileCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientProfilePayload>
+        }
+        createMany: {
+          args: Prisma.ClientProfileCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ClientProfileCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientProfilePayload>[]
+        }
+        delete: {
+          args: Prisma.ClientProfileDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientProfilePayload>
+        }
+        update: {
+          args: Prisma.ClientProfileUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientProfilePayload>
+        }
+        deleteMany: {
+          args: Prisma.ClientProfileDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ClientProfileUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ClientProfileUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientProfilePayload>[]
+        }
+        upsert: {
+          args: Prisma.ClientProfileUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClientProfilePayload>
+        }
+        aggregate: {
+          args: Prisma.ClientProfileAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateClientProfile>
+        }
+        groupBy: {
+          args: Prisma.ClientProfileGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ClientProfileGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ClientProfileCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ClientProfileCountAggregateOutputType> | number
         }
       }
     }
@@ -994,6 +1069,20 @@ export const ProProfileScalarFieldEnum = {
 export type ProProfileScalarFieldEnum = (typeof ProProfileScalarFieldEnum)[keyof typeof ProProfileScalarFieldEnum]
 
 
+export const ClientProfileScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  phone: 'phone',
+  preferredContactMethod: 'preferredContactMethod',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ClientProfileScalarFieldEnum = (typeof ClientProfileScalarFieldEnum)[keyof typeof ClientProfileScalarFieldEnum]
+
+
 export const AvailabilityScalarFieldEnum = {
   id: 'id',
   proProfileId: 'proProfileId',
@@ -1201,6 +1290,20 @@ export type ListEnumProStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
 
 
 /**
+ * Reference to a field of type 'PreferredContactMethod'
+ */
+export type EnumPreferredContactMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreferredContactMethod'>
+    
+
+
+/**
+ * Reference to a field of type 'PreferredContactMethod[]'
+ */
+export type ListEnumPreferredContactMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreferredContactMethod[]'>
+    
+
+
+/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -1380,6 +1483,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   proProfile?: Prisma.ProProfileOmit
+  clientProfile?: Prisma.ClientProfileOmit
   availability?: Prisma.AvailabilityOmit
   booking?: Prisma.BookingOmit
   review?: Prisma.ReviewOmit

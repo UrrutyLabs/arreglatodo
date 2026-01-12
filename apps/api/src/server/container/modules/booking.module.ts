@@ -8,7 +8,7 @@ import { BookingService } from "@modules/booking/booking.service";
 
 /**
  * Register Booking module dependencies
- * Depends on: ProRepository, PaymentServiceFactory (injected via container)
+ * Depends on: ProRepository, PaymentServiceFactory, ClientProfileService (injected via container)
  */
 export function registerBookingModule(container: DependencyContainer): void {
   // Register repository
@@ -16,7 +16,7 @@ export function registerBookingModule(container: DependencyContainer): void {
     useClass: BookingRepositoryImpl,
   });
 
-  // Register service (auto-resolves ProRepository and PaymentServiceFactory from container)
+  // Register service (auto-resolves ProRepository, PaymentServiceFactory, and ClientProfileService from container)
   container.register<BookingService>(TOKENS.BookingService, {
     useClass: BookingService,
   });

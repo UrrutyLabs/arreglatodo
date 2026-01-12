@@ -58,13 +58,20 @@ enum Category {
   painting
 }
 
+enum PreferredContactMethod {
+  EMAIL
+  WHATSAPP
+  PHONE
+}
+
 model User {
   id        String   @id @default(cuid())
   role      Role     @default(client)
   createdAt DateTime @default(now())
 
   // Relations
-  proProfile ProProfile?
+  proProfile    ProProfile?
+  clientProfile ClientProfile?
   bookingsAsClient Booking[] @relation("ClientBookings")
   reviewsAsClient  Review[]  @relation("ClientReviews")
   paymentsAsClient Payment[] @relation("ClientPayments")
@@ -97,6 +104,23 @@ model ProProfile {
   @@index([userId])
   @@index([status])
   @@map("pro_profiles")
+}
+
+model ClientProfile {
+  id                    String                 @id @default(cuid())
+  userId                String                 @unique
+  firstName             String?
+  lastName              String?
+  phone                 String?
+  preferredContactMethod PreferredContactMethod?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("client_profiles")
 }
 
 model Availability {

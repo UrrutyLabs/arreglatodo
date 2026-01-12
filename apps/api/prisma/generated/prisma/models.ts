@@ -10,6 +10,7 @@
  */
 export type * from './models/User'
 export type * from './models/ProProfile'
+export type * from './models/ClientProfile'
 export type * from './models/Availability'
 export type * from './models/Booking'
 export type * from './models/Review'

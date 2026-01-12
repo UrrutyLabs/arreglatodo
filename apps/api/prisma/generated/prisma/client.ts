@@ -50,6 +50,11 @@ export type User = Prisma.UserModel
  */
 export type ProProfile = Prisma.ProProfileModel
 /**
+ * Model ClientProfile
+ * 
+ */
+export type ClientProfile = Prisma.ClientProfileModel
+/**
  * Model Availability
  * 
  */
