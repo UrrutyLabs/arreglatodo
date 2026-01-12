@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PaymentService } from "@/server/services/payment.service";
-import { getPaymentProviderClient } from "@/server/payments/registry";
+import { getPaymentProviderClient } from "@/server/modules/payment/registry";
 import { PaymentProvider } from "@repo/domain";
-import { createChildLogger } from "@/server/utils/logger";
+import { createChildLogger } from "@/server/infrastructure/utils/logger";
 import { randomUUID } from "crypto";
+import type { PaymentServiceFactory } from "@/server/container";
+import { container, TOKENS } from "@/server/container";
 
 /**
  * Mercado Pago webhook endpoint
@@ -80,8 +81,11 @@ export async function POST(req: NextRequest) {
       "Processing webhook event"
     );
 
-    // Create payment service with the provider client
-    const paymentService = new PaymentService(providerClient, event.provider);
+    // Create payment service using DI container
+    const paymentServiceFactory = container.resolve<PaymentServiceFactory>(
+      TOKENS.PaymentServiceFactory
+    );
+    const paymentService = await paymentServiceFactory(event.provider);
 
     // Handle webhook asynchronously to return quickly
     // PaymentService.handleProviderWebhook is idempotent via PaymentEvent storage
@@ -96,7 +100,7 @@ export async function POST(req: NextRequest) {
           "Webhook processed successfully"
         );
       })
-      .catch((error) => {
+      .catch((error: unknown) => {
         logger.error(
           {
             providerReference: event.providerReference,

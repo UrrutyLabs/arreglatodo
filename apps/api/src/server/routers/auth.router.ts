@@ -1,5 +1,4 @@
-import { router, protectedProcedure } from "../trpc";
-import { Role } from "@repo/domain";
+import { router, protectedProcedure } from "@infra/trpc";
 
 export const authRouter = router({
   me: protectedProcedure.query(({ ctx }) => {

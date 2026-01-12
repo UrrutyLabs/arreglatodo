@@ -15,7 +15,7 @@ Even though this isn't Express/Nest, we still follow a Controller â†’ Service â†
 
 #### 1. "Controllers" = tRPC Routers / Procedures
 
-**Location:** `apps/api/src/server/routers/*`
+**Location:** `apps/api/src/server/modules/{domain}/{domain}.router.ts`
 
 **Responsibilities:**
 
@@ -32,7 +32,7 @@ Even though this isn't Express/Nest, we still follow a Controller â†’ Service â†
 
 #### 2. Services = Business Logic / Use Cases
 
-**Location:** `apps/api/src/server/services/*`
+**Location:** `apps/api/src/server/modules/{domain}/{domain}.service.ts`
 
 **Responsibilities:**
 
@@ -65,18 +65,20 @@ Even though this isn't Express/Nest, we still follow a Controller â†’ Service â†
 
 #### 4. Integrations = External Providers
 
-**Location:** `apps/api/src/server/integrations/*`
+**Location:** `apps/api/src/server/modules/{domain}/providers/*` (e.g., `modules/payment/providers/mercadoPago.client.ts`)
 
 **Responsibilities:**
 
 - Wrap 3rd party SDKs (Mercado Pago, notifications, identity verification)
 - Normalize inputs/outputs
 - Verify signatures for webhooks
+- Implement provider interfaces (e.g., `PaymentProviderClient`)
 
 **Rules:**
 
 - Expose a small interface used by services
 - No business logic in integration modules
+- Provider implementations are module-specific and live within the module
 
 #### 5. HTTP Routes (Webhooks/Cron) = Next Route Handlers
 
@@ -93,18 +95,134 @@ Even though this isn't Express/Nest, we still follow a Controller â†’ Service â†
 - Keep routes thin like controllers
 - Do not put business rules inside route handlers
 
-### API Folder Convention (recommended)
+### API Folder Convention (Module-Based Structure)
+
+The API follows a **module-based architecture** where each domain module is self-contained. This structure reflects the dependency injection modules and makes it easy to extract modules into microservices later.
 
 ```
 apps/api/src/server/
-  routers/        # controller layer (tRPC procedures)
-  services/       # business logic / use cases
-  repositories/   # prisma/db access
-  integrations/   # 3rd party providers
-  db/             # prisma client singleton
-  auth/           # guards, roles
-  errors/         # domain errors and mapping to TRPCError
+  modules/                    # Domain modules (self-contained)
+    booking/                  # Booking domain module
+      booking.service.ts      # Business logic
+      booking.repo.ts         # Data access
+      booking.router.ts       # tRPC routes
+      booking.errors.ts       # Domain errors
+    payment/                  # Payment domain module
+      payment.service.ts
+      payment.repo.ts
+      paymentEvent.repo.ts
+      payment.router.ts
+      payment.errors.ts       # (to be added)
+      provider.ts             # Payment provider interface
+      registry.ts             # Provider registry
+      providers/              # Provider implementations
+        mercadoPago.client.ts
+    pro/                      # Pro domain module
+      pro.service.ts
+      pro.repo.ts
+      availability.repo.ts
+      pro.router.ts
+      pro.errors.ts           # (to be added)
+    review/                   # Review domain module
+      review.service.ts
+      review.repo.ts
+      review.router.ts
+      review.errors.ts
+    user/                     # User domain module (foundational)
+      user.repo.ts
+  infrastructure/             # Shared infrastructure
+    auth/                     # Authentication & authorization
+      roles.ts
+      provider.ts
+      providers/
+        supabase.provider.ts
+    db/                       # Database (Prisma client)
+      prisma.ts
+    utils/                    # Utilities
+      logger.ts
+    trpc/                     # tRPC setup
+      context.ts
+    trpc.ts                   # tRPC initialization
+  container/                  # Dependency injection
+    container.ts              # Main container setup
+    tokens.ts                 # DI tokens
+    modules/                  # Module registrations
+      booking.module.ts
+      payment.module.ts
+      pro.module.ts
+      review.module.ts
+      user.module.ts
+      infrastructure.module.ts
+    index.ts                  # Container exports
+  routers/                    # Root router
+    _app.ts                   # Main app router (combines module routers)
+    auth.router.ts            # Auth routes
+  shared/                     # Shared across modules
+    errors/                   # Shared error mapper
+      error-mapper.ts
 ```
+
+**Module Structure:**
+Each module (`modules/{domain}/`) contains:
+- `{domain}.service.ts` - Business logic
+- `{domain}.repo.ts` - Data access (may have multiple repos)
+- `{domain}.router.ts` - tRPC routes
+- `{domain}.errors.ts` - Domain-specific errors
+- Domain-specific files (e.g., `payment/provider.ts`, `payment/registry.ts`)
+
+**Benefits:**
+- Clear module boundaries for microservices extraction
+- Self-contained modules (easy to test in isolation)
+- Matches DI module structure
+- Easy to find all code related to a domain
+
+### Dependency Injection with TSyringe
+
+The API uses **TSyringe** for dependency injection, enabling modular architecture and easy testing.
+
+**Container Setup:**
+- Main container: `container/container.ts`
+- Module registrations: `container/modules/{domain}.module.ts`
+- DI tokens: `container/tokens.ts`
+
+**Module Registration:**
+Each module registers its dependencies in `container/modules/{domain}.module.ts`:
+```typescript
+export function registerBookingModule(container: DependencyContainer): void {
+  container.register<BookingRepository>(TOKENS.BookingRepository, {
+    useClass: BookingRepositoryImpl,
+  });
+  container.register<BookingService>(TOKENS.BookingService, {
+    useClass: BookingService,
+  });
+}
+```
+
+**Using DI in Services:**
+```typescript
+@injectable()
+export class BookingService {
+  constructor(
+    @inject(TOKENS.BookingRepository)
+    private readonly bookingRepository: BookingRepository,
+    @inject(TOKENS.ProRepository)
+    private readonly proRepository: ProRepository
+  ) {}
+}
+```
+
+**Using DI in Routers:**
+```typescript
+import { container, TOKENS } from "../../container";
+const bookingService = container.resolve<BookingService>(TOKENS.BookingService);
+```
+
+**Rules:**
+- All services and repositories are `@injectable()`
+- Use `@inject(TOKENS.TokenName)` for constructor injection
+- Import types with `import type` when used in decorators
+- Cross-module dependencies are injected via DI (not direct imports)
+- Container is initialized once at startup in `container/container.ts`
 
 ### SOLID rules for the API
 
@@ -131,17 +249,43 @@ apps/api/src/server/
 
 #### Dependency Inversion
 
-- Services depend on abstractions when it helps (e.g., PaymentProvider)
-- Concrete implementations live in `integrations/*`
-- Use composition in `services/*` or a `container.ts` to assemble dependencies
+- Services depend on abstractions when it helps (e.g., `PaymentProviderClient`)
+- Concrete implementations live in module `providers/` directories
+- Use TSyringe DI container (`container/`) to assemble dependencies
+- Modules register their dependencies in `container/modules/{module}.module.ts`
+- Cross-module dependencies are injected via DI (e.g., `BookingService` depends on `PaymentServiceFactory`)
+
+### Module Boundaries and Cross-Module Dependencies
+
+**Module Independence:**
+- Each module (`modules/{domain}/`) is self-contained
+- Modules can depend on other modules via DI (injected dependencies)
+- Avoid circular dependencies between modules
+
+**Dependency Flow:**
+```
+User (foundation)
+  â†“
+Pro, Review (depend on User)
+  â†“
+Booking, Payment (depend on Pro/Review)
+```
+
+**Cross-Module Access:**
+- Use dependency injection to access other modules
+- Import types with `import type` for cross-module type references
+- Access via container: `container.resolve<ServiceType>(TOKENS.ServiceToken)`
+- Do NOT import services/repos directly across modules (use DI)
 
 ### Naming Conventions (API)
 
-- **Routers:** `booking.router.ts`, `pro.router.ts` (or `booking.ts` if you prefer)
-- **Services:** `booking.service.ts`
-- **Repositories:** `booking.repo.ts`
-- **Integrations:** `mercadopago.client.ts`
-- **Zod schemas:** `BookingCreateInputSchema`, `ProOnboardInputSchema`
+- **Routers:** `{domain}.router.ts` (e.g., `booking.router.ts`, `payment.router.ts`)
+- **Services:** `{domain}.service.ts` (e.g., `booking.service.ts`, `payment.service.ts`)
+- **Repositories:** `{domain}.repo.ts` or `{domain}{entity}.repo.ts` (e.g., `booking.repo.ts`, `paymentEvent.repo.ts`)
+- **Errors:** `{domain}.errors.ts` (e.g., `booking.errors.ts`, `payment.errors.ts`)
+- **Providers:** `{provider}.client.ts` (e.g., `mercadoPago.client.ts`) in `modules/{domain}/providers/`
+- **Module Registration:** `{domain}.module.ts` in `container/modules/`
+- **Zod schemas:** `BookingCreateInputSchema`, `ProOnboardInputSchema` (in `@repo/domain`)
 
 ## Frontend Architecture (Next.js web + Expo mobile)
 
@@ -285,3 +429,6 @@ instead of passing 20 unrelated props
 - Don't create shared UI abstractions too early
 - Don't create "god services" that own everything
 - Don't duplicate domain schemas on the frontend
+- Don't import services/repos directly across modules (use DI)
+- Don't use lazy imports (`await import()`) unless absolutely necessary (DI handles dependencies)
+- Don't create circular dependencies between modules

@@ -1,11 +1,15 @@
-import { router, publicProcedure } from "../trpc";
-import { bookingRouter } from "./booking.router";
-import { proRouter } from "./pro.router";
+import { router, publicProcedure } from "@infra/trpc";
+import { bookingRouter } from "@modules/booking/booking.router";
+import { proRouter } from "@modules/pro/pro.router";
 import { authRouter } from "./auth.router";
-import { reviewRouter } from "./review.router";
-import { paymentRouter } from "./payment.router";
-import { proService } from "../services/pro.service";
+import { reviewRouter } from "@modules/review/review.router";
+import { paymentRouter } from "@modules/payment/payment.router";
+import { container, TOKENS } from "@/server/container";
+import { ProService } from "@modules/pro/pro.service";
 import { clientSearchProsInputSchema } from "@repo/domain";
+
+// Resolve service from container
+const proService = container.resolve<ProService>(TOKENS.ProService);
 
 export const appRouter = router({
   health: router({

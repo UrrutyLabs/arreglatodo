@@ -1,8 +1,9 @@
+import "reflect-metadata";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { TRPCError } from "@trpc/server";
 import { appRouter } from "@/server/routers/_app";
-import { createContext } from "@/server/trpc/context";
-import { createChildLogger } from "@/server/utils/logger";
+import { createContext } from "@/server/infrastructure/trpc/context";
+import { createChildLogger } from "@/server/infrastructure/utils/logger";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
