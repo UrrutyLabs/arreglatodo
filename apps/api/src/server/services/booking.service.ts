@@ -9,7 +9,7 @@ import type {
   BookingCreateOutput,
   Category,
 } from "@repo/domain";
-import { BookingStatus } from "@repo/domain";
+import { BookingStatus, PaymentStatus } from "@repo/domain";
 import type { Actor } from "../auth/roles";
 import { Role } from "@repo/domain";
 import {
@@ -28,7 +28,7 @@ export class BookingService {
    * Create a new booking
    * Business rules:
    * - Pro must exist and be active
-   * - Set initial status to PENDING
+   * - Set initial status to PENDING_PAYMENT (payment required before pro can accept)
    */
   async createBooking(
     actor: Actor,
@@ -289,6 +289,34 @@ export class BookingService {
       throw new BookingNotFoundError(bookingId);
     }
 
+    // Capture payment if it exists and is authorized
+    // This ensures funds are charged when work is completed
+    try {
+      const { paymentRepository } = await import("../repositories/payment.repo");
+      const payment = await paymentRepository.findByBookingId(bookingId);
+      
+      if (payment && payment.status === PaymentStatus.AUTHORIZED) {
+        // Get payment service to capture payment
+        const { getPaymentProviderClient } = await import("../payments/registry");
+        const providerClient = await getPaymentProviderClient(payment.provider);
+        const { PaymentService } = await import("./payment.service");
+        const paymentService = new PaymentService(providerClient, payment.provider);
+        
+        // Attempt to capture payment (non-blocking - if it fails, booking still completes)
+        // Payment can be captured manually later if needed
+        await paymentService.capturePayment(payment.id).catch((error) => {
+          console.error(
+            `Failed to capture payment ${payment.id} for booking ${bookingId}:`,
+            error
+          );
+          // Don't throw - booking completion should succeed even if capture fails
+        });
+      }
+    } catch (error) {
+      // Log but don't fail booking completion if payment capture fails
+      console.error(`Error attempting to capture payment for booking ${bookingId}:`, error);
+    }
+
     return updated;
   }
 
@@ -384,6 +412,10 @@ export class BookingService {
     targetStatus: BookingStatus
   ): void {
     const validTransitions: Record<BookingStatus, BookingStatus[]> = {
+      [BookingStatus.PENDING_PAYMENT]: [
+        BookingStatus.PENDING,
+        BookingStatus.CANCELLED,
+      ],
       [BookingStatus.PENDING]: [
         BookingStatus.ACCEPTED,
         BookingStatus.REJECTED,

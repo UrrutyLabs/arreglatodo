@@ -8,10 +8,11 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Navigation } from "@/components/presentational/Navigation";
 import { trpc } from "@/lib/trpc/client";
-import { BookingStatus } from "@repo/domain";
+import { BookingStatus, formatCurrency } from "@repo/domain";
 import { useSmartPolling } from "@/hooks/useSmartPolling";
 
 const STATUS_LABELS: Record<BookingStatus, string> = {
+  [BookingStatus.PENDING_PAYMENT]: "Pago pendiente",
   [BookingStatus.PENDING]: "Pendiente",
   [BookingStatus.ACCEPTED]: "Aceptada",
   [BookingStatus.ARRIVED]: "Llegó",
@@ -21,6 +22,7 @@ const STATUS_LABELS: Record<BookingStatus, string> = {
 };
 
 const STATUS_VARIANTS: Record<BookingStatus, "info" | "success" | "warning" | "danger"> = {
+  [BookingStatus.PENDING_PAYMENT]: "warning",
   [BookingStatus.PENDING]: "info",
   [BookingStatus.ACCEPTED]: "success",
   [BookingStatus.ARRIVED]: "success",
@@ -94,6 +96,15 @@ export function BookingDetailScreen() {
     }
   );
 
+  // Fetch payment info for PENDING_PAYMENT bookings
+  const { data: payment } = trpc.payment.getByBooking.useQuery(
+    { bookingId },
+    {
+      enabled: !!bookingId && booking?.status === BookingStatus.PENDING_PAYMENT,
+      retry: false,
+    }
+  );
+
   // Cancel mutation
   const cancelBooking = trpc.booking.cancel.useMutation({
     onSuccess: () => {
@@ -103,7 +114,8 @@ export function BookingDetailScreen() {
 
   const canCancel =
     booking &&
-    (booking.status === BookingStatus.PENDING ||
+    (booking.status === BookingStatus.PENDING_PAYMENT ||
+      booking.status === BookingStatus.PENDING ||
       booking.status === BookingStatus.ACCEPTED);
 
   const handleCancel = async () => {
@@ -118,6 +130,10 @@ export function BookingDetailScreen() {
         console.error("Error cancelling booking:", error);
       }
     }
+  };
+
+  const handleAuthorizePayment = () => {
+    router.push(`/checkout?bookingId=${bookingId}`);
   };
 
   if (isLoading) {
@@ -185,6 +201,31 @@ export function BookingDetailScreen() {
           </Text>
 
           {/* Pro Summary */}
+          {/* Payment Banner - Show when payment is pending */}
+          {booking.status === BookingStatus.PENDING_PAYMENT && (
+            <Card className="p-6 mb-6 bg-warning/10 border-warning/20">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <Text variant="h2" className="mb-2 text-text">
+                    Pago pendiente
+                  </Text>
+                  <Text variant="body" className="text-muted mb-2">
+                    Para continuar con tu reserva, necesitás autorizar el pago.
+                  </Text>
+                  {payment && (
+                    <Text variant="body" className="text-text font-medium">
+                      Monto estimado: {formatCurrency(payment.amountEstimated, payment.currency, true)}
+                    </Text>
+                  )}
+                </div>
+                <Badge variant="warning">Pago pendiente</Badge>
+              </div>
+              <Button variant="primary" onClick={handleAuthorizePayment} className="w-full md:w-auto">
+                Autorizar pago
+              </Button>
+            </Card>
+          )}
+
           {pro && (
             <Card className="p-6 mb-6">
               <Text variant="h2" className="mb-4 text-text">

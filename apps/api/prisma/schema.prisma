@@ -17,12 +17,31 @@ enum Role {
 }
 
 enum BookingStatus {
+  pending_payment
   pending
   accepted
   arrived
   rejected
   completed
   cancelled
+}
+
+enum PaymentProvider {
+  MERCADO_PAGO
+}
+
+enum PaymentType {
+  PREAUTH
+}
+
+enum PaymentStatus {
+  CREATED
+  REQUIRES_ACTION
+  AUTHORIZED
+  CAPTURED
+  FAILED
+  CANCELLED
+  REFUNDED
 }
 
 enum ProStatus {
@@ -48,6 +67,7 @@ model User {
   proProfile ProProfile?
   bookingsAsClient Booking[] @relation("ClientBookings")
   reviewsAsClient  Review[]  @relation("ClientReviews")
+  paymentsAsClient Payment[] @relation("ClientPayments")
 
   @@index([role])
   @@map("users")
@@ -72,6 +92,7 @@ model ProProfile {
   availability Availability[]
   bookings    Booking[]    @relation("ProBookings")
   reviews     Review[]
+  payments    Payment[]
 
   @@index([userId])
   @@index([status])
@@ -110,6 +131,7 @@ model Booking {
   client     User         @relation("ClientBookings", fields: [clientUserId], references: [id], onDelete: Cascade)
   proProfile ProProfile?  @relation("ProBookings", fields: [proProfileId], references: [id], onDelete: SetNull)
   review     Review?
+  payment    Payment?
 
   @@index([clientUserId])
   @@index([proProfileId])
@@ -137,4 +159,50 @@ model Review {
   @@index([clientUserId])
   @@index([bookingId])
   @@map("reviews")
+}
+
+model Payment {
+  id                String         @id @default(cuid())
+  provider          PaymentProvider
+  type              PaymentType
+  status            PaymentStatus  @default(CREATED)
+  bookingId         String        @unique
+  clientUserId      String
+  proProfileId      String?
+  currency          String        // e.g. "UYU"
+  amountEstimated   Int           // minor units
+  amountAuthorized  Int?          // minor units
+  amountCaptured    Int?          // minor units
+  providerReference String?       // e.g. preferenceId / paymentId
+  checkoutUrl       String?       // for redirect flows
+  idempotencyKey    String        @unique
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  booking    Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  client     User            @relation("ClientPayments", fields: [clientUserId], references: [id], onDelete: Cascade)
+  proProfile ProProfile?     @relation(fields: [proProfileId], references: [id], onDelete: SetNull)
+  events     PaymentEvent[]
+
+  @@index([bookingId])
+  @@index([providerReference])
+  @@index([idempotencyKey])
+  @@map("payments")
+}
+
+model PaymentEvent {
+  id              String         @id @default(cuid())
+  paymentId       String
+  provider        PaymentProvider
+  eventType       String
+  raw             Json
+  createdAt       DateTime       @default(now())
+
+  // Relations
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+  @@index([createdAt])
+  @@map("payment_events")
 }

@@ -1,10 +1,10 @@
-import { router, publicProcedure, protectedProcedure } from "../trpc";
+import { router, publicProcedure } from "../trpc";
 import { bookingRouter } from "./booking.router";
 import { proRouter } from "./pro.router";
 import { authRouter } from "./auth.router";
 import { reviewRouter } from "./review.router";
+import { paymentRouter } from "./payment.router";
 import { proService } from "../services/pro.service";
-import { bookingService } from "../services/booking.service";
 import { clientSearchProsInputSchema } from "@repo/domain";
 
 export const appRouter = router({
@@ -20,6 +20,7 @@ export const appRouter = router({
   booking: bookingRouter,
   pro: proRouter,
   review: reviewRouter,
+  payment: paymentRouter,
   client: router({
     searchPros: publicProcedure
       .input(clientSearchProsInputSchema)

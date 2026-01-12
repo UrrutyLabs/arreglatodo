@@ -64,3 +64,13 @@ export type Booking = Prisma.BookingModel
  * 
  */
 export type Review = Prisma.ReviewModel
+/**
+ * Model Payment
+ * 
+ */
+export type Payment = Prisma.PaymentModel
+/**
+ * Model PaymentEvent
+ * 
+ */
+export type PaymentEvent = Prisma.PaymentEventModel

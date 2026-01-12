@@ -14,6 +14,7 @@ interface BookingCardProps {
 }
 
 const STATUS_LABELS: Record<BookingStatus, string> = {
+  [BookingStatus.PENDING_PAYMENT]: "Pago pendiente",
   [BookingStatus.PENDING]: "Pendiente",
   [BookingStatus.ACCEPTED]: "Aceptada",
   [BookingStatus.ARRIVED]: "Llegó",
@@ -23,6 +24,7 @@ const STATUS_LABELS: Record<BookingStatus, string> = {
 };
 
 const STATUS_VARIANTS: Record<BookingStatus, "info" | "success" | "warning" | "danger"> = {
+  [BookingStatus.PENDING_PAYMENT]: "warning",
   [BookingStatus.PENDING]: "info",
   [BookingStatus.ACCEPTED]: "success",
   [BookingStatus.ARRIVED]: "success",
@@ -56,9 +58,16 @@ export function BookingCard({ booking, hasReview = false }: BookingCardProps) {
   const categoryLabel = CATEGORY_LABELS[booking.category] || booking.category;
   const showReviewPrompt =
     booking.status === BookingStatus.COMPLETED && !hasReview;
+  const showPaymentPrompt =
+    booking.status === BookingStatus.PENDING_PAYMENT;
 
   const handleCardClick = () => {
     router.push(`/my-bookings/${booking.id}`);
+  };
+
+  const handlePayNow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`/checkout?bookingId=${booking.id}`);
   };
 
   return (
@@ -88,6 +97,14 @@ export function BookingCard({ booking, hasReview = false }: BookingCardProps) {
           ${booking.totalAmount.toFixed(0)}
         </Text>
         <div className="flex items-center gap-2">
+          {showPaymentPrompt && (
+            <button
+              onClick={handlePayNow}
+              className="px-3 py-1 bg-primary text-white text-sm font-medium rounded-md hover:opacity-90 transition-opacity"
+            >
+              Pagar ahora
+            </button>
+          )}
           {showReviewPrompt && (
             <Link
               href={`/my-bookings/${booking.id}/review`}

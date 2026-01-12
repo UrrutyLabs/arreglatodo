@@ -61,6 +61,7 @@ Even though this isn't Express/Nest, we still follow a Controller â†’ Service â†
 - Repositories should not implement business rules
 - Repositories should not call external APIs
 - Prefer transactions here (or via service orchestration when needed)
+- **Prisma types are allowed in `mapPrismaToDomain` methods**: Import `Prisma` types from the generated client to properly type mapper functions. This is the only place where Prisma types should be used - they should not leak to services or other layers.
 
 #### 4. Integrations = External Providers
 

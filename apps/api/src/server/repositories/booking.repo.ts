@@ -1,3 +1,4 @@
+import { $Enums } from "../../../prisma/generated/prisma/browser";
 import { prisma } from "../db/prisma";
 import { BookingStatus } from "@repo/domain";
 
@@ -58,11 +59,11 @@ class BookingRepositoryImpl implements BookingRepository {
       data: {
         clientUserId: input.clientUserId,
         proProfileId: input.proProfileId ?? null,
-        category: input.category as any, // Prisma expects Category enum, but we pass string
+        category: input.category as $Enums.Category, // Prisma expects Category enum, but we pass string
         scheduledAt: input.scheduledAt,
         hoursEstimate: input.hoursEstimate,
         addressText: input.addressText,
-        status: "pending",
+        status: BookingStatus.PENDING_PAYMENT  as $Enums.BookingStatus,
       },
     });
 
@@ -101,7 +102,7 @@ class BookingRepositoryImpl implements BookingRepository {
   ): Promise<BookingEntity | null> {
     const booking = await prisma.booking.update({
       where: { id },
-      data: { status },
+      data: { status: status as $Enums.BookingStatus }, // Type assertion needed until Prisma client is regenerated
     });
 
     return this.mapPrismaToDomain(booking);

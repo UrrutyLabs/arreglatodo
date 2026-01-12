@@ -1,0 +1,185 @@
+import { prisma } from "../db/prisma";
+import { PaymentProvider, PaymentType, PaymentStatus } from "@repo/domain";
+import type { Prisma, $Enums } from "../../../prisma/generated/prisma/client";
+
+/**
+ * Payment entity (plain object)
+ */
+export interface PaymentEntity {
+  id: string;
+  provider: PaymentProvider;
+  type: PaymentType;
+  status: PaymentStatus;
+  bookingId: string;
+  clientUserId: string;
+  proProfileId: string | null;
+  currency: string;
+  amountEstimated: number;
+  amountAuthorized: number | null;
+  amountCaptured: number | null;
+  providerReference: string | null;
+  checkoutUrl: string | null;
+  idempotencyKey: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Payment create input
+ */
+export interface PaymentCreateInput {
+  provider: PaymentProvider;
+  type: PaymentType;
+  bookingId: string;
+  clientUserId: string;
+  proProfileId: string | null;
+  currency: string;
+  amountEstimated: number;
+  idempotencyKey: string;
+}
+
+/**
+ * Payment update input
+ */
+export interface PaymentUpdateInput {
+  status?: PaymentStatus;
+  amountAuthorized?: number | null;
+  amountCaptured?: number | null;
+  providerReference?: string | null;
+  checkoutUrl?: string | null;
+}
+
+/**
+ * Payment repository interface
+ * Handles all data access for payments
+ */
+export interface PaymentRepository {
+  create(input: PaymentCreateInput): Promise<PaymentEntity>;
+  findById(id: string): Promise<PaymentEntity | null>;
+  findByBookingId(bookingId: string): Promise<PaymentEntity | null>;
+  findByProviderReference(
+    provider: PaymentProvider,
+    providerReference: string
+  ): Promise<PaymentEntity | null>;
+  updateStatusAndAmounts(id: string, patch: PaymentUpdateInput): Promise<PaymentEntity>;
+  setCheckoutUrl(id: string, url: string): Promise<PaymentEntity>;
+  setProviderReference(id: string, reference: string): Promise<PaymentEntity>;
+}
+
+/**
+ * Payment repository implementation using Prisma
+ */
+class PaymentRepositoryImpl implements PaymentRepository {
+  async create(input: PaymentCreateInput): Promise<PaymentEntity> {
+    const payment = await prisma.payment.create({
+      data: {
+        provider: input.provider  as $Enums.PaymentProvider,
+        type: input.type  as $Enums.PaymentType,
+        status: PaymentStatus.CREATED as $Enums.PaymentStatus,
+        bookingId: input.bookingId,
+        clientUserId: input.clientUserId,
+        proProfileId: input.proProfileId,
+        currency: input.currency,
+        amountEstimated: input.amountEstimated,
+        idempotencyKey: input.idempotencyKey,
+      },
+    });
+
+    return this.mapPrismaToDomain(payment);
+  }
+
+  async findById(id: string): Promise<PaymentEntity | null> {
+    const payment = await prisma.payment.findUnique({
+      where: { id },
+    });
+
+    return payment ? this.mapPrismaToDomain(payment) : null;
+  }
+
+  async findByBookingId(bookingId: string): Promise<PaymentEntity | null> {
+    const payment = await prisma.payment.findUnique({
+      where: { bookingId },
+    });
+
+    return payment ? this.mapPrismaToDomain(payment) : null;
+  }
+
+  async findByProviderReference(
+    provider: PaymentProvider,
+    providerReference: string
+  ): Promise<PaymentEntity | null> {
+    const payment = await prisma.payment.findFirst({
+      where: {
+        provider,
+        providerReference,
+      },
+    });
+
+    return payment ? this.mapPrismaToDomain(payment) : null;
+  }
+
+  async updateStatusAndAmounts(
+    id: string,
+    patch: PaymentUpdateInput
+  ): Promise<PaymentEntity> {
+    const payment = await prisma.payment.update({
+      where: { id },
+      data: {
+        ...(patch.status !== undefined && { status: patch.status as unknown as $Enums.PaymentStatus }),
+        ...(patch.amountAuthorized !== undefined && {
+          amountAuthorized: patch.amountAuthorized,
+        }),
+        ...(patch.amountCaptured !== undefined && {
+          amountCaptured: patch.amountCaptured,
+        }),
+        ...(patch.providerReference !== undefined && {
+          providerReference: patch.providerReference,
+        }),
+        ...(patch.checkoutUrl !== undefined && { checkoutUrl: patch.checkoutUrl }),
+      },
+    });
+
+    return this.mapPrismaToDomain(payment);
+  }
+
+  async setCheckoutUrl(id: string, url: string): Promise<PaymentEntity> {
+    const payment = await prisma.payment.update({
+      where: { id },
+      data: { checkoutUrl: url },
+    });
+
+    return this.mapPrismaToDomain(payment);
+  }
+
+  async setProviderReference(id: string, reference: string): Promise<PaymentEntity> {
+    const payment = await prisma.payment.update({
+      where: { id },
+      data: { providerReference: reference },
+    });
+
+    return this.mapPrismaToDomain(payment);
+  }
+
+  private mapPrismaToDomain(prismaPayment: Prisma.PaymentGetPayload<Record<string, never>>): PaymentEntity {
+    return {
+      id: prismaPayment.id,
+      provider: prismaPayment.provider as PaymentProvider,
+      type: prismaPayment.type as PaymentType,
+      status: prismaPayment.status as PaymentStatus,
+      bookingId: prismaPayment.bookingId,
+      clientUserId: prismaPayment.clientUserId,
+      proProfileId: prismaPayment.proProfileId,
+      currency: prismaPayment.currency,
+      amountEstimated: prismaPayment.amountEstimated,
+      amountAuthorized: prismaPayment.amountAuthorized,
+      amountCaptured: prismaPayment.amountCaptured,
+      providerReference: prismaPayment.providerReference,
+      checkoutUrl: prismaPayment.checkoutUrl,
+      idempotencyKey: prismaPayment.idempotencyKey,
+      createdAt: prismaPayment.createdAt,
+      updatedAt: prismaPayment.updatedAt,
+    };
+  }
+}
+
+export const paymentRepository: PaymentRepository = new PaymentRepositoryImpl();

@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { Navigation } from "@/components/presentational/Navigation";
 import { BookingForm } from "@/components/forms/BookingForm";
 import { trpc } from "@/lib/trpc/client";
-import { Category } from "@repo/domain";
+import { Category, BookingStatus } from "@repo/domain";
 
 export function BookingCreateScreen() {
   const router = useRouter();
@@ -32,7 +32,13 @@ export function BookingCreateScreen() {
   // Booking creation mutation
   const createBooking = trpc.booking.create.useMutation({
     onSuccess: (data) => {
-      router.push(`/my-bookings/${data.id}`);
+      // TODO: Make this conditional based on actual booking status when available
+      // For now, redirect to checkout by default since payment is required
+      if (data.status === BookingStatus.PENDING_PAYMENT) {
+        router.push(`/checkout?bookingId=${data.id}`);
+      } else {
+        router.push(`/my-bookings/${data.id}`);
+      }
     },
   });
 

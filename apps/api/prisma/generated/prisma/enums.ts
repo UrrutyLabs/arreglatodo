@@ -19,6 +19,7 @@ export type Role = (typeof Role)[keyof typeof Role]
 
 
 export const BookingStatus = {
+  pending_payment: 'pending_payment',
   pending: 'pending',
   accepted: 'accepted',
   arrived: 'arrived',
@@ -28,6 +29,33 @@ export const BookingStatus = {
 } as const
 
 export type BookingStatus = (typeof BookingStatus)[keyof typeof BookingStatus]
+
+
+export const PaymentProvider = {
+  MERCADO_PAGO: 'MERCADO_PAGO'
+} as const
+
+export type PaymentProvider = (typeof PaymentProvider)[keyof typeof PaymentProvider]
+
+
+export const PaymentType = {
+  PREAUTH: 'PREAUTH'
+} as const
+
+export type PaymentType = (typeof PaymentType)[keyof typeof PaymentType]
+
+
+export const PaymentStatus = {
+  CREATED: 'CREATED',
+  REQUIRES_ACTION: 'REQUIRES_ACTION',
+  AUTHORIZED: 'AUTHORIZED',
+  CAPTURED: 'CAPTURED',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED',
+  REFUNDED: 'REFUNDED'
+} as const
+
+export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
 
 
 export const ProStatus = {

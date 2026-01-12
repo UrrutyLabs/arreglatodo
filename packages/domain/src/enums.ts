@@ -13,12 +13,40 @@ export enum Role {
  * Booking status lifecycle
  */
 export enum BookingStatus {
+  PENDING_PAYMENT = "pending_payment",
   PENDING = "pending",
   ACCEPTED = "accepted",
   ARRIVED = "arrived",
   REJECTED = "rejected",
   COMPLETED = "completed",
   CANCELLED = "cancelled",
+}
+
+/**
+ * Payment provider types
+ */
+export enum PaymentProvider {
+  MERCADO_PAGO = "MERCADO_PAGO",
+}
+
+/**
+ * Payment types
+ */
+export enum PaymentType {
+  PREAUTH = "PREAUTH",
+}
+
+/**
+ * Payment status lifecycle
+ */
+export enum PaymentStatus {
+  CREATED = "CREATED",
+  REQUIRES_ACTION = "REQUIRES_ACTION",
+  AUTHORIZED = "AUTHORIZED",
+  CAPTURED = "CAPTURED",
+  FAILED = "FAILED",
+  CANCELLED = "CANCELLED",
+  REFUNDED = "REFUNDED",
 }
 
 /**
@@ -38,3 +66,6 @@ export enum Category {
 export const roleSchema = z.nativeEnum(Role);
 export const bookingStatusSchema = z.nativeEnum(BookingStatus);
 export const categorySchema = z.nativeEnum(Category);
+export const paymentProviderSchema = z.nativeEnum(PaymentProvider);
+export const paymentTypeSchema = z.nativeEnum(PaymentType);
+export const paymentStatusSchema = z.nativeEnum(PaymentStatus);
