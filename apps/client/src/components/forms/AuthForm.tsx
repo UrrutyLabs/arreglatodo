@@ -6,8 +6,14 @@ interface AuthFormProps {
   mode: "login" | "signup";
   email: string;
   password: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
   onEmailChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
+  onFirstNameChange?: (value: string) => void;
+  onLastNameChange?: (value: string) => void;
+  onPhoneChange?: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   loading?: boolean;
   error?: string | null;
@@ -22,8 +28,14 @@ export function AuthForm({
   mode,
   email,
   password,
+  firstName = "",
+  lastName = "",
+  phone = "",
   onEmailChange,
   onPasswordChange,
+  onFirstNameChange,
+  onLastNameChange,
+  onPhoneChange,
   onSubmit,
   loading = false,
   error,
@@ -33,6 +45,29 @@ export function AuthForm({
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
+      {!isLogin && (
+        <>
+          <Input
+            label="Nombre"
+            type="text"
+            value={firstName}
+            onChange={(e) => onFirstNameChange?.(e.target.value)}
+          />
+          <Input
+            label="Apellido"
+            type="text"
+            value={lastName}
+            onChange={(e) => onLastNameChange?.(e.target.value)}
+          />
+          <Input
+            label="Teléfono"
+            type="tel"
+            placeholder="+598..."
+            value={phone}
+            onChange={(e) => onPhoneChange?.(e.target.value)}
+          />
+        </>
+      )}
       <Input
         label="Email"
         type="email"

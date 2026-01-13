@@ -20,10 +20,22 @@ export const preferredContactMethodSchema = z.enum(["EMAIL", "WHATSAPP", "PHONE"
 export type PreferredContactMethod = z.infer<typeof preferredContactMethodSchema>;
 
 /**
+ * Client signup input schema
+ */
+export const clientSignupInputSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  firstName: z.string().min(1).optional().nullable(),
+  lastName: z.string().min(1).optional().nullable(),
+  phone: z.string().optional().nullable(),
+});
+
+export type ClientSignupInput = z.infer<typeof clientSignupInputSchema>;
+
+/**
  * Client profile update input schema
  */
 export const clientProfileUpdateInputSchema = z.object({
-  email: z.string().email().optional().nullable(),
   phone: z.string().optional().nullable(),
   preferredContactMethod: preferredContactMethodSchema.optional().nullable(),
 });

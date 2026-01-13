@@ -48,9 +48,11 @@ export {
 export {
   clientSearchProsInputSchema,
   preferredContactMethodSchema,
+  clientSignupInputSchema,
   clientProfileUpdateInputSchema,
   type ClientSearchProsInput,
   type PreferredContactMethod,
+  type ClientSignupInput,
   type ClientProfileUpdateInput,
 } from "./schemas/client.schema";
 

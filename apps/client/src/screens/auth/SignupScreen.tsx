@@ -1,32 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
+import { useSignup } from "@/hooks/useSignup";
 import { AuthForm } from "@/components/forms/AuthForm";
 import { Text } from "@/components/ui/Text";
 
 export function SignupScreen() {
-  const router = useRouter();
-  const { signUp } = useAuth();
+  const { signup, isPending, error } = useSignup();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
 
-    const { error } = await signUp(email, password);
-
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-    } else {
-      router.push("/search");
-    }
+    await signup({
+      email,
+      password,
+      firstName: firstName || null,
+      lastName: lastName || null,
+      phone: phone || null,
+    });
   };
 
   return (
@@ -39,11 +36,17 @@ export function SignupScreen() {
           mode="signup"
           email={email}
           password={password}
+          firstName={firstName}
+          lastName={lastName}
+          phone={phone}
           onEmailChange={setEmail}
           onPasswordChange={setPassword}
+          onFirstNameChange={setFirstName}
+          onLastNameChange={setLastName}
+          onPhoneChange={setPhone}
           onSubmit={handleSubmit}
-          loading={loading}
-          error={error}
+          loading={isPending}
+          error={error?.message || null}
           footerLink={{
             text: "¿Ya tenés cuenta?",
             linkText: "Iniciar sesión",

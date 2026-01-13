@@ -63,6 +63,8 @@ export class ClientProfileService {
     userId: string,
     data: {
       email?: string | null;
+      firstName?: string | null;
+      lastName?: string | null;
       phone?: string | null;
       preferredContactMethod?: "EMAIL" | "WHATSAPP" | "PHONE" | null;
     }

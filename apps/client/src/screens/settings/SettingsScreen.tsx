@@ -21,7 +21,6 @@ export function SettingsScreen() {
   // Derive initial form values from profile
   const initialValues = useMemo(
     () => ({
-      email: profile?.email || "",
       phone: profile?.phone || "",
       preferredContactMethod: (profile?.preferredContactMethod || "") as
         | PreferredContactMethod
@@ -30,7 +29,6 @@ export function SettingsScreen() {
     [profile]
   );
 
-  const [email, setEmail] = useState(initialValues.email);
   const [phone, setPhone] = useState(initialValues.phone);
   const [preferredContactMethod, setPreferredContactMethod] =
     useState<PreferredContactMethod | "">(initialValues.preferredContactMethod);
@@ -48,7 +46,6 @@ export function SettingsScreen() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     updateMutation.mutate({
-      email: email || null,
       phone: phone || null,
       preferredContactMethod:
         (preferredContactMethod as PreferredContactMethod) || null,
@@ -87,13 +84,19 @@ export function SettingsScreen() {
               onSubmit={handleSubmit}
               className="space-y-6"
             >
-              <Input
-                label="Email"
-                type="email"
-                placeholder="tu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+              {profile?.email && (
+                <div className="space-y-2">
+                  <Text variant="small" className="text-muted">
+                    Email
+                  </Text>
+                  <Text variant="body" className="text-text">
+                    {profile.email}
+                  </Text>
+                  <Text variant="xs" className="text-muted">
+                    El email no se puede cambiar desde aquí
+                  </Text>
+                </div>
+              )}
 
               <Input
                 label="Teléfono"

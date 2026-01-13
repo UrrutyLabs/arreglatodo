@@ -1,6 +1,7 @@
 import { container as tsyringeContainer, DependencyContainer } from "tsyringe";
 import { registerInfrastructureModule } from "./modules/infrastructure.module";
 import { registerUserModule } from "./modules/user.module";
+import { registerAuthModule } from "./modules/auth.module";
 import { registerProModule } from "./modules/pro.module";
 import { registerReviewModule } from "./modules/review.module";
 import { registerBookingModule } from "./modules/booking.module";
@@ -20,6 +21,7 @@ export function setupContainer(): DependencyContainer {
   // Register foundation modules first
   registerInfrastructureModule(tsyringeContainer);
   registerUserModule(tsyringeContainer);
+  registerAuthModule(tsyringeContainer); // Depends on User module
 
   // Register modules that depend on foundation
   registerProModule(tsyringeContainer);

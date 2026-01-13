@@ -1,7 +1,7 @@
 import { router, publicProcedure } from "@infra/trpc";
 import { bookingRouter } from "@modules/booking/booking.router";
 import { proRouter } from "@modules/pro/pro.router";
-import { authRouter } from "./auth.router";
+import { authRouter } from "@modules/auth/auth.router";
 import { reviewRouter } from "@modules/review/review.router";
 import { paymentRouter } from "@modules/payment/payment.router";
 import { notificationRouter } from "@modules/notification/notification.router";

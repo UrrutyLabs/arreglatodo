@@ -18,6 +18,7 @@ export const TOKENS = {
   DevicePushTokenRepository: "DevicePushTokenRepository",
 
   // Services
+  AuthService: "AuthService",
   BookingService: "BookingService",
   PaymentService: "PaymentService",
   PaymentServiceFactory: "PaymentServiceFactory",
