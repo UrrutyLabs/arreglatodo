@@ -9,6 +9,7 @@ export interface ClientProfileEntity {
   userId: string;
   firstName: string | null;
   lastName: string | null;
+  email: string | null;
   phone: string | null;
   preferredContactMethod: "EMAIL" | "WHATSAPP" | "PHONE" | null;
   createdAt: Date;
@@ -26,6 +27,7 @@ export interface ClientProfileRepository {
     data?: {
       firstName?: string | null;
       lastName?: string | null;
+      email?: string | null;
       phone?: string | null;
       preferredContactMethod?: "EMAIL" | "WHATSAPP" | "PHONE" | null;
     }
@@ -35,6 +37,7 @@ export interface ClientProfileRepository {
     data?: {
       firstName?: string | null;
       lastName?: string | null;
+      email?: string | null;
       phone?: string | null;
       preferredContactMethod?: "EMAIL" | "WHATSAPP" | "PHONE" | null;
     }
@@ -54,11 +57,12 @@ export class ClientProfileRepositoryImpl implements ClientProfileRepository {
     return profile ? this.mapPrismaToDomain(profile) : null;
   }
 
-  async createForUser(
+  async   createForUser(
     userId: string,
     data?: {
       firstName?: string | null;
       lastName?: string | null;
+      email?: string | null;
       phone?: string | null;
       preferredContactMethod?: "EMAIL" | "WHATSAPP" | "PHONE" | null;
     }
@@ -68,6 +72,7 @@ export class ClientProfileRepositoryImpl implements ClientProfileRepository {
         userId,
         firstName: data?.firstName ?? null,
         lastName: data?.lastName ?? null,
+        email: data?.email ?? null,
         phone: data?.phone ?? null,
         preferredContactMethod: data?.preferredContactMethod ?? null,
       },
@@ -81,6 +86,7 @@ export class ClientProfileRepositoryImpl implements ClientProfileRepository {
     data?: {
       firstName?: string | null;
       lastName?: string | null;
+      email?: string | null;
       phone?: string | null;
       preferredContactMethod?: "EMAIL" | "WHATSAPP" | "PHONE" | null;
     }
@@ -91,12 +97,14 @@ export class ClientProfileRepositoryImpl implements ClientProfileRepository {
         userId,
         firstName: data?.firstName ?? null,
         lastName: data?.lastName ?? null,
+        email: data?.email ?? null,
         phone: data?.phone ?? null,
         preferredContactMethod: data?.preferredContactMethod ?? null,
       },
       update: {
         firstName: data?.firstName ?? undefined,
         lastName: data?.lastName ?? undefined,
+        email: data?.email ?? undefined,
         phone: data?.phone ?? undefined,
         preferredContactMethod: data?.preferredContactMethod ?? undefined,
       },
@@ -110,6 +118,7 @@ export class ClientProfileRepositoryImpl implements ClientProfileRepository {
     userId: string;
     firstName: string | null;
     lastName: string | null;
+    email: string | null;
     phone: string | null;
     preferredContactMethod: string | null;
     createdAt: Date;
@@ -120,6 +129,7 @@ export class ClientProfileRepositoryImpl implements ClientProfileRepository {
       userId: prismaProfile.userId,
       firstName: prismaProfile.firstName,
       lastName: prismaProfile.lastName,
+      email: prismaProfile.email,
       phone: prismaProfile.phone,
       preferredContactMethod:
         prismaProfile.preferredContactMethod as

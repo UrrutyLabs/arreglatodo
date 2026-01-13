@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useCheckout } from "@/hooks/useCheckout";
+import { trpc } from "@/lib/trpc/client";
 import { Text } from "@/components/ui/Text";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Navigation } from "@/components/presentational/Navigation";
+import { WhatsAppPromptCard } from "@/components/presentational/WhatsAppPromptCard";
+import { useClientProfile } from "@/hooks/useClientProfile";
 import { PaymentStatus, formatCurrency } from "@repo/domain";
 import Link from "next/link";
 
@@ -32,6 +35,9 @@ export function CheckoutScreen() {
       retry: false,
     }
   );
+
+  // Fetch client profile for WhatsApp prompt
+  const { profile } = useClientProfile();
 
   // Create preauth mutation
   const createPreauth = trpc.payment.createPreauthForBooking.useMutation({
@@ -82,6 +88,7 @@ export function CheckoutScreen() {
   }
 
   // Loading state
+  const isLoading = isLoadingBooking || isLoadingPayment;
   if (isLoading) {
     return (
       <div className="min-h-screen bg-bg">
@@ -209,6 +216,13 @@ export function CheckoutScreen() {
             </Text>
           </Card>
 
+          {/* WhatsApp prompt - show if no phone and wants WhatsApp */}
+          {profile &&
+            !profile.phone &&
+            profile.preferredContactMethod === "WHATSAPP" && (
+              <WhatsAppPromptCard />
+            )}
+
           {/* Error message */}
           {error && (
             <Card className="p-4 mb-6 bg-danger/10 border-danger/20">
@@ -222,10 +236,10 @@ export function CheckoutScreen() {
           <div className="flex gap-4">
             <Button
               variant="primary"
-              onClick={authorizePayment}
-              disabled={isAuthorizing || !bookingId}
+              onClick={handleAuthorizePayment}
+              disabled={createPreauth.isPending || !bookingId}
             >
-              {isAuthorizing ? "Cargando..." : "Autorizar pago"}
+              {createPreauth.isPending ? "Cargando..." : "Autorizar pago"}
             </Button>
             <Link href="/my-bookings">
               <Button variant="ghost">Volver a mis reservas</Button>

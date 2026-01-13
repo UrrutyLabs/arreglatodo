@@ -47,7 +47,11 @@ export {
 // Client schemas
 export {
   clientSearchProsInputSchema,
+  preferredContactMethodSchema,
+  clientProfileUpdateInputSchema,
   type ClientSearchProsInput,
+  type PreferredContactMethod,
+  type ClientProfileUpdateInput,
 } from "./schemas/client.schema";
 
 // Format utilities

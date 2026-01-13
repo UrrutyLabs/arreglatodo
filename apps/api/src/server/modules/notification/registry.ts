@@ -1,6 +1,6 @@
 import type { NotificationProvider } from "./provider";
-import { StubEmailProvider } from "./providers/stubEmail.provider";
-import { StubWhatsAppProvider } from "./providers/stubWhatsApp.provider";
+import { SendGridEmailProvider } from "./providers/sendGridEmail.provider";
+import { TwilioWhatsAppProvider } from "./providers/twilioWhatsApp.provider";
 import { StubPushProvider } from "./providers/stubPush.provider";
 import { container, TOKENS } from "@/server/container";
 import type { PushDeliveryResolver } from "./pushResolver";
@@ -15,9 +15,9 @@ import type { PushDeliveryResolver } from "./pushResolver";
 export function getNotificationProvider(channel: "EMAIL" | "WHATSAPP" | "PUSH"): NotificationProvider {
   switch (channel) {
     case "EMAIL":
-      return new StubEmailProvider();
+      return new SendGridEmailProvider();
     case "WHATSAPP":
-      return new StubWhatsAppProvider();
+      return new TwilioWhatsAppProvider();
     case "PUSH": {
       // PUSH provider needs PushDeliveryResolver to resolve userId to tokens
       const pushResolver = container.resolve<PushDeliveryResolver>(TOKENS.PushDeliveryResolver);

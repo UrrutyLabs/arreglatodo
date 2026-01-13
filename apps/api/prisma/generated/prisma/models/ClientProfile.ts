@@ -29,6 +29,7 @@ export type ClientProfileMinAggregateOutputType = {
   userId: string | null
   firstName: string | null
   lastName: string | null
+  email: string | null
   phone: string | null
   preferredContactMethod: $Enums.PreferredContactMethod | null
   createdAt: Date | null
@@ -40,6 +41,7 @@ export type ClientProfileMaxAggregateOutputType = {
   userId: string | null
   firstName: string | null
   lastName: string | null
+  email: string | null
   phone: string | null
   preferredContactMethod: $Enums.PreferredContactMethod | null
   createdAt: Date | null
@@ -51,6 +53,7 @@ export type ClientProfileCountAggregateOutputType = {
   userId: number
   firstName: number
   lastName: number
+  email: number
   phone: number
   preferredContactMethod: number
   createdAt: number
@@ -64,6 +67,7 @@ export type ClientProfileMinAggregateInputType = {
   userId?: true
   firstName?: true
   lastName?: true
+  email?: true
   phone?: true
   preferredContactMethod?: true
   createdAt?: true
@@ -75,6 +79,7 @@ export type ClientProfileMaxAggregateInputType = {
   userId?: true
   firstName?: true
   lastName?: true
+  email?: true
   phone?: true
   preferredContactMethod?: true
   createdAt?: true
@@ -86,6 +91,7 @@ export type ClientProfileCountAggregateInputType = {
   userId?: true
   firstName?: true
   lastName?: true
+  email?: true
   phone?: true
   preferredContactMethod?: true
   createdAt?: true
@@ -170,6 +176,7 @@ export type ClientProfileGroupByOutputType = {
   userId: string
   firstName: string | null
   lastName: string | null
+  email: string | null
   phone: string | null
   preferredContactMethod: $Enums.PreferredContactMethod | null
   createdAt: Date
@@ -202,6 +209,7 @@ export type ClientProfileWhereInput = {
   userId?: Prisma.StringFilter<"ClientProfile"> | string
   firstName?: Prisma.StringNullableFilter<"ClientProfile"> | string | null
   lastName?: Prisma.StringNullableFilter<"ClientProfile"> | string | null
+  email?: Prisma.StringNullableFilter<"ClientProfile"> | string | null
   phone?: Prisma.StringNullableFilter<"ClientProfile"> | string | null
   preferredContactMethod?: Prisma.EnumPreferredContactMethodNullableFilter<"ClientProfile"> | $Enums.PreferredContactMethod | null
   createdAt?: Prisma.DateTimeFilter<"ClientProfile"> | Date | string
@@ -214,6 +222,7 @@ export type ClientProfileOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   firstName?: Prisma.SortOrderInput | Prisma.SortOrder
   lastName?: Prisma.SortOrderInput | Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredContactMethod?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -229,6 +238,7 @@ export type ClientProfileWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ClientProfileWhereInput | Prisma.ClientProfileWhereInput[]
   firstName?: Prisma.StringNullableFilter<"ClientProfile"> | string | null
   lastName?: Prisma.StringNullableFilter<"ClientProfile"> | string | null
+  email?: Prisma.StringNullableFilter<"ClientProfile"> | string | null
   phone?: Prisma.StringNullableFilter<"ClientProfile"> | string | null
   preferredContactMethod?: Prisma.EnumPreferredContactMethodNullableFilter<"ClientProfile"> | $Enums.PreferredContactMethod | null
   createdAt?: Prisma.DateTimeFilter<"ClientProfile"> | Date | string
@@ -241,6 +251,7 @@ export type ClientProfileOrderByWithAggregationInput = {
   userId?: Prisma.SortOrder
   firstName?: Prisma.SortOrderInput | Prisma.SortOrder
   lastName?: Prisma.SortOrderInput | Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   preferredContactMethod?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -258,6 +269,7 @@ export type ClientProfileScalarWhereWithAggregatesInput = {
   userId?: Prisma.StringWithAggregatesFilter<"ClientProfile"> | string
   firstName?: Prisma.StringNullableWithAggregatesFilter<"ClientProfile"> | string | null
   lastName?: Prisma.StringNullableWithAggregatesFilter<"ClientProfile"> | string | null
+  email?: Prisma.StringNullableWithAggregatesFilter<"ClientProfile"> | string | null
   phone?: Prisma.StringNullableWithAggregatesFilter<"ClientProfile"> | string | null
   preferredContactMethod?: Prisma.EnumPreferredContactMethodNullableWithAggregatesFilter<"ClientProfile"> | $Enums.PreferredContactMethod | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ClientProfile"> | Date | string
@@ -268,6 +280,7 @@ export type ClientProfileCreateInput = {
   id?: string
   firstName?: string | null
   lastName?: string | null
+  email?: string | null
   phone?: string | null
   preferredContactMethod?: $Enums.PreferredContactMethod | null
   createdAt?: Date | string
@@ -280,6 +293,7 @@ export type ClientProfileUncheckedCreateInput = {
   userId: string
   firstName?: string | null
   lastName?: string | null
+  email?: string | null
   phone?: string | null
   preferredContactMethod?: $Enums.PreferredContactMethod | null
   createdAt?: Date | string
@@ -290,6 +304,7 @@ export type ClientProfileUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredContactMethod?: Prisma.NullableEnumPreferredContactMethodFieldUpdateOperationsInput | $Enums.PreferredContactMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -302,6 +317,7 @@ export type ClientProfileUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredContactMethod?: Prisma.NullableEnumPreferredContactMethodFieldUpdateOperationsInput | $Enums.PreferredContactMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -313,6 +329,7 @@ export type ClientProfileCreateManyInput = {
   userId: string
   firstName?: string | null
   lastName?: string | null
+  email?: string | null
   phone?: string | null
   preferredContactMethod?: $Enums.PreferredContactMethod | null
   createdAt?: Date | string
@@ -323,6 +340,7 @@ export type ClientProfileUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredContactMethod?: Prisma.NullableEnumPreferredContactMethodFieldUpdateOperationsInput | $Enums.PreferredContactMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -334,6 +352,7 @@ export type ClientProfileUncheckedUpdateManyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredContactMethod?: Prisma.NullableEnumPreferredContactMethodFieldUpdateOperationsInput | $Enums.PreferredContactMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -350,6 +369,7 @@ export type ClientProfileCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   preferredContactMethod?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -361,6 +381,7 @@ export type ClientProfileMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   preferredContactMethod?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -372,6 +393,7 @@ export type ClientProfileMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
+  email?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   preferredContactMethod?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -418,6 +440,7 @@ export type ClientProfileCreateWithoutUserInput = {
   id?: string
   firstName?: string | null
   lastName?: string | null
+  email?: string | null
   phone?: string | null
   preferredContactMethod?: $Enums.PreferredContactMethod | null
   createdAt?: Date | string
@@ -428,6 +451,7 @@ export type ClientProfileUncheckedCreateWithoutUserInput = {
   id?: string
   firstName?: string | null
   lastName?: string | null
+  email?: string | null
   phone?: string | null
   preferredContactMethod?: $Enums.PreferredContactMethod | null
   createdAt?: Date | string
@@ -454,6 +478,7 @@ export type ClientProfileUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredContactMethod?: Prisma.NullableEnumPreferredContactMethodFieldUpdateOperationsInput | $Enums.PreferredContactMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -464,6 +489,7 @@ export type ClientProfileUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   preferredContactMethod?: Prisma.NullableEnumPreferredContactMethodFieldUpdateOperationsInput | $Enums.PreferredContactMethod | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -477,6 +503,7 @@ export type ClientProfileSelect<ExtArgs extends runtime.Types.Extensions.Interna
   userId?: boolean
   firstName?: boolean
   lastName?: boolean
+  email?: boolean
   phone?: boolean
   preferredContactMethod?: boolean
   createdAt?: boolean
@@ -489,6 +516,7 @@ export type ClientProfileSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   userId?: boolean
   firstName?: boolean
   lastName?: boolean
+  email?: boolean
   phone?: boolean
   preferredContactMethod?: boolean
   createdAt?: boolean
@@ -501,6 +529,7 @@ export type ClientProfileSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   userId?: boolean
   firstName?: boolean
   lastName?: boolean
+  email?: boolean
   phone?: boolean
   preferredContactMethod?: boolean
   createdAt?: boolean
@@ -513,13 +542,14 @@ export type ClientProfileSelectScalar = {
   userId?: boolean
   firstName?: boolean
   lastName?: boolean
+  email?: boolean
   phone?: boolean
   preferredContactMethod?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ClientProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "firstName" | "lastName" | "phone" | "preferredContactMethod" | "createdAt" | "updatedAt", ExtArgs["result"]["clientProfile"]>
+export type ClientProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "firstName" | "lastName" | "email" | "phone" | "preferredContactMethod" | "createdAt" | "updatedAt", ExtArgs["result"]["clientProfile"]>
 export type ClientProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -540,6 +570,7 @@ export type $ClientProfilePayload<ExtArgs extends runtime.Types.Extensions.Inter
     userId: string
     firstName: string | null
     lastName: string | null
+    email: string | null
     phone: string | null
     preferredContactMethod: $Enums.PreferredContactMethod | null
     createdAt: Date
@@ -972,6 +1003,7 @@ export interface ClientProfileFieldRefs {
   readonly userId: Prisma.FieldRef<"ClientProfile", 'String'>
   readonly firstName: Prisma.FieldRef<"ClientProfile", 'String'>
   readonly lastName: Prisma.FieldRef<"ClientProfile", 'String'>
+  readonly email: Prisma.FieldRef<"ClientProfile", 'String'>
   readonly phone: Prisma.FieldRef<"ClientProfile", 'String'>
   readonly preferredContactMethod: Prisma.FieldRef<"ClientProfile", 'PreferredContactMethod'>
   readonly createdAt: Prisma.FieldRef<"ClientProfile", 'DateTime'>

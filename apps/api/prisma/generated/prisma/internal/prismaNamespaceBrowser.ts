@@ -111,6 +111,7 @@ export const ClientProfileScalarFieldEnum = {
   userId: 'userId',
   firstName: 'firstName',
   lastName: 'lastName',
+  email: 'email',
   phone: 'phone',
   preferredContactMethod: 'preferredContactMethod',
   createdAt: 'createdAt',

@@ -1,12 +1,16 @@
 import { useState, useEffect } from "react";
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase/client";
+import { usePushToken } from "./usePushToken";
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Register push token when session is available
+  const { unregisterToken } = usePushToken(session?.user?.id ?? null);
 
   useEffect(() => {
     // Get initial session
@@ -77,6 +81,14 @@ export function useAuth() {
   const signOut = async () => {
     try {
       setError(null);
+      
+      // TODO: Unregister push token on logout
+      // For MVP, token stays active but should be unregistered later
+      // const currentToken = await getExpoPushToken();
+      // if (currentToken) {
+      //   await unregisterToken(currentToken.token);
+      // }
+      
       const { error } = await supabase.auth.signOut();
       if (error) {
         setError(error.message);

@@ -5,9 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Text } from "@/components/ui/Text";
 import { Card } from "@/components/ui/Card";
 import { Navigation } from "@/components/presentational/Navigation";
+import { WhatsAppPromptCard } from "@/components/presentational/WhatsAppPromptCard";
 import { BookingForm } from "@/components/forms/BookingForm";
 import { useProDetail } from "@/hooks/useProDetail";
 import { useCreateBooking } from "@/hooks/useCreateBooking";
+import { useClientProfile } from "@/hooks/useClientProfile";
 import { Category } from "@repo/domain";
 
 export function BookingCreateScreen() {
@@ -26,6 +28,9 @@ export function BookingCreateScreen() {
 
   // Booking creation hook
   const { createBooking, isPending, error: createError } = useCreateBooking();
+
+  // Fetch client profile for WhatsApp prompt
+  const { profile } = useClientProfile();
 
   // Calculate estimated cost
   const estimatedCost =
@@ -124,6 +129,12 @@ export function BookingCreateScreen() {
     );
   }
 
+  // Check if should show WhatsApp prompt
+  const shouldShowPrompt =
+    profile &&
+    !profile.phone &&
+    profile.preferredContactMethod === "WHATSAPP";
+
   return (
     <div className="min-h-screen bg-bg">
       <Navigation showLogin={false} showProfile={true} />
@@ -135,6 +146,9 @@ export function BookingCreateScreen() {
           <Text variant="body" className="text-muted mb-6">
             Con {pro.name} - ${pro.hourlyRate.toFixed(0)}/hora
           </Text>
+
+          {/* WhatsApp prompt */}
+          {shouldShowPrompt && <WhatsAppPromptCard />}
 
           <Card className="p-6">
             <BookingForm

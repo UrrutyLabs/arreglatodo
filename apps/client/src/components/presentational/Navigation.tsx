@@ -88,6 +88,15 @@ export function Navigation({ showLogin = true, showProfile = false }: Navigation
                         {user?.email}
                       </Text>
                     </div>
+                    <Link
+                      href="/settings"
+                      onClick={() => setShowMenu(false)}
+                      className="block w-full text-left px-4 py-2 hover:bg-surface/80 transition-colors"
+                    >
+                      <Text variant="body" className="text-text">
+                        Configuración
+                      </Text>
+                    </Link>
                     <button
                       onClick={handleSignOut}
                       className="w-full text-left px-4 py-2 hover:bg-surface/80 transition-colors"

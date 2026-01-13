@@ -23,6 +23,7 @@ export class ClientProfileService {
     userId: string;
     firstName: string | null;
     lastName: string | null;
+    email: string | null;
     phone: string | null;
     preferredContactMethod: "EMAIL" | "WHATSAPP" | "PHONE" | null;
     createdAt: Date;
@@ -36,5 +37,46 @@ export class ClientProfileService {
 
     // Create minimal empty profile
     return await this.clientProfileRepository.createForUser(userId);
+  }
+
+  /**
+   * Get client profile by user ID
+   */
+  async getProfileByUserId(userId: string): Promise<{
+    id: string;
+    userId: string;
+    firstName: string | null;
+    lastName: string | null;
+    email: string | null;
+    phone: string | null;
+    preferredContactMethod: "EMAIL" | "WHATSAPP" | "PHONE" | null;
+    createdAt: Date;
+    updatedAt: Date;
+  } | null> {
+    return await this.clientProfileRepository.findByUserId(userId);
+  }
+
+  /**
+   * Update client profile
+   */
+  async updateProfile(
+    userId: string,
+    data: {
+      email?: string | null;
+      phone?: string | null;
+      preferredContactMethod?: "EMAIL" | "WHATSAPP" | "PHONE" | null;
+    }
+  ): Promise<{
+    id: string;
+    userId: string;
+    firstName: string | null;
+    lastName: string | null;
+    email: string | null;
+    phone: string | null;
+    preferredContactMethod: "EMAIL" | "WHATSAPP" | "PHONE" | null;
+    createdAt: Date;
+    updatedAt: Date;
+  }> {
+    return await this.clientProfileRepository.upsertForUser(userId, data);
   }
 }

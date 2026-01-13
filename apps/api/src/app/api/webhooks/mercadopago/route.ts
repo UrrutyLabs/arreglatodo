@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { NextRequest, NextResponse } from "next/server";
 import { getPaymentProviderClient } from "@/server/modules/payment/registry";
 import { PaymentProvider } from "@repo/domain";

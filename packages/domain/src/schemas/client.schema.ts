@@ -11,3 +11,21 @@ export const clientSearchProsInputSchema = z.object({
 });
 
 export type ClientSearchProsInput = z.infer<typeof clientSearchProsInputSchema>;
+
+/**
+ * Preferred contact method enum
+ */
+export const preferredContactMethodSchema = z.enum(["EMAIL", "WHATSAPP", "PHONE"]);
+
+export type PreferredContactMethod = z.infer<typeof preferredContactMethodSchema>;
+
+/**
+ * Client profile update input schema
+ */
+export const clientProfileUpdateInputSchema = z.object({
+  email: z.string().email().optional().nullable(),
+  phone: z.string().optional().nullable(),
+  preferredContactMethod: preferredContactMethodSchema.optional().nullable(),
+});
+
+export type ClientProfileUpdateInput = z.infer<typeof clientProfileUpdateInputSchema>;
