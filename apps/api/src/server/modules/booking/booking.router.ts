@@ -195,11 +195,12 @@ export const bookingRouter = router({
         status: z.nativeEnum(BookingStatus),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
         return await bookingService.adminForceStatus(
           input.bookingId,
-          input.status
+          input.status,
+          ctx.actor
         );
       } catch (error) {
         throw mapDomainErrorToTRPCError(error);

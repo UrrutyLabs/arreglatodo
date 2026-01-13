@@ -47,7 +47,9 @@ export class BookingService {
     @inject(TOKENS.NotificationService)
     private readonly notificationService: NotificationService,
     @inject(TOKENS.EarningService)
-    private readonly earningService: EarningService
+    private readonly earningService: EarningService,
+    @inject(TOKENS.AuditService)
+    private readonly auditService: AuditService
   ) {}
   /**
    * Create a new booking
@@ -755,9 +757,12 @@ export class BookingService {
    */
   async adminForceStatus(
     bookingId: string,
-    newStatus: BookingStatus
+    newStatus: BookingStatus,
+    actor: Actor
   ): Promise<Booking> {
     const booking = await this.getBookingOrThrow(bookingId);
+
+    const previousStatus = booking.status;
 
     const updated = await this.bookingRepository.updateStatus(
       bookingId,
@@ -767,6 +772,22 @@ export class BookingService {
     if (!updated) {
       throw new BookingNotFoundError(bookingId);
     }
+
+    // Log audit event
+    await this.auditService.logEvent({
+      eventType: AuditEventType.BOOKING_STATUS_FORCED,
+      actor,
+      resourceType: "booking",
+      resourceId: bookingId,
+      action: "force_status",
+      metadata: {
+        previousStatus,
+        newStatus,
+        clientUserId: booking.clientUserId,
+        proProfileId: booking.proProfileId || null,
+        category: booking.category,
+      },
+    });
 
     // Get pro to get hourly rate for domain mapping
     const pro = updated.proProfileId

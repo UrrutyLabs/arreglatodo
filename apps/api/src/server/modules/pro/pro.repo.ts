@@ -43,6 +43,12 @@ export interface ProRepository {
   findById(id: string): Promise<ProProfileEntity | null>;
   findByUserId(userId: string): Promise<ProProfileEntity | null>;
   findAll(): Promise<ProProfileEntity[]>;
+  findAllWithFilters(filters?: {
+    query?: string;
+    status?: "pending" | "active" | "suspended";
+    limit?: number;
+    cursor?: string;
+  }): Promise<ProProfileEntity[]>;
   updateStatus(
     id: string,
     status: "pending" | "active" | "suspended"
@@ -94,6 +100,42 @@ export class ProRepositoryImpl implements ProRepository {
 
   async findAll(): Promise<ProProfileEntity[]> {
     const proProfiles = await prisma.proProfile.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+
+    return proProfiles.map(this.mapPrismaToDomain);
+  }
+
+  async findAllWithFilters(filters?: {
+    query?: string;
+    status?: "pending" | "active" | "suspended";
+    limit?: number;
+    cursor?: string;
+  }): Promise<ProProfileEntity[]> {
+    const where: {
+      status?: "pending" | "active" | "suspended";
+      OR?: Array<{
+        displayName?: { contains: string; mode: "insensitive" };
+        email?: { contains: string; mode: "insensitive" };
+      }>;
+    } = {};
+
+    if (filters?.status) {
+      where.status = filters.status;
+    }
+
+    if (filters?.query) {
+      where.OR = [
+        { displayName: { contains: filters.query, mode: "insensitive" } },
+        { email: { contains: filters.query, mode: "insensitive" } },
+      ];
+    }
+
+    const proProfiles = await prisma.proProfile.findMany({
+      where,
+      take: filters?.limit,
+      cursor: filters?.cursor ? { id: filters.cursor } : undefined,
+      skip: filters?.cursor ? 1 : undefined,
       orderBy: { createdAt: "desc" },
     });
 

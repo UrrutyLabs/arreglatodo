@@ -155,3 +155,16 @@ export const PayoutStatus = {
 } as const
 
 export type PayoutStatus = (typeof PayoutStatus)[keyof typeof PayoutStatus]
+
+
+export const AuditEventType = {
+  PRO_SUSPENDED: 'PRO_SUSPENDED',
+  PRO_UNSUSPENDED: 'PRO_UNSUSPENDED',
+  BOOKING_STATUS_FORCED: 'BOOKING_STATUS_FORCED',
+  PAYMENT_SYNCED: 'PAYMENT_SYNCED',
+  PAYOUT_CREATED: 'PAYOUT_CREATED',
+  PAYOUT_SENT: 'PAYOUT_SENT',
+  USER_ROLE_CHANGED: 'USER_ROLE_CHANGED'
+} as const
+
+export type AuditEventType = (typeof AuditEventType)[keyof typeof AuditEventType]

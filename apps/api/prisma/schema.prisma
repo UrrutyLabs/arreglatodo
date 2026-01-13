@@ -110,6 +110,16 @@ enum PayoutStatus {
   SETTLED
 }
 
+enum AuditEventType {
+  PRO_SUSPENDED
+  PRO_UNSUSPENDED
+  BOOKING_STATUS_FORCED
+  PAYMENT_SYNCED
+  PAYOUT_CREATED
+  PAYOUT_SENT
+  USER_ROLE_CHANGED
+}
+
 model User {
   id        String   @id @default(cuid())
   role      Role     @default(client)
@@ -404,4 +414,24 @@ model PayoutItem {
   @@index([payoutId])
   @@index([earningId])
   @@map("payout_items")
+}
+
+model AuditLog {
+  id            String         @id @default(cuid())
+  eventType     AuditEventType
+  actorId       String         // Who performed the action (admin user ID)
+  actorRole     Role           // Admin role for quick filtering
+  resourceType  String         // "pro", "booking", "payment", "payout", etc.
+  resourceId    String         // ID of the affected resource
+  action        String         // "suspend", "force_status", "sync", etc.
+  metadata      Json?          // Flexible: reason, oldStatus, newStatus, etc.
+  ipAddress     String?        // Request IP (from context)
+  userAgent     String?        // User agent (from context)
+  createdAt     DateTime       @default(now())
+
+  @@index([eventType])
+  @@index([resourceType, resourceId])
+  @@index([actorId])
+  @@index([createdAt])
+  @@map("audit_logs")
 }

@@ -6,14 +6,19 @@ import {
 } from "./pro.repo";
 import type { ReviewRepository } from "@modules/review/review.repo";
 import type { UserRepository } from "@modules/user/user.repo";
+import type { BookingRepository } from "@modules/booking/booking.repo";
+import type { ProPayoutProfileRepository } from "@modules/payout/proPayoutProfile.repo";
+import type { AuditService } from "@modules/audit/audit.service";
+import { AuditEventType } from "@modules/audit/audit.repo";
 import type {
   Pro,
   ProOnboardInput,
   ProSetAvailabilityInput,
   Category,
 } from "@repo/domain";
-import { Role } from "@repo/domain";
+import { Role, BookingStatus } from "@repo/domain";
 import { TOKENS } from "@/server/container/tokens";
+import type { Actor } from "@infra/auth/roles";
 
 /**
  * Pro service
@@ -28,7 +33,13 @@ export class ProService {
     @inject(TOKENS.ReviewRepository)
     private readonly reviewRepository: ReviewRepository,
     @inject(TOKENS.UserRepository)
-    private readonly userRepository: UserRepository
+    private readonly userRepository: UserRepository,
+    @inject(TOKENS.BookingRepository)
+    private readonly bookingRepository: BookingRepository,
+    @inject(TOKENS.ProPayoutProfileRepository)
+    private readonly proPayoutProfileRepository: ProPayoutProfileRepository,
+    @inject(TOKENS.AuditService)
+    private readonly auditService: AuditService
   ) {}
   /**
    * Onboard a new pro
@@ -201,6 +212,201 @@ export class ProService {
     }
 
     return this.mapToDomain(updated);
+  }
+
+  /**
+   * Admin: List all pros with filters
+   */
+  async adminListPros(filters?: {
+    query?: string;
+    status?: "pending" | "active" | "suspended";
+    limit?: number;
+    cursor?: string;
+  }): Promise<Array<{
+    id: string;
+    displayName: string;
+    email: string;
+    status: "pending" | "active" | "suspended";
+    completedJobsCount: number;
+    isPayoutProfileComplete: boolean;
+    createdAt: Date;
+  }>> {
+    const proProfiles = await this.proRepository.findAllWithFilters(filters);
+
+    // Get completed jobs count and payout profile completion for each pro
+    const prosWithStats = await Promise.all(
+      proProfiles.map(async (pro) => {
+        // Get completed bookings count
+        const bookings = await this.bookingRepository.findByProProfileId(pro.id);
+        const completedJobsCount = bookings.filter(
+          (b) => b.status === BookingStatus.COMPLETED
+        ).length;
+
+        // Get payout profile completion
+        const payoutProfile =
+          await this.proPayoutProfileRepository.findByProProfileId(pro.id);
+        const isPayoutProfileComplete = payoutProfile?.isComplete ?? false;
+
+        return {
+          id: pro.id,
+          displayName: pro.displayName,
+          email: pro.email,
+          status: pro.status,
+          completedJobsCount,
+          isPayoutProfileComplete,
+          createdAt: pro.createdAt,
+        };
+      })
+    );
+
+    return prosWithStats;
+  }
+
+  /**
+   * Admin: Get pro by ID with full details including payout profile
+   */
+  async adminGetProById(proProfileId: string): Promise<{
+    id: string;
+    userId: string;
+    displayName: string;
+    email: string;
+    phone: string | null;
+    bio: string | null;
+    hourlyRate: number;
+    categories: string[];
+    serviceArea: string | null;
+    status: "pending" | "active" | "suspended";
+    createdAt: Date;
+    updatedAt: Date;
+    payoutProfile: {
+      id: string;
+      payoutMethod: "BANK_TRANSFER";
+      fullName: string | null;
+      documentId: string | null;
+      bankName: string | null;
+      bankAccountType: string | null;
+      bankAccountNumber: string | null;
+      currency: string;
+      isComplete: boolean;
+    } | null;
+  }> {
+    const proProfile = await this.proRepository.findById(proProfileId);
+    if (!proProfile) {
+      throw new Error(`Pro profile not found: ${proProfileId}`);
+    }
+
+    const payoutProfile =
+      await this.proPayoutProfileRepository.findByProProfileId(proProfileId);
+
+    return {
+      id: proProfile.id,
+      userId: proProfile.userId,
+      displayName: proProfile.displayName,
+      email: proProfile.email,
+      phone: proProfile.phone,
+      bio: proProfile.bio,
+      hourlyRate: proProfile.hourlyRate,
+      categories: proProfile.categories,
+      serviceArea: proProfile.serviceArea,
+      status: proProfile.status,
+      createdAt: proProfile.createdAt,
+      updatedAt: proProfile.updatedAt,
+      payoutProfile: payoutProfile
+        ? {
+            id: payoutProfile.id,
+            payoutMethod: payoutProfile.payoutMethod,
+            fullName: payoutProfile.fullName,
+            documentId: payoutProfile.documentId,
+            bankName: payoutProfile.bankName,
+            bankAccountType: payoutProfile.bankAccountType,
+            bankAccountNumber: payoutProfile.bankAccountNumber,
+            currency: payoutProfile.currency,
+            isComplete: payoutProfile.isComplete,
+          }
+        : null,
+    };
+  }
+
+  /**
+   * Admin: Suspend a pro
+   */
+  async suspendPro(
+    proProfileId: string,
+    reason: string | undefined,
+    actor: Actor
+  ): Promise<ProProfileEntity> {
+    const proProfile = await this.proRepository.findById(proProfileId);
+    if (!proProfile) {
+      throw new Error(`Pro profile not found: ${proProfileId}`);
+    }
+
+    const previousStatus = proProfile.status;
+
+    const updated = await this.proRepository.updateStatus(
+      proProfileId,
+      "suspended"
+    );
+    if (!updated) {
+      throw new Error(`Failed to suspend pro: ${proProfileId}`);
+    }
+
+    // Log audit event
+    await this.auditService.logEvent({
+      eventType: AuditEventType.PRO_SUSPENDED,
+      actor,
+      resourceType: "pro",
+      resourceId: proProfileId,
+      action: "suspend",
+      metadata: {
+        reason: reason || null,
+        previousStatus,
+        newStatus: "suspended",
+        proDisplayName: proProfile.displayName,
+        proEmail: proProfile.email,
+      },
+    });
+
+    return updated;
+  }
+
+  /**
+   * Admin: Unsuspend a pro (set to active)
+   */
+  async unsuspendPro(
+    proProfileId: string,
+    actor: Actor
+  ): Promise<ProProfileEntity> {
+    const proProfile = await this.proRepository.findById(proProfileId);
+    if (!proProfile) {
+      throw new Error(`Pro profile not found: ${proProfileId}`);
+    }
+
+    const previousStatus = proProfile.status;
+
+    const updated = await this.proRepository.updateStatus(
+      proProfileId,
+      "active"
+    );
+    if (!updated) {
+      throw new Error(`Failed to unsuspend pro: ${proProfileId}`);
+    }
+
+    // Log audit event
+    await this.auditService.logEvent({
+      eventType: AuditEventType.PRO_UNSUSPENDED,
+      actor,
+      resourceType: "pro",
+      resourceId: proProfileId,
+      action: "unsuspend",
+      metadata: {
+        previousStatus,
+        newStatus: "active",
+        proDisplayName: proProfile.displayName,
+        proEmail: proProfile.email,
+      },
+    });
+
+    return updated;
   }
 
   /**

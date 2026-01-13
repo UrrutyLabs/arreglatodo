@@ -114,7 +114,7 @@ export const paymentRouter = router({
    */
   syncStatus: adminProcedure
     .input(z.object({ paymentId: z.string() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
         const paymentRepo = container.resolve<PaymentRepository>(TOKENS.PaymentRepository);
         const payment = await paymentRepo.findById(input.paymentId);
@@ -128,7 +128,7 @@ export const paymentRouter = router({
 
         // Create service instance with the payment's provider
         const service = await paymentServiceFactory(payment.provider);
-        await service.syncPaymentStatus(input.paymentId);
+        await service.syncPaymentStatus(input.paymentId, ctx.actor);
 
         return { success: true };
       } catch (error) {

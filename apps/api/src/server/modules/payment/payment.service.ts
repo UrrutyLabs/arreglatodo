@@ -16,6 +16,8 @@ import { BookingNotFoundError } from "@modules/booking/booking.errors";
 import { TOKENS } from "@/server/container/tokens";
 import { getPaymentProviderClient } from "./registry";
 import type { EarningService } from "@modules/payout/earning.service";
+import type { AuditService } from "@modules/audit/audit.service";
+import { AuditEventType } from "@modules/audit/audit.repo";
 
 /**
  * Payment service
@@ -35,7 +37,9 @@ export class PaymentService {
     @inject(TOKENS.ProRepository)
     private readonly proRepository: ProRepository,
     @inject(TOKENS.EarningService)
-    private readonly earningService: EarningService
+    private readonly earningService: EarningService,
+    @inject(TOKENS.AuditService)
+    private readonly auditService: AuditService
   ) {}
 
   /**
@@ -392,7 +396,7 @@ export class PaymentService {
    * Sync payment status with provider
    * Useful for reconciliation or manual status checks
    */
-  async syncPaymentStatus(paymentId: string): Promise<void> {
+  async syncPaymentStatus(paymentId: string, actor: Actor): Promise<void> {
     const payment = await this.paymentRepository.findById(paymentId);
     if (!payment) {
       throw new Error(`Payment not found: ${paymentId}`);
@@ -401,6 +405,8 @@ export class PaymentService {
     if (!payment.providerReference) {
       throw new Error(`Payment ${paymentId} has no provider reference`);
     }
+
+    const previousStatus = payment.status;
 
     // Get provider client for this payment
     const providerClient = await getPaymentProviderClient(payment.provider);
@@ -425,6 +431,22 @@ export class PaymentService {
           await this.bookingRepository.updateStatus(payment.bookingId, BookingStatus.PENDING);
         }
       }
+
+      // Log audit event
+      await this.auditService.logEvent({
+        eventType: AuditEventType.PAYMENT_SYNCED,
+        actor,
+        resourceType: "payment",
+        resourceId: paymentId,
+        action: "sync_status",
+        metadata: {
+          previousStatus,
+          newStatus: providerStatus.status,
+          bookingId: payment.bookingId,
+          provider: payment.provider,
+          providerReference: payment.providerReference,
+        },
+      });
     } else {
       throw new Error(
         `Invalid status transition: ${payment.status} -> ${providerStatus.status}`

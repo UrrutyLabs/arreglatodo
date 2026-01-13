@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { router, publicProcedure, protectedProcedure, proProcedure } from "@infra/trpc";
+import {
+  router,
+  publicProcedure,
+  protectedProcedure,
+  proProcedure,
+  adminProcedure,
+} from "@infra/trpc";
 import { container, TOKENS } from "@/server/container";
 import { ProService } from "./pro.service";
 import {
@@ -118,6 +124,108 @@ export const proRouter = router({
             error instanceof Error
               ? error.message
               : "Failed to update profile",
+        });
+      }
+    }),
+
+  /**
+   * Admin: List all pros with filters
+   */
+  adminList: adminProcedure
+    .input(
+      z
+        .object({
+          query: z.string().optional(),
+          status: z.enum(["pending", "active", "suspended"]).optional(),
+          limit: z.number().int().positive().max(100).optional(),
+          cursor: z.string().optional(),
+        })
+        .optional()
+    )
+    .query(async ({ input }) => {
+      try {
+        return await proService.adminListPros(input);
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error ? error.message : "Failed to list pros",
+        });
+      }
+    }),
+
+  /**
+   * Admin: Get pro by ID with full details including payout profile
+   */
+  adminById: adminProcedure
+    .input(z.object({ proProfileId: z.string() }))
+    .query(async ({ input }) => {
+      try {
+        return await proService.adminGetProById(input.proProfileId);
+      } catch (error) {
+        if (error instanceof Error && error.message.includes("not found")) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: error.message,
+          });
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error ? error.message : "Failed to get pro",
+        });
+      }
+    }),
+
+  /**
+   * Admin: Suspend a pro
+   */
+  suspend: adminProcedure
+    .input(
+      z.object({
+        proProfileId: z.string(),
+        reason: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        await proService.suspendPro(input.proProfileId, input.reason, ctx.actor);
+        return { success: true };
+      } catch (error) {
+        if (error instanceof Error && error.message.includes("not found")) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: error.message,
+          });
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error ? error.message : "Failed to suspend pro",
+        });
+      }
+    }),
+
+  /**
+   * Admin: Unsuspend a pro (set to active)
+   */
+  unsuspend: adminProcedure
+    .input(z.object({ proProfileId: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      try {
+        await proService.unsuspendPro(input.proProfileId, ctx.actor);
+        return { success: true };
+      } catch (error) {
+        if (error instanceof Error && error.message.includes("not found")) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: error.message,
+          });
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error ? error.message : "Failed to unsuspend pro",
         });
       }
     }),

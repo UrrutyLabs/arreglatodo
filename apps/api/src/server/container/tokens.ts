@@ -20,6 +20,7 @@ export const TOKENS = {
   PayoutRepository: "PayoutRepository",
   PayoutItemRepository: "PayoutItemRepository",
   ProPayoutProfileRepository: "ProPayoutProfileRepository",
+  AuditLogRepository: "AuditLogRepository",
 
   // Services
   AuthService: "AuthService",
@@ -35,6 +36,7 @@ export const TOKENS = {
   EarningService: "EarningService",
   PayoutService: "PayoutService",
   ProPayoutProfileService: "ProPayoutProfileService",
+  AuditService: "AuditService",
 
   // Infrastructure
   Logger: "Logger",

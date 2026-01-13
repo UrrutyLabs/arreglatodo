@@ -10,6 +10,7 @@ import { clientProfileRouter } from "@modules/user/clientProfile.router";
 import { earningRouter } from "@modules/payout/earning.router";
 import { payoutRouter } from "@modules/payout/payout.router";
 import { proPayoutRouter } from "@modules/payout/proPayout.router";
+import { auditRouter } from "@modules/audit/audit.router";
 import { container, TOKENS } from "@/server/container";
 import { ProService } from "@modules/pro/pro.service";
 import { clientSearchProsInputSchema } from "@repo/domain";
@@ -37,6 +38,7 @@ export const appRouter = router({
   earning: earningRouter,
   payout: payoutRouter,
   proPayout: proPayoutRouter,
+  audit: auditRouter,
   client: router({
     searchPros: publicProcedure
       .input(clientSearchProsInputSchema)

@@ -64,7 +64,8 @@ export const ModelName = {
   ProPayoutProfile: 'ProPayoutProfile',
   Earning: 'Earning',
   Payout: 'Payout',
-  PayoutItem: 'PayoutItem'
+  PayoutItem: 'PayoutItem',
+  AuditLog: 'AuditLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -302,6 +303,23 @@ export const PayoutItemScalarFieldEnum = {
 export type PayoutItemScalarFieldEnum = (typeof PayoutItemScalarFieldEnum)[keyof typeof PayoutItemScalarFieldEnum]
 
 
+export const AuditLogScalarFieldEnum = {
+  id: 'id',
+  eventType: 'eventType',
+  actorId: 'actorId',
+  actorRole: 'actorRole',
+  resourceType: 'resourceType',
+  resourceId: 'resourceId',
+  action: 'action',
+  metadata: 'metadata',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt'
+} as const
+
+export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -315,6 +333,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: 'DbNull',
+  JsonNull: 'JsonNull'
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {

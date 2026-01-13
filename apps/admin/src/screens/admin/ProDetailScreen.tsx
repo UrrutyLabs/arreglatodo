@@ -1,0 +1,392 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { trpc } from "@/lib/trpc/client";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Text } from "@/components/ui/Text";
+import { Badge } from "@/components/ui/Badge";
+import { ProAuditHistory } from "@/components/admin/ProAuditHistory";
+
+interface ProDetailScreenProps {
+  proProfileId: string;
+}
+
+export function ProDetailScreen({ proProfileId }: ProDetailScreenProps) {
+  const router = useRouter();
+  const [showSuspendModal, setShowSuspendModal] = useState(false);
+  const [showUnsuspendModal, setShowUnsuspendModal] = useState(false);
+  const [suspendReason, setSuspendReason] = useState("");
+
+  const utils = trpc.useUtils();
+
+  const { data: pro, isLoading, refetch } = trpc.pro.adminById.useQuery({
+    proProfileId,
+  });
+
+  // Fetch audit logs for suspend/unsuspend actions only
+  const { data: auditLogs, isLoading: isLoadingAuditLogs } =
+    trpc.audit.getResourceLogs.useQuery({
+      resourceType: "pro",
+      resourceId: proProfileId,
+      eventTypes: ["PRO_SUSPENDED", "PRO_UNSUSPENDED"],
+    });
+
+  const suspendMutation = trpc.pro.suspend.useMutation({
+    onSuccess: () => {
+      setShowSuspendModal(false);
+      setSuspendReason("");
+      refetch();
+      // Refetch audit logs to show the new suspend action
+      void utils.audit.getResourceLogs.invalidate({
+        resourceType: "pro",
+        resourceId: proProfileId,
+        eventTypes: ["PRO_SUSPENDED", "PRO_UNSUSPENDED"],
+      });
+    },
+  });
+
+  const unsuspendMutation = trpc.pro.unsuspend.useMutation({
+    onSuccess: () => {
+      setShowUnsuspendModal(false);
+      refetch();
+      // Refetch audit logs to show the new unsuspend action
+      void utils.audit.getResourceLogs.invalidate({
+        resourceType: "pro",
+        resourceId: proProfileId,
+        eventTypes: ["PRO_SUSPENDED", "PRO_UNSUSPENDED"],
+      });
+    },
+  });
+
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString("es-UY", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const getStatusBadgeVariant = (
+    status: "pending" | "active" | "suspended"
+  ): "info" | "success" | "warning" | "danger" => {
+    const statusMap: Record<
+      "pending" | "active" | "suspended",
+      "info" | "success" | "warning" | "danger"
+    > = {
+      pending: "warning",
+      active: "success",
+      suspended: "danger",
+    };
+    return statusMap[status] || "info";
+  };
+
+  const getStatusLabel = (status: "pending" | "active" | "suspended") => {
+    const labels: Record<"pending" | "active" | "suspended", string> = {
+      pending: "Pendiente",
+      active: "Activo",
+      suspended: "Suspendido",
+    };
+    return labels[status] || status;
+  };
+
+  const handleSuspend = () => {
+    setShowSuspendModal(true);
+  };
+
+  const handleUnsuspend = () => {
+    setShowUnsuspendModal(true);
+  };
+
+  const confirmSuspend = () => {
+    suspendMutation.mutate({
+      proProfileId,
+      reason: suspendReason || undefined,
+    });
+  };
+
+  const confirmUnsuspend = () => {
+    unsuspendMutation.mutate({ proProfileId });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Text variant="h1">Cargando...</Text>
+      </div>
+    );
+  }
+
+  if (!pro) {
+    return (
+      <div className="space-y-6">
+        <Text variant="h1">Profesional no encontrado</Text>
+      </div>
+    );
+  }
+
+  const canSuspend = pro.status !== "suspended";
+  const canUnsuspend = pro.status === "suspended";
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <Text variant="h1">{pro.displayName}</Text>
+          <Badge variant={getStatusBadgeVariant(pro.status)} className="mt-2">
+            {getStatusLabel(pro.status)}
+          </Badge>
+        </div>
+        <Button variant="ghost" onClick={() => router.back()}>
+          Volver
+        </Button>
+      </div>
+
+      {/* Pro Summary */}
+      <Card className="p-6">
+        <Text variant="h2" className="mb-4">
+          Información del Profesional
+        </Text>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Text variant="small" className="text-gray-600">
+              ID de Perfil
+            </Text>
+            <Text variant="body">{pro.id}</Text>
+          </div>
+          <div>
+            <Text variant="small" className="text-gray-600">
+              ID de Usuario
+            </Text>
+            <Text variant="body">{pro.userId}</Text>
+          </div>
+          <div>
+            <Text variant="small" className="text-gray-600">
+              Email
+            </Text>
+            <Text variant="body">{pro.email}</Text>
+          </div>
+          <div>
+            <Text variant="small" className="text-gray-600">
+              Teléfono
+            </Text>
+            <Text variant="body">{pro.phone || "-"}</Text>
+          </div>
+          <div>
+            <Text variant="small" className="text-gray-600">
+              Tarifa por Hora
+            </Text>
+            <Text variant="body">{pro.hourlyRate}</Text>
+          </div>
+          <div>
+            <Text variant="small" className="text-gray-600">
+              Área de Servicio
+            </Text>
+            <Text variant="body">{pro.serviceArea || "-"}</Text>
+          </div>
+          <div>
+            <Text variant="small" className="text-gray-600">
+              Categorías
+            </Text>
+            <Text variant="body">{pro.categories.join(", ") || "-"}</Text>
+          </div>
+          <div>
+            <Text variant="small" className="text-gray-600">
+              Creado
+            </Text>
+            <Text variant="body">{formatDate(pro.createdAt)}</Text>
+          </div>
+          {pro.bio && (
+            <div className="md:col-span-2">
+              <Text variant="small" className="text-gray-600">
+                Biografía
+              </Text>
+              <Text variant="body">{pro.bio}</Text>
+            </div>
+          )}
+        </div>
+      </Card>
+
+      {/* Payout Profile */}
+      <Card className="p-6">
+        <Text variant="h2" className="mb-4">
+          Perfil de Pago
+        </Text>
+        {pro.payoutProfile ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Text variant="small" className="text-gray-600">
+                Método de Pago
+              </Text>
+              <Text variant="body">{pro.payoutProfile.payoutMethod}</Text>
+            </div>
+            <div>
+              <Text variant="small" className="text-gray-600">
+                Estado
+              </Text>
+              {pro.payoutProfile.isComplete ? (
+                <Badge variant="success">Completo</Badge>
+              ) : (
+                <Badge variant="warning">Incompleto</Badge>
+              )}
+            </div>
+            <div>
+              <Text variant="small" className="text-gray-600">
+                Nombre Completo
+              </Text>
+              <Text variant="body">{pro.payoutProfile.fullName || "-"}</Text>
+            </div>
+            <div>
+              <Text variant="small" className="text-gray-600">
+                Documento
+              </Text>
+              <Text variant="body">{pro.payoutProfile.documentId || "-"}</Text>
+            </div>
+            <div>
+              <Text variant="small" className="text-gray-600">
+                Banco
+              </Text>
+              <Text variant="body">{pro.payoutProfile.bankName || "-"}</Text>
+            </div>
+            <div>
+              <Text variant="small" className="text-gray-600">
+                Tipo de Cuenta
+              </Text>
+              <Text variant="body">
+                {pro.payoutProfile.bankAccountType || "-"}
+              </Text>
+            </div>
+            <div>
+              <Text variant="small" className="text-gray-600">
+                Número de Cuenta
+              </Text>
+              <Text variant="body">
+                {pro.payoutProfile.bankAccountNumber || "-"}
+              </Text>
+            </div>
+            <div>
+              <Text variant="small" className="text-gray-600">
+                Moneda
+              </Text>
+              <Text variant="body">{pro.payoutProfile.currency}</Text>
+            </div>
+          </div>
+        ) : (
+          <Text variant="body" className="text-gray-600">
+            No hay perfil de pago configurado.
+          </Text>
+        )}
+      </Card>
+
+      {/* Audit History */}
+      <ProAuditHistory logs={auditLogs || []} isLoading={isLoadingAuditLogs} />
+
+      {/* Actions */}
+      <Card className="p-6">
+        <Text variant="h2" className="mb-4">
+          Acciones
+        </Text>
+        <div className="flex gap-2">
+          {canSuspend && (
+            <Button
+              variant="danger"
+              onClick={handleSuspend}
+              disabled={suspendMutation.isPending}
+            >
+              Suspender
+            </Button>
+          )}
+          {canUnsuspend && (
+            <Button
+              variant="primary"
+              onClick={handleUnsuspend}
+              disabled={unsuspendMutation.isPending}
+            >
+              Reactivar
+            </Button>
+          )}
+        </div>
+      </Card>
+
+      {/* Suspend Confirmation Modal */}
+      {showSuspendModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <Card className="p-6 max-w-md w-full m-4">
+            <Text variant="h2" className="mb-4">
+              Confirmar Suspensión
+            </Text>
+            <Text variant="body" className="mb-4">
+              ¿Estás seguro de que querés suspender a este profesional?
+            </Text>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Razón (opcional)
+              </label>
+              <textarea
+                value={suspendReason}
+                onChange={(e) => setSuspendReason(e.target.value)}
+                placeholder="Ingresar razón de suspensión..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                rows={3}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="danger"
+                onClick={confirmSuspend}
+                disabled={suspendMutation.isPending}
+                className="flex-1"
+              >
+                {suspendMutation.isPending ? "Suspendiendo..." : "Confirmar"}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setShowSuspendModal(false);
+                  setSuspendReason("");
+                }}
+                className="flex-1"
+              >
+                Cancelar
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Unsuspend Confirmation Modal */}
+      {showUnsuspendModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <Card className="p-6 max-w-md w-full m-4">
+            <Text variant="h2" className="mb-4">
+              Confirmar Reactivación
+            </Text>
+            <Text variant="body" className="mb-4">
+              ¿Estás seguro de que querés reactivar a este profesional?
+            </Text>
+            <div className="flex gap-2">
+              <Button
+                variant="primary"
+                onClick={confirmUnsuspend}
+                disabled={unsuspendMutation.isPending}
+                className="flex-1"
+              >
+                {unsuspendMutation.isPending ? "Reactivando..." : "Confirmar"}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setShowUnsuspendModal(false)}
+                className="flex-1"
+              >
+                Cancelar
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+}

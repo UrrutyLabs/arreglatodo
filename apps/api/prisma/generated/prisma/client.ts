@@ -109,3 +109,8 @@ export type Payout = Prisma.PayoutModel
  * 
  */
 export type PayoutItem = Prisma.PayoutItemModel
+/**
+ * Model AuditLog
+ * 
+ */
+export type AuditLog = Prisma.AuditLogModel
