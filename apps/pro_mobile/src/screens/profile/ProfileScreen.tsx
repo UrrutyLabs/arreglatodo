@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { StyleSheet, ScrollView, Alert } from "react-native";
+import { StyleSheet, ScrollView, Alert, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
@@ -61,6 +61,20 @@ export function ProfileScreen() {
       </Card>
 
       <Card style={styles.card}>
+        <TouchableOpacity
+          onPress={() => router.push("/settings/payout")}
+          style={styles.linkRow}
+        >
+          <Text variant="body" style={styles.linkText}>
+            Configuración de cobros
+          </Text>
+          <Text variant="small" style={styles.linkArrow}>
+            →
+          </Text>
+        </TouchableOpacity>
+      </Card>
+
+      <Card style={styles.card}>
         <Button
           variant="danger"
           onPress={handleSignOut}
@@ -98,5 +112,16 @@ const styles = StyleSheet.create({
   },
   signOutButton: {
     width: "100%",
+  },
+  linkRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  linkText: {
+    color: theme.colors.text,
+  },
+  linkArrow: {
+    color: theme.colors.muted,
   },
 });

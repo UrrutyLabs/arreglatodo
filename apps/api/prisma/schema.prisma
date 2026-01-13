@@ -86,6 +86,30 @@ enum DevicePlatform {
   ANDROID
 }
 
+enum PayoutMethod {
+  BANK_TRANSFER
+}
+
+enum EarningStatus {
+  PENDING
+  PAYABLE
+  PAID
+  REVERSED
+}
+
+enum PayoutProvider {
+  MERCADO_PAGO
+  BANK_TRANSFER
+  MANUAL
+}
+
+enum PayoutStatus {
+  CREATED
+  SENT
+  FAILED
+  SETTLED
+}
+
 model User {
   id        String   @id @default(cuid())
   role      Role     @default(client)
@@ -122,6 +146,9 @@ model ProProfile {
   bookings    Booking[]    @relation("ProBookings")
   reviews     Review[]
   payments    Payment[]
+  payoutProfile ProPayoutProfile?
+  earnings    Earning[]
+  payouts     Payout[]
 
   @@index([userId])
   @@index([status])
@@ -179,6 +206,7 @@ model Booking {
   proProfile ProProfile?  @relation("ProBookings", fields: [proProfileId], references: [id], onDelete: SetNull)
   review     Review?
   payment    Payment?
+  earning    Earning?
 
   @@index([clientUserId])
   @@index([proProfileId])
@@ -291,4 +319,89 @@ model DevicePushToken {
   @@index([userId])
   @@index([isActive])
   @@map("device_push_tokens")
+}
+
+model ProPayoutProfile {
+  id                String       @id @default(cuid())
+  proProfileId      String       @unique
+  payoutMethod      PayoutMethod @default(BANK_TRANSFER)
+  fullName          String?
+  documentId        String?
+  bankName          String?
+  bankAccountType   String?
+  bankAccountNumber String?      // TODO: Encrypt this field
+  currency          String       @default("UYU")
+  isComplete        Boolean      @default(false)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  // Relations
+  proProfile ProProfile @relation(fields: [proProfileId], references: [id], onDelete: Cascade)
+
+  @@index([proProfileId])
+  @@map("pro_payout_profiles")
+}
+
+model Earning {
+  id              String        @id @default(cuid())
+  bookingId       String        @unique
+  proProfileId    String
+  clientUserId    String
+  currency        String
+  grossAmount     Int           // minor units
+  platformFeeAmount Int         // minor units
+  netAmount       Int           // minor units
+  status          EarningStatus @default(PENDING)
+  availableAt     DateTime?     // when becomes PAYABLE (cooling-off)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  booking    Booking     @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  proProfile ProProfile  @relation(fields: [proProfileId], references: [id], onDelete: Cascade)
+  payoutItem PayoutItem?
+
+  @@index([proProfileId])
+  @@index([status])
+  @@index([availableAt])
+  @@map("earnings")
+}
+
+model Payout {
+  id               String         @id @default(cuid())
+  proProfileId     String
+  provider         PayoutProvider
+  status           PayoutStatus   @default(CREATED)
+  currency         String
+  amount           Int            // sum of earnings (minor units)
+  providerReference String?
+  failureReason    String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  sentAt           DateTime?
+  settledAt        DateTime?
+
+  // Relations
+  proProfile ProProfile  @relation(fields: [proProfileId], references: [id], onDelete: Cascade)
+  items      PayoutItem[]
+
+  @@index([proProfileId])
+  @@index([status])
+  @@map("payouts")
+}
+
+model PayoutItem {
+  id        String   @id @default(cuid())
+  payoutId  String
+  earningId String   @unique
+  amount    Int      // minor units
+  createdAt DateTime @default(now())
+
+  // Relations
+  payout  Payout  @relation(fields: [payoutId], references: [id], onDelete: Cascade)
+  earning Earning @relation(fields: [earningId], references: [id], onDelete: Cascade)
+
+  @@index([payoutId])
+  @@index([earningId])
+  @@map("payout_items")
 }

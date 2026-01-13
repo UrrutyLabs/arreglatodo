@@ -23,3 +23,6 @@ export const prisma =
   });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+
+// Re-export Prisma types for convenience
+export { $Enums, Prisma } from "../../../../prisma/generated/prisma/client";

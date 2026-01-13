@@ -16,6 +16,10 @@ export const TOKENS = {
   AvailabilityRepository: "AvailabilityRepository",
   NotificationDeliveryRepository: "NotificationDeliveryRepository",
   DevicePushTokenRepository: "DevicePushTokenRepository",
+  EarningRepository: "EarningRepository",
+  PayoutRepository: "PayoutRepository",
+  PayoutItemRepository: "PayoutItemRepository",
+  ProPayoutProfileRepository: "ProPayoutProfileRepository",
 
   // Services
   AuthService: "AuthService",
@@ -28,6 +32,9 @@ export const TOKENS = {
   NotificationService: "NotificationService",
   PushTokenService: "PushTokenService",
   PushDeliveryResolver: "PushDeliveryResolver",
+  EarningService: "EarningService",
+  PayoutService: "PayoutService",
+  ProPayoutProfileService: "ProPayoutProfileService",
 
   // Infrastructure
   Logger: "Logger",

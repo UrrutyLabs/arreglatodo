@@ -1,6 +1,6 @@
 import { injectable } from "tsyringe";
 import { prisma } from "@infra/db/prisma";
-import { Prisma, $Enums } from "../../../../prisma/generated/prisma/client";
+import { Prisma, $Enums } from "@infra/db/prisma";
 
 /**
  * Notification delivery entity (plain object)

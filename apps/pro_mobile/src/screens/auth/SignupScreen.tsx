@@ -5,62 +5,36 @@ import { Card } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
 import { Text } from "../../components/ui/Text";
-import { useAuth } from "../../hooks/useAuth";
+import { useProSignup } from "../../hooks/useProSignup";
 import { theme } from "../../theme";
-import { supabase } from "../../lib/supabase/client";
 
 export function SignupScreen() {
   const router = useRouter();
-  const { signUp } = useAuth();
+  const { signup, isPending, error: signupError } = useProSignup();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSignUp = async () => {
     try {
-      setLoading(true);
       setError(null);
-      
-      // Step 1: Sign up with Supabase
-      // Store intendedRole in user metadata so API can create user with PRO role
-      const { data, error: signUpError } = await supabase.auth.signUp({
+      await signup({
         email,
         password,
-        options: {
-          data: {
-            intendedRole: "pro", // This app is for professionals
-          },
-        },
       });
-
-      if (signUpError) {
-        setError(signUpError.message || "Error al registrarse");
-        return;
-      }
-
-      // Step 2: Check if session is available (email confirmation disabled)
-      if (data.session) {
-        // Email confirmation disabled - user is signed in automatically
-        router.replace("/onboarding");
-        return;
-      }
-
-      // Step 3: Email confirmation enabled - redirect to confirmation screen
-      router.replace({
-        pathname: "/auth/confirm-email",
-        params: { email },
-      });
+      // Success - mutation's onSuccess will handle redirect to confirm-email
     } catch (err) {
+      // Error is handled by mutation state, but we can also set local error
       setError(
         err instanceof Error
           ? err.message
           : "Error al registrarse. Por favor, intentá nuevamente."
       );
-    } finally {
-      setLoading(false);
     }
   };
+
+  // Use error from mutation if available, otherwise use local error
+  const displayError = signupError?.message || error;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -86,18 +60,18 @@ export function SignupScreen() {
           autoComplete="password"
           style={styles.input}
         />
-        {error && (
+        {displayError && (
           <Text variant="small" style={styles.error}>
-            {error}
+            {displayError}
           </Text>
         )}
         <Button
           variant="primary"
           onPress={handleSignUp}
-          disabled={loading}
+          disabled={isPending}
           style={styles.button}
         >
-          {loading ? "Registrando..." : "Crear cuenta"}
+          {isPending ? "Registrando..." : "Crear cuenta"}
         </Button>
         <Button
           variant="ghost"

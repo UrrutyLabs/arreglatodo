@@ -1,0 +1,152 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { Text } from "@/components/ui/Text";
+import { Badge } from "@/components/ui/Badge";
+import { formatCurrency } from "@repo/domain";
+
+interface BookingRow {
+  id: string;
+  createdAt: Date;
+  status: string;
+  clientEmail: string | null;
+  clientName: string | null;
+  proName: string | null;
+  estimatedAmount: number;
+  paymentStatus: string | null;
+  currency: string;
+}
+
+interface BookingsTableProps {
+  bookings: BookingRow[];
+  isLoading?: boolean;
+}
+
+export function BookingsTable({ bookings, isLoading }: BookingsTableProps) {
+  const router = useRouter();
+
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString("es-UY", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const getStatusBadgeVariant = (status: string) => {
+    const statusMap: Record<string, "info" | "success" | "warning" | "danger"> = {
+      pending_payment: "warning",
+      pending: "info",
+      accepted: "info",
+      on_my_way: "info",
+      arrived: "info",
+      completed: "success",
+      rejected: "danger",
+      cancelled: "danger",
+    };
+    return statusMap[status] || "info";
+  };
+
+  const getPaymentStatusBadgeVariant = (status: string | null) => {
+    if (!status) return "info";
+    const statusMap: Record<string, "info" | "success" | "warning" | "danger"> = {
+      CREATED: "info",
+      REQUIRES_ACTION: "warning",
+      AUTHORIZED: "info",
+      CAPTURED: "success",
+      FAILED: "danger",
+      CANCELLED: "danger",
+      REFUNDED: "warning",
+    };
+    return statusMap[status] || "info";
+  };
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-lg border border-gray-200 p-8">
+        <Text variant="body" className="text-gray-600">
+          Cargando reservas...
+        </Text>
+      </div>
+    );
+  }
+
+  if (bookings.length === 0) {
+    return (
+      <div className="bg-white rounded-lg border border-gray-200 p-8">
+        <Text variant="body" className="text-gray-600">
+          No se encontraron reservas
+        </Text>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-50 border-b border-gray-200">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Fecha
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Estado
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Cliente
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Profesional
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Monto estimado
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Estado pago
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {bookings.map((booking) => (
+              <tr
+                key={booking.id}
+                onClick={() => router.push(`/admin/bookings/${booking.id}`)}
+                className="hover:bg-gray-50 cursor-pointer transition-colors"
+              >
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {formatDate(booking.createdAt)}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <Badge variant={getStatusBadgeVariant(booking.status)}>
+                    {booking.status}
+                  </Badge>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {booking.clientName || booking.clientEmail || "-"}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {booking.proName || "-"}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {formatCurrency(booking.estimatedAmount, booking.currency)}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {booking.paymentStatus ? (
+                    <Badge variant={getPaymentStatusBadgeVariant(booking.paymentStatus)}>
+                      {booking.paymentStatus}
+                    </Badge>
+                  ) : (
+                    <span className="text-sm text-gray-500">-</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

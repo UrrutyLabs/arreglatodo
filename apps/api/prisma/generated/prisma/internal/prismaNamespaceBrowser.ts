@@ -60,7 +60,11 @@ export const ModelName = {
   Payment: 'Payment',
   PaymentEvent: 'PaymentEvent',
   NotificationDelivery: 'NotificationDelivery',
-  DevicePushToken: 'DevicePushToken'
+  DevicePushToken: 'DevicePushToken',
+  ProPayoutProfile: 'ProPayoutProfile',
+  Earning: 'Earning',
+  Payout: 'Payout',
+  PayoutItem: 'PayoutItem'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -231,6 +235,71 @@ export const DevicePushTokenScalarFieldEnum = {
 } as const
 
 export type DevicePushTokenScalarFieldEnum = (typeof DevicePushTokenScalarFieldEnum)[keyof typeof DevicePushTokenScalarFieldEnum]
+
+
+export const ProPayoutProfileScalarFieldEnum = {
+  id: 'id',
+  proProfileId: 'proProfileId',
+  payoutMethod: 'payoutMethod',
+  fullName: 'fullName',
+  documentId: 'documentId',
+  bankName: 'bankName',
+  bankAccountType: 'bankAccountType',
+  bankAccountNumber: 'bankAccountNumber',
+  currency: 'currency',
+  isComplete: 'isComplete',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProPayoutProfileScalarFieldEnum = (typeof ProPayoutProfileScalarFieldEnum)[keyof typeof ProPayoutProfileScalarFieldEnum]
+
+
+export const EarningScalarFieldEnum = {
+  id: 'id',
+  bookingId: 'bookingId',
+  proProfileId: 'proProfileId',
+  clientUserId: 'clientUserId',
+  currency: 'currency',
+  grossAmount: 'grossAmount',
+  platformFeeAmount: 'platformFeeAmount',
+  netAmount: 'netAmount',
+  status: 'status',
+  availableAt: 'availableAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EarningScalarFieldEnum = (typeof EarningScalarFieldEnum)[keyof typeof EarningScalarFieldEnum]
+
+
+export const PayoutScalarFieldEnum = {
+  id: 'id',
+  proProfileId: 'proProfileId',
+  provider: 'provider',
+  status: 'status',
+  currency: 'currency',
+  amount: 'amount',
+  providerReference: 'providerReference',
+  failureReason: 'failureReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  sentAt: 'sentAt',
+  settledAt: 'settledAt'
+} as const
+
+export type PayoutScalarFieldEnum = (typeof PayoutScalarFieldEnum)[keyof typeof PayoutScalarFieldEnum]
+
+
+export const PayoutItemScalarFieldEnum = {
+  id: 'id',
+  payoutId: 'payoutId',
+  earningId: 'earningId',
+  amount: 'amount',
+  createdAt: 'createdAt'
+} as const
+
+export type PayoutItemScalarFieldEnum = (typeof PayoutItemScalarFieldEnum)[keyof typeof PayoutItemScalarFieldEnum]
 
 
 export const SortOrder = {

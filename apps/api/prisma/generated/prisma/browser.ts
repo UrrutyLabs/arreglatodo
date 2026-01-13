@@ -67,3 +67,23 @@ export type NotificationDelivery = Prisma.NotificationDeliveryModel
  * 
  */
 export type DevicePushToken = Prisma.DevicePushTokenModel
+/**
+ * Model ProPayoutProfile
+ * 
+ */
+export type ProPayoutProfile = Prisma.ProPayoutProfileModel
+/**
+ * Model Earning
+ * 
+ */
+export type Earning = Prisma.EarningModel
+/**
+ * Model Payout
+ * 
+ */
+export type Payout = Prisma.PayoutModel
+/**
+ * Model PayoutItem
+ * 
+ */
+export type PayoutItem = Prisma.PayoutItemModel

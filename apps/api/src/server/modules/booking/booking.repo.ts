@@ -1,5 +1,5 @@
 import { injectable } from "tsyringe";
-import { $Enums } from "../../../../prisma/generated/prisma/browser";
+import { $Enums, Prisma } from "@infra/db/prisma";
 import { prisma } from "@infra/db/prisma";
 import { BookingStatus } from "@repo/domain";
 
@@ -40,6 +40,13 @@ export interface BookingRepository {
   findById(id: string): Promise<BookingEntity | null>;
   findByClientUserId(clientUserId: string): Promise<BookingEntity[]>;
   findByProProfileId(proProfileId: string): Promise<BookingEntity[]>;
+  findAll(filters?: {
+    status?: BookingStatus;
+    dateFrom?: Date;
+    dateTo?: Date;
+    limit?: number;
+    cursor?: string;
+  }): Promise<BookingEntity[]>;
   updateStatus(
     id: string,
     status: BookingStatus
@@ -93,6 +100,42 @@ export class BookingRepositoryImpl implements BookingRepository {
     const bookings = await prisma.booking.findMany({
       where: { proProfileId },
       orderBy: { scheduledAt: "desc" },
+    });
+
+    return bookings.map(this.mapPrismaToDomain);
+  }
+
+  async findAll(filters?: {
+    status?: BookingStatus;
+    dateFrom?: Date;
+    dateTo?: Date;
+    limit?: number;
+    cursor?: string;
+  }): Promise<BookingEntity[]> {
+    const where: Prisma.BookingWhereInput = {};
+
+    if (filters?.status) {
+      where.status = filters.status as $Enums.BookingStatus;
+    }
+
+    if (filters?.dateFrom || filters?.dateTo) {
+      where.scheduledAt = {};
+      if (filters.dateFrom) {
+        where.scheduledAt.gte = filters.dateFrom;
+      }
+      if (filters.dateTo) {
+        where.scheduledAt.lte = filters.dateTo;
+      }
+    }
+
+    if (filters?.cursor) {
+      where.id = { gt: filters.cursor };
+    }
+
+    const bookings = await prisma.booking.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      take: filters?.limit ?? 100,
     });
 
     return bookings.map(this.mapPrismaToDomain);

@@ -119,3 +119,39 @@ export const DevicePlatform = {
 } as const
 
 export type DevicePlatform = (typeof DevicePlatform)[keyof typeof DevicePlatform]
+
+
+export const PayoutMethod = {
+  BANK_TRANSFER: 'BANK_TRANSFER'
+} as const
+
+export type PayoutMethod = (typeof PayoutMethod)[keyof typeof PayoutMethod]
+
+
+export const EarningStatus = {
+  PENDING: 'PENDING',
+  PAYABLE: 'PAYABLE',
+  PAID: 'PAID',
+  REVERSED: 'REVERSED'
+} as const
+
+export type EarningStatus = (typeof EarningStatus)[keyof typeof EarningStatus]
+
+
+export const PayoutProvider = {
+  MERCADO_PAGO: 'MERCADO_PAGO',
+  BANK_TRANSFER: 'BANK_TRANSFER',
+  MANUAL: 'MANUAL'
+} as const
+
+export type PayoutProvider = (typeof PayoutProvider)[keyof typeof PayoutProvider]
+
+
+export const PayoutStatus = {
+  CREATED: 'CREATED',
+  SENT: 'SENT',
+  FAILED: 'FAILED',
+  SETTLED: 'SETTLED'
+} as const
+
+export type PayoutStatus = (typeof PayoutStatus)[keyof typeof PayoutStatus]

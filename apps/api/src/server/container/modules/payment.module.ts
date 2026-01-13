@@ -13,6 +13,7 @@ import { ProRepository } from "@modules/pro/pro.repo";
 import { PaymentService } from "@modules/payment/payment.service";
 import { PaymentProvider } from "@repo/domain";
 import { getPaymentProviderClient } from "@modules/payment/registry";
+import type { EarningService } from "@modules/payout/earning.service";
 
 /**
  * PaymentServiceFactory type
@@ -47,14 +48,15 @@ export function registerPaymentModule(container: DependencyContainer): void {
   // Use useValue since PaymentServiceFactory is a function type, not a class
   const factory: PaymentServiceFactory = async (provider: PaymentProvider): Promise<PaymentService> => {
     const providerClient = await getPaymentProviderClient(provider);
-    // Resolve repositories from container
+    // Resolve repositories and services from container
     const paymentRepo = container.resolve<PaymentRepository>(TOKENS.PaymentRepository);
     const paymentEventRepo = container.resolve<PaymentEventRepository>(TOKENS.PaymentEventRepository);
     const bookingRepo = container.resolve<BookingRepository>(TOKENS.BookingRepository);
     const proRepo = container.resolve<ProRepository>(TOKENS.ProRepository);
+    const earningService = container.resolve<EarningService>(TOKENS.EarningService);
     // Manually construct PaymentService with all dependencies
     // (providerClient and provider as constructor params, repositories injected)
-    return new PaymentService(providerClient, provider, paymentRepo, paymentEventRepo, bookingRepo, proRepo);
+    return new PaymentService(providerClient, provider, paymentRepo, paymentEventRepo, bookingRepo, proRepo, earningService);
   };
   
   // Register the factory function as a value

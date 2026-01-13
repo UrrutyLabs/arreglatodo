@@ -1,7 +1,7 @@
 import { injectable } from "tsyringe";
 import { prisma } from "@infra/db/prisma";
 import { PaymentProvider, PaymentType, PaymentStatus } from "@repo/domain";
-import type { Prisma, $Enums } from "../../../../prisma/generated/prisma/client";
+import type { Prisma, $Enums } from "@infra/db/prisma";
 
 /**
  * Payment entity (plain object)

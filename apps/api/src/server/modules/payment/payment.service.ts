@@ -15,6 +15,7 @@ import {
 import { BookingNotFoundError } from "@modules/booking/booking.errors";
 import { TOKENS } from "@/server/container/tokens";
 import { getPaymentProviderClient } from "./registry";
+import type { EarningService } from "@modules/payout/earning.service";
 
 /**
  * Payment service
@@ -32,7 +33,9 @@ export class PaymentService {
     @inject(TOKENS.BookingRepository)
     private readonly bookingRepository: BookingRepository,
     @inject(TOKENS.ProRepository)
-    private readonly proRepository: ProRepository
+    private readonly proRepository: ProRepository,
+    @inject(TOKENS.EarningService)
+    private readonly earningService: EarningService
   ) {}
 
   /**
@@ -236,6 +239,22 @@ export class PaymentService {
         // Payment authorized -> booking can proceed to PENDING (awaiting pro acceptance)
         if (booking.status === BookingStatus.PENDING_PAYMENT) {
           await this.bookingRepository.updateStatus(payment.bookingId, BookingStatus.PENDING);
+        }
+      } else if (newStatus === PaymentStatus.CAPTURED) {
+        // Payment captured -> create earning if booking is completed
+        if (booking.status === BookingStatus.COMPLETED) {
+          try {
+            await this.earningService.createEarningForCompletedBooking(
+              { role: "SYSTEM" },
+              payment.bookingId
+            );
+          } catch (error) {
+            // Log but don't fail webhook processing if earning creation fails
+            console.error(
+              `Failed to create earning for booking ${payment.bookingId} after payment capture:`,
+              error
+            );
+          }
         }
       } else if (
         newStatus === PaymentStatus.FAILED ||

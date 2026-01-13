@@ -8,6 +8,7 @@ import { registerBookingModule } from "./modules/booking.module";
 import { registerPaymentModule } from "./modules/payment.module";
 import { registerNotificationModule } from "./modules/notification.module";
 import { registerPushModule } from "./modules/push.module";
+import { registerPayoutModule } from "./modules/payout.module";
 
 /**
  * Setup and configure the dependency injection container
@@ -30,6 +31,7 @@ export function setupContainer(): DependencyContainer {
   // Register modules that depend on others
   registerNotificationModule(tsyringeContainer); // Register before BookingModule (BookingService depends on NotificationService)
   registerBookingModule(tsyringeContainer);
+  registerPayoutModule(tsyringeContainer); // Register before PaymentModule (PaymentServiceFactory needs EarningService)
   registerPaymentModule(tsyringeContainer);
   registerPushModule(tsyringeContainer);
 

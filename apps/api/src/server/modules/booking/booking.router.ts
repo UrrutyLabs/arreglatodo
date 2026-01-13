@@ -4,6 +4,7 @@ import {
   publicProcedure,
   protectedProcedure,
   proProcedure,
+  adminProcedure,
 } from "@infra/trpc";
 import { container, TOKENS } from "@/server/container";
 import { BookingService } from "./booking.service";
@@ -146,4 +147,62 @@ export const bookingRouter = router({
       throw mapDomainErrorToTRPCError(error);
     }
   }),
+
+  /**
+   * Admin: List all bookings with filters
+   */
+  adminList: adminProcedure
+    .input(
+      z
+        .object({
+          status: z.nativeEnum(BookingStatus).optional(),
+          query: z.string().optional(),
+          dateFrom: z.date().optional(),
+          dateTo: z.date().optional(),
+          limit: z.number().int().positive().max(100).optional(),
+          cursor: z.string().optional(),
+        })
+        .optional()
+    )
+    .query(async ({ input }) => {
+      try {
+        return await bookingService.adminListBookings(input);
+      } catch (error) {
+        throw mapDomainErrorToTRPCError(error);
+      }
+    }),
+
+  /**
+   * Admin: Get booking by ID with full details
+   */
+  adminById: adminProcedure
+    .input(z.object({ bookingId: z.string() }))
+    .query(async ({ input }) => {
+      try {
+        return await bookingService.adminGetBookingById(input.bookingId);
+      } catch (error) {
+        throw mapDomainErrorToTRPCError(error);
+      }
+    }),
+
+  /**
+   * Admin: Force update booking status (bypasses state machine)
+   */
+  adminForceStatus: adminProcedure
+    .input(
+      z.object({
+        bookingId: z.string(),
+        status: z.nativeEnum(BookingStatus),
+      })
+    )
+    .mutation(async ({ input }) => {
+      try {
+        return await bookingService.adminForceStatus(
+          input.bookingId,
+          input.status
+        );
+      } catch (error) {
+        throw mapDomainErrorToTRPCError(error);
+      }
+    }),
 });

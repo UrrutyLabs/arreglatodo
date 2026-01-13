@@ -7,6 +7,9 @@ import { paymentRouter } from "@modules/payment/payment.router";
 import { notificationRouter } from "@modules/notification/notification.router";
 import { pushRouter } from "@modules/push/push.router";
 import { clientProfileRouter } from "@modules/user/clientProfile.router";
+import { earningRouter } from "@modules/payout/earning.router";
+import { payoutRouter } from "@modules/payout/payout.router";
+import { proPayoutRouter } from "@modules/payout/proPayout.router";
 import { container, TOKENS } from "@/server/container";
 import { ProService } from "@modules/pro/pro.service";
 import { clientSearchProsInputSchema } from "@repo/domain";
@@ -31,6 +34,9 @@ export const appRouter = router({
   notification: notificationRouter,
   push: pushRouter,
   clientProfile: clientProfileRouter,
+  earning: earningRouter,
+  payout: payoutRouter,
+  proPayout: proPayoutRouter,
   client: router({
     searchPros: publicProcedure
       .input(clientSearchProsInputSchema)
