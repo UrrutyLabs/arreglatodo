@@ -22,6 +22,9 @@ import { TOKENS } from "@/server/container";
 import type { PaymentServiceFactory } from "@/server/container";
 import type { PaymentRepository } from "@modules/payment/payment.repo";
 import type { ClientProfileService } from "@modules/user/clientProfile.service";
+import type { NotificationService } from "@modules/notification/notification.service";
+import { buildNotificationMessages } from "@modules/notification/policy";
+import type { NotificationEvent } from "@modules/notification/policy";
 
 /**
  * Booking service
@@ -40,7 +43,9 @@ export class BookingService {
     @inject(TOKENS.PaymentRepository)
     private readonly paymentRepository: PaymentRepository,
     @inject(TOKENS.ClientProfileService)
-    private readonly clientProfileService: ClientProfileService
+    private readonly clientProfileService: ClientProfileService,
+    @inject(TOKENS.NotificationService)
+    private readonly notificationService: NotificationService
   ) {}
   /**
    * Create a new booking
@@ -74,6 +79,15 @@ export class BookingService {
       hoursEstimate: input.estimatedHours,
       addressText: input.description,
     });
+
+    // Send notification to client
+    await this.sendClientNotification(
+      booking,
+      "booking.created",
+      "Tu reserva fue creada",
+      `Tu reserva #${booking.id} fue creada exitosamente. El profesional ${pro.displayName} recibirá tu solicitud.`,
+      `<p>Tu reserva <strong>#${booking.id}</strong> fue creada exitosamente.</p><p>El profesional <strong>${pro.displayName}</strong> recibirá tu solicitud y te notificaremos cuando la acepte.</p>`
+    );
 
     // Adapt to domain type for router compatibility
     return this.adaptToDomain(booking, input, pro.hourlyRate);
@@ -124,6 +138,16 @@ export class BookingService {
       throw new BookingNotFoundError(bookingId);
     }
 
+    // Send notification to client
+    const pro = await this.proRepository.findById(updated.proProfileId!);
+    await this.sendClientNotification(
+      updated,
+      "booking.accepted",
+      "¡Tu reserva fue aceptada!",
+      `Tu reserva #${updated.id} fue aceptada por ${pro?.displayName || "el profesional"}.`,
+      `<p>¡Excelente noticia!</p><p>Tu reserva <strong>#${updated.id}</strong> fue aceptada por <strong>${pro?.displayName || "el profesional"}</strong>.</p><p>Te notificaremos cuando esté en camino.</p>`
+    );
+
     return updated;
   }
 
@@ -171,6 +195,16 @@ export class BookingService {
     if (!updated) {
       throw new BookingNotFoundError(bookingId);
     }
+
+    // Send notification to client
+    const pro = await this.proRepository.findById(updated.proProfileId!);
+    await this.sendClientNotification(
+      updated,
+      "booking.rejected",
+      "Tu reserva fue rechazada",
+      `Lamentablemente, tu reserva #${updated.id} fue rechazada por ${pro?.displayName || "el profesional"}.`,
+      `<p>Lamentablemente, tu reserva <strong>#${updated.id}</strong> fue rechazada por <strong>${pro?.displayName || "el profesional"}</strong>.</p><p>Podés buscar otro profesional disponible.</p>`
+    );
 
     return updated;
   }
@@ -220,6 +254,16 @@ export class BookingService {
       throw new Error("Failed to update booking status");
     }
 
+    // Send notification to client
+    const pro = await this.proRepository.findById(updated.proProfileId!);
+    await this.sendClientNotification(
+      updated,
+      "booking.on_my_way",
+      "El profesional está en camino",
+      `${pro?.displayName || "El profesional"} está en camino a tu ubicación para la reserva #${updated.id}.`,
+      `<p><strong>${pro?.displayName || "El profesional"}</strong> está en camino a tu ubicación.</p><p>Reserva: <strong>#${updated.id}</strong></p>`
+    );
+
     return updated;
   }
 
@@ -267,6 +311,16 @@ export class BookingService {
     if (!updated) {
       throw new BookingNotFoundError(bookingId);
     }
+
+    // Send notification to client
+    const pro = await this.proRepository.findById(updated.proProfileId!);
+    await this.sendClientNotification(
+      updated,
+      "booking.arrived",
+      "El profesional llegó",
+      `${pro?.displayName || "El profesional"} llegó a tu ubicación para la reserva #${updated.id}.`,
+      `<p><strong>${pro?.displayName || "El profesional"}</strong> llegó a tu ubicación.</p><p>Reserva: <strong>#${updated.id}</strong></p>`
+    );
 
     return updated;
   }
@@ -382,6 +436,16 @@ export class BookingService {
       console.error(`Error attempting to capture payment for booking ${bookingId}:`, error);
     }
 
+    // Send notification to client
+    const pro = await this.proRepository.findById(updated.proProfileId!);
+    await this.sendClientNotification(
+      updated,
+      "booking.completed",
+      "Tu reserva fue completada",
+      `Tu reserva #${updated.id} fue completada por ${pro?.displayName || "el profesional"}. ¡Gracias por usar nuestro servicio!`,
+      `<p>¡Tu reserva fue completada!</p><p>Reserva <strong>#${updated.id}</strong> completada por <strong>${pro?.displayName || "el profesional"}</strong>.</p><p>¡Gracias por usar nuestro servicio!</p>`
+    );
+
     return updated;
   }
 
@@ -453,6 +517,102 @@ export class BookingService {
     }
 
     return this.getProBookings(proProfile.id);
+  }
+
+  /**
+   * Send notification to client for a booking event
+   * Always sends EMAIL if client has email
+   * Sends WHATSAPP for important events if client has phone and prefers WhatsApp
+   * Silently fails if notification fails (doesn't affect booking operation)
+   */
+  private async sendClientNotification(
+    booking: BookingEntity,
+    event: NotificationEvent,
+    subject: string,
+    text: string,
+    html?: string
+  ): Promise<void> {
+    try {
+      // Get client profile to get email and phone
+      const clientProfile = await this.clientProfileService.getProfileByUserId(
+        booking.clientUserId
+      );
+
+      // Only send if client has an email (email is always required)
+      if (!clientProfile?.email) {
+        return;
+      }
+
+      // Get pro info for notification content
+      const pro = booking.proProfileId
+        ? await this.proRepository.findById(booking.proProfileId)
+        : null;
+      const proName = pro?.displayName || "el profesional";
+
+      const payload = {
+        subject,
+        text,
+        html: html || text,
+        bookingId: booking.id,
+        proName,
+        scheduledAt: booking.scheduledAt.toLocaleString("es-UY"),
+      };
+
+      // Determine if event is "important" (triggers WhatsApp)
+      const importantEvents: NotificationEvent[] = [
+        "booking.accepted",
+        "booking.rejected",
+        "booking.on_my_way",
+        "booking.arrived",
+        "booking.completed",
+        "payment.required",
+      ];
+      const isImportant = importantEvents.includes(event);
+
+      // Always send EMAIL if client has email
+      const emailMessage = {
+        channel: "EMAIL" as const,
+        recipientRef: clientProfile.email,
+        templateId: event,
+        payload,
+        idempotencyKey: `${event}:${booking.id}:${clientProfile.email}:EMAIL`,
+      };
+      await this.notificationService.deliverNow(emailMessage).catch((error) => {
+        console.error(
+          `Failed to send EMAIL notification for booking ${booking.id}:`,
+          error
+        );
+      });
+
+      // Send WHATSAPP only for important events if client has phone and prefers WhatsApp
+      if (
+        isImportant &&
+        clientProfile.phone &&
+        clientProfile.preferredContactMethod === "WHATSAPP"
+      ) {
+        const whatsappMessage = {
+          channel: "WHATSAPP" as const,
+          recipientRef: clientProfile.phone,
+          templateId: event,
+          payload,
+          idempotencyKey: `${event}:${booking.id}:${clientProfile.phone}:WHATSAPP`,
+        };
+        await this.notificationService
+          .deliverNow(whatsappMessage)
+          .catch((error) => {
+            console.error(
+              `Failed to send WHATSAPP notification for booking ${booking.id}:`,
+              error
+            );
+          });
+      }
+    } catch (error) {
+      // Log but don't fail booking operation if notification fails
+      console.error(
+        `Error sending notification for booking ${booking.id}:`,
+        error
+      );
+    }
   }
 
   /**

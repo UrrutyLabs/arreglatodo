@@ -28,9 +28,9 @@ export function setupContainer(): DependencyContainer {
   registerReviewModule(tsyringeContainer);
 
   // Register modules that depend on others
+  registerNotificationModule(tsyringeContainer); // Register before BookingModule (BookingService depends on NotificationService)
   registerBookingModule(tsyringeContainer);
   registerPaymentModule(tsyringeContainer);
-  registerNotificationModule(tsyringeContainer);
   registerPushModule(tsyringeContainer);
 
   return tsyringeContainer;
