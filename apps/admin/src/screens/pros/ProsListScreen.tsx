@@ -1,19 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { trpc } from "@/lib/trpc/client";
-import { PaymentStatus } from "@repo/domain";
-import { PaymentsTable } from "@/components/admin/PaymentsTable";
-import { PaymentsFilters } from "@/components/admin/PaymentsFilters";
+import { usePros } from "@/hooks/usePros";
+import { ProsTable } from "@/components/pros/ProsTable";
+import { ProsFilters } from "@/components/pros/ProsFilters";
 import { Text } from "@/components/ui/Text";
 
-export function PaymentsListScreen() {
-  const [statusFilter, setStatusFilter] = useState<PaymentStatus | undefined>();
+export function ProsListScreen() {
+  const [statusFilter, setStatusFilter] = useState<
+    "pending" | "active" | "suspended" | undefined
+  >();
   const [queryFilter, setQueryFilter] = useState("");
 
-  const { data: payments, isLoading } = trpc.payment.adminList.useQuery({
+  const { data: pros, isLoading } = usePros({
     status: statusFilter,
-    query: queryFilter || undefined,
+    query: queryFilter,
     limit: 100,
   });
 
@@ -25,10 +26,10 @@ export function PaymentsListScreen() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Text variant="h1">Pagos</Text>
+        <Text variant="h1">Profesionales</Text>
       </div>
 
-      <PaymentsFilters
+      <ProsFilters
         status={statusFilter}
         query={queryFilter}
         onStatusChange={setStatusFilter}
@@ -36,7 +37,7 @@ export function PaymentsListScreen() {
         onClear={handleClearFilters}
       />
 
-      <PaymentsTable payments={payments || []} isLoading={isLoading} />
+      <ProsTable pros={pros || []} isLoading={isLoading} />
     </div>
   );
 }

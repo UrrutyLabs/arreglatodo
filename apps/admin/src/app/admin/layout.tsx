@@ -1,8 +1,8 @@
 "use client";
 
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { AdminLayout } from "@/components/admin/AdminLayout";
-import { AccessDeniedScreen } from "@/components/admin/AccessDeniedScreen";
+import { AdminLayout } from "@/components/layout/AdminLayout";
+import { AccessDeniedScreen } from "@/components/layout/AccessDeniedScreen";
 
 export default function AdminLayoutWrapper({
   children,

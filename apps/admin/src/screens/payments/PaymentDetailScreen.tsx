@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { trpc } from "@/lib/trpc/client";
+import { usePayment, useSyncPaymentStatus } from "@/hooks/usePayments";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/ui/Text";
@@ -15,15 +15,8 @@ interface PaymentDetailScreenProps {
 export function PaymentDetailScreen({ paymentId }: PaymentDetailScreenProps) {
   const router = useRouter();
 
-  const { data: payment, isLoading, refetch } = trpc.payment.adminById.useQuery({
-    paymentId,
-  });
-
-  const syncStatusMutation = trpc.payment.syncStatus.useMutation({
-    onSuccess: () => {
-      refetch();
-    },
-  });
+  const { data: payment, isLoading, refetch } = usePayment(paymentId);
+  const syncStatusMutation = useSyncPaymentStatus();
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString("es-UY", {
@@ -50,7 +43,14 @@ export function PaymentDetailScreen({ paymentId }: PaymentDetailScreenProps) {
 
   const handleSyncStatus = () => {
     if (confirm("¿Estás seguro de sincronizar el estado del pago con el proveedor?")) {
-      syncStatusMutation.mutate({ paymentId });
+      syncStatusMutation.mutate(
+        { paymentId },
+        {
+          onSuccess: () => {
+            refetch();
+          },
+        }
+      );
     }
   };
 

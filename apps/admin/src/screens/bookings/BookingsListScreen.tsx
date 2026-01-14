@@ -1,20 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { trpc } from "@/lib/trpc/client";
-import { ProsTable } from "@/components/admin/ProsTable";
-import { ProsFilters } from "@/components/admin/ProsFilters";
+import { BookingStatus } from "@repo/domain";
+import { useBookings } from "@/hooks/useBookings";
+import { BookingsTable } from "@/components/bookings/BookingsTable";
+import { BookingsFilters } from "@/components/bookings/BookingsFilters";
 import { Text } from "@/components/ui/Text";
 
-export function ProsListScreen() {
-  const [statusFilter, setStatusFilter] = useState<
-    "pending" | "active" | "suspended" | undefined
-  >();
+export function BookingsListScreen() {
+  const [statusFilter, setStatusFilter] = useState<BookingStatus | undefined>();
   const [queryFilter, setQueryFilter] = useState("");
 
-  const { data: pros, isLoading } = trpc.pro.adminList.useQuery({
+  const { data: bookings, isLoading } = useBookings({
     status: statusFilter,
-    query: queryFilter || undefined,
+    query: queryFilter,
     limit: 100,
   });
 
@@ -26,10 +25,10 @@ export function ProsListScreen() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Text variant="h1">Profesionales</Text>
+        <Text variant="h1">Reservas</Text>
       </div>
 
-      <ProsFilters
+      <BookingsFilters
         status={statusFilter}
         query={queryFilter}
         onStatusChange={setStatusFilter}
@@ -37,7 +36,7 @@ export function ProsListScreen() {
         onClear={handleClearFilters}
       />
 
-      <ProsTable pros={pros || []} isLoading={isLoading} />
+      <BookingsTable bookings={bookings || []} isLoading={isLoading} />
     </div>
   );
 }

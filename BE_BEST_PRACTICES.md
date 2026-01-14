@@ -1,4 +1,4 @@
-# Architecture Best Practices (API + Frontends)
+# Backend Best Practices (API)
 
 ## Goals
 
@@ -287,128 +287,16 @@ Booking, Payment (depend on Pro/Review)
 - **Module Registration:** `{domain}.module.ts` in `container/modules/`
 - **Zod schemas:** `BookingCreateInputSchema`, `ProOnboardInputSchema` (in `@repo/domain`)
 
-## Frontend Architecture (Next.js web + Expo mobile)
+## Frontend Architecture
 
-We use a clean separation between presentational components and container components, and keep business logic out of UI.
+For frontend-specific best practices, see [FE_BEST_PRACTICES.md](./FE_BEST_PRACTICES.md).
 
-### Layers
-
-#### 1. Presentational Components (UI-only)
-
-**Responsibilities:**
-
-- Render UI from props
-- No API calls
-- No global state access
-- Minimal logic (formatting, simple conditionals)
-
-**Examples:**
-
-- `ProCard`, `BookingForm`, `RatingStars`
-
-**Rule of thumb:**
-
-If it can be rendered in Storybook with mock props, it's presentational.
-
-#### 2. Containers (Smart Components / Screens)
-
-**Responsibilities:**
-
-- Fetch data (tRPC queries)
-- Call mutations
-- Handle loading/error states
-- Map API/domain data to UI props
-
-**Examples:**
-
-- `SearchProsScreen`, `BookingCreateScreen`
-
-#### 3. Hooks (Reusable logic)
-
-**Responsibilities:**
-
-- Encapsulate repeated controller logic (fetch + transform + caching)
-
-**Example:**
-
-- `useSearchPros()`
-- `useCreateBooking()`
-
-#### 4. State Management
-
-**MVP guidance:**
-
-- Use React Query (via tRPC) as the primary async state
-- Keep global state minimal (auth/session, UI preferences)
-- Prefer local state for forms
-
-### Frontend Folder Convention (recommended)
-
-**Next.js apps (apps/client, apps/admin)**
-
-```
-src/
-  app/          # Next routes + layouts
-  screens/      # container-level screens (smart)
-  components/
-    ui/         # presentational components
-    containers/ # optional: smart components if not in screens
-  hooks/        # reusable hooks
-  lib/
-  trpc/         # trpc client setup + providers
-  api/          # API helpers if needed (rare with tRPC)
-  domain/       # UI-specific domain mapping (not shared contract)
-  styles/
-```
-
-**Expo app (apps/mobile)**
-
-```
-src/
-  screens/      # container screens
-  components/
-    ui/         # presentational components
-  hooks/
-  lib/
-  trpc/
-  navigation/
-  domain/
-```
-
-### SOLID rules for Frontend
-
-#### Single Responsibility
-
-- Screens orchestrate data + user actions
-- Presentational components render only
-
-#### Open/Closed
-
-- Extend UI via new presentational components
-- Avoid large "mega components" that keep growing
-
-#### Interface Segregation
-
-- Keep component props small and specific
-
-**Prefer:**
-
-```tsx
-<ProCard pro={...} onSelect={...} />
-```
-
-instead of passing 20 unrelated props
-
-#### Dependency Inversion
-
-- UI depends on abstractions (hooks/services), not direct API calls everywhere
-- Prefer usecases/hooks for operations used in multiple screens
-
-### UI ↔ Domain boundaries (important)
-
-- Zod schemas and canonical domain types live in `packages/domain`
-- Frontends should not duplicate validation rules
-- Frontends can define UI-only view models (e.g., formatting, grouping), but should not redefine the core contract.
+**Key Points:**
+- Frontend uses hooks to encapsulate tRPC queries/mutations (no direct `trpc` access in screens)
+- Screens orchestrate data fetching and user actions
+- Presentational components are pure (props in, JSX out)
+- Complex UI is broken into subcomponents
+- Utility functions handle formatting and transformations
 
 ## "Do / Don't" Summary
 
@@ -425,10 +313,7 @@ instead of passing 20 unrelated props
 
 - Don't query Prisma inside routers
 - Don't put business logic in route handlers
-- Don't mix API calls into presentational components
-- Don't create shared UI abstractions too early
 - Don't create "god services" that own everything
-- Don't duplicate domain schemas on the frontend
 - Don't import services/repos directly across modules (use DI)
 - Don't use lazy imports (`await import()`) unless absolutely necessary (DI handles dependencies)
 - Don't create circular dependencies between modules

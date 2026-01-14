@@ -3,13 +3,13 @@ import { TOKENS } from "../tokens";
 import {
   DevicePushTokenRepositoryImpl,
   type DevicePushTokenRepository,
-} from "@/server/modules/push/devicePushToken.repo";
+} from "@modules/push/devicePushToken.repo";
 import {
   PushTokenService,
-} from "@/server/modules/push/pushToken.service";
+} from "@modules/push/pushToken.service";
 import {
   PushDeliveryResolver,
-} from "@/server/modules/notification/pushResolver";
+} from "@modules/notification/pushResolver";
 
 /**
  * Register push module dependencies

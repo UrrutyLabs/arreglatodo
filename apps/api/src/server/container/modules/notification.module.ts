@@ -3,10 +3,10 @@ import { TOKENS } from "../tokens";
 import {
   NotificationDeliveryRepositoryImpl,
   type NotificationDeliveryRepository,
-} from "@/server/modules/notification/notificationDelivery.repo";
+} from "@modules/notification/notificationDelivery.repo";
 import {
   NotificationService,
-} from "@/server/modules/notification/notification.service";
+} from "@modules/notification/notification.service";
 
 /**
  * Register notification module dependencies

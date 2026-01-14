@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import { ProDetailScreen } from "@/screens/admin/ProDetailScreen";
+import { ProDetailScreen } from "@/screens/pros/ProDetailScreen";
 
 interface PageProps {
   params: Promise<{ proProfileId: string }>;

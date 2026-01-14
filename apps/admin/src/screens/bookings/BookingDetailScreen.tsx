@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { trpc } from "@/lib/trpc/client";
 import { BookingStatus } from "@repo/domain";
+import { useBooking, useCancelBooking, useForceBookingStatus } from "@/hooks/useBookings";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/ui/Text";
 import { Badge } from "@/components/ui/Badge";
 import { formatCurrency } from "@repo/domain";
-import { BookingTimeline } from "@/components/admin/BookingTimeline";
+import { BookingTimeline } from "@/components/bookings/BookingTimeline";
 
 interface BookingDetailScreenProps {
   bookingId: string;
@@ -20,23 +20,9 @@ export function BookingDetailScreen({ bookingId }: BookingDetailScreenProps) {
   const [showForceStatusModal, setShowForceStatusModal] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<BookingStatus | null>(null);
 
-  const { data: booking, isLoading, refetch } = trpc.booking.adminById.useQuery({
-    bookingId,
-  });
-
-  const cancelMutation = trpc.booking.cancel.useMutation({
-    onSuccess: () => {
-      refetch();
-    },
-  });
-
-  const forceStatusMutation = trpc.booking.adminForceStatus.useMutation({
-    onSuccess: () => {
-      setShowForceStatusModal(false);
-      setSelectedStatus(null);
-      refetch();
-    },
-  });
+  const { data: booking, isLoading, refetch } = useBooking(bookingId);
+  const cancelMutation = useCancelBooking();
+  const forceStatusMutation = useForceBookingStatus();
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString("es-UY", {
@@ -64,16 +50,32 @@ export function BookingDetailScreen({ bookingId }: BookingDetailScreenProps) {
 
   const handleCancel = () => {
     if (confirm("¿Estás seguro de que querés cancelar esta reserva?")) {
-      cancelMutation.mutate({ bookingId });
+      cancelMutation.mutate(
+        { bookingId },
+        {
+          onSuccess: () => {
+            refetch();
+          },
+        }
+      );
     }
   };
 
   const handleForceStatus = () => {
     if (selectedStatus && confirm(`¿Estás seguro de cambiar el estado a ${selectedStatus}?`)) {
-      forceStatusMutation.mutate({
-        bookingId,
-        status: selectedStatus,
-      });
+      forceStatusMutation.mutate(
+        {
+          bookingId,
+          status: selectedStatus,
+        },
+        {
+          onSuccess: () => {
+            setShowForceStatusModal(false);
+            setSelectedStatus(null);
+            refetch();
+          },
+        }
+      );
     }
   };
 

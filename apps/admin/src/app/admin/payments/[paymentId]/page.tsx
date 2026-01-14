@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import { PaymentDetailScreen } from "@/screens/admin/PaymentDetailScreen";
+import { PaymentDetailScreen } from "@/screens/payments/PaymentDetailScreen";
 
 interface PageProps {
   params: Promise<{ paymentId: string }>;

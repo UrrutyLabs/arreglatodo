@@ -317,6 +317,43 @@ export class PayoutService {
   }
 
   /**
+   * List all payouts (for admin UI)
+   */
+  async listPayouts(
+    adminActor: Actor,
+    limit?: number
+  ): Promise<Array<{
+    id: string;
+    proProfileId: string;
+    provider: string;
+    status: string;
+    currency: string;
+    amount: number;
+    providerReference: string | null;
+    createdAt: Date;
+    sentAt: Date | null;
+  }>> {
+    // Authorization: Admin only
+    if (adminActor.role !== Role.ADMIN) {
+      throw new PayoutError("Only admins can list payouts");
+    }
+
+    const payouts = await this.payoutRepository.listAll(limit);
+
+    return payouts.map((payout) => ({
+      id: payout.id,
+      proProfileId: payout.proProfileId,
+      provider: payout.provider,
+      status: payout.status,
+      currency: payout.currency,
+      amount: payout.amount,
+      providerReference: payout.providerReference,
+      createdAt: payout.createdAt,
+      sentAt: payout.sentAt,
+    }));
+  }
+
+  /**
    * Get payout by ID
    */
   async getPayout(

@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import { PayoutDetailScreen } from "@/screens/admin/PayoutDetailScreen";
+import { PayoutDetailScreen } from "@/screens/payouts/PayoutDetailScreen";
 
 interface PageProps {
   params: Promise<{ payoutId: string }>;

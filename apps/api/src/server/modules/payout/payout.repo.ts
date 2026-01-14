@@ -51,6 +51,7 @@ export interface PayoutRepository {
     patch?: PayoutStatusUpdateInput
   ): Promise<PayoutEntity>;
   findById(payoutId: string): Promise<PayoutEntity | null>;
+  listAll(limit?: number): Promise<PayoutEntity[]>;
   listByStatus(
     status: "CREATED" | "SENT" | "FAILED" | "SETTLED",
     limit?: number
@@ -120,6 +121,17 @@ export class PayoutRepositoryImpl implements PayoutRepository {
     });
 
     return payout ? this.mapPrismaToDomain(payout) : null;
+  }
+
+  async listAll(limit?: number): Promise<PayoutEntity[]> {
+    const payouts = await prisma.payout.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: limit,
+    });
+
+    return payouts.map(this.mapPrismaToDomain);
   }
 
   async listByStatus(

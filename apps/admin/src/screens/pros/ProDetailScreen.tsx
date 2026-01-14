@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Text } from "@/components/ui/Text";
 import { Badge } from "@/components/ui/Badge";
-import { ProAuditHistory } from "@/components/admin/ProAuditHistory";
+import { ProAuditHistory } from "@/components/pros/ProAuditHistory";
 import { useProDetail } from "@/hooks/useProDetail";
 
 interface ProDetailScreenProps {

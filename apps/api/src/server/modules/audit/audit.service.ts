@@ -2,7 +2,7 @@ import { injectable, inject } from "tsyringe";
 import type { AuditLogRepository, AuditEventType } from "./audit.repo";
 import type { Actor } from "@infra/auth/roles";
 import { Role } from "@repo/domain";
-import { TOKENS } from "@/server/container/tokens";
+import { TOKENS } from "../../container";
 import { logger } from "@infra/utils/logger";
 
 /**

@@ -11,6 +11,29 @@ const payoutProviderSchema = z.enum(["MERCADO_PAGO", "BANK_TRANSFER", "MANUAL"])
 
 export const payoutRouter = router({
   /**
+   * List all payouts (for admin UI)
+   */
+  list: adminProcedure
+    .input(
+      z
+        .object({
+          limit: z.number().int().positive().max(1000).optional(),
+        })
+        .optional()
+    )
+    .query(async ({ input, ctx }) => {
+      try {
+        return await payoutService.listPayouts(ctx.actor, input?.limit);
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error ? error.message : "Failed to list payouts",
+        });
+      }
+    }),
+
+  /**
    * List pros with payable earnings (for admin UI)
    */
   listPayablePros: adminProcedure.query(async ({ ctx }) => {

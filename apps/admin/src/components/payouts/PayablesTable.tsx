@@ -75,7 +75,7 @@ export function PayablesTable({
                   {pro.displayName}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {formatCurrency(pro.totalPayable, pro.currency)}
+                  {formatCurrency(pro.totalPayable, pro.currency, true)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {pro.earningsCount}

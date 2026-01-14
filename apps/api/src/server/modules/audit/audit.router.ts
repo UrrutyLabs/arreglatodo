@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { router, adminProcedure } from "@infra/trpc";
-import { container, TOKENS } from "@/server/container";
+import { container, TOKENS } from "../../container";
 import { AuditService } from "./audit.service";
 import { AuditEventType } from "./audit.repo";
 import { TRPCError } from "@trpc/server";

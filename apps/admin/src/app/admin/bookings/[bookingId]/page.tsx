@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import { BookingDetailScreen } from "@/screens/admin/BookingDetailScreen";
+import { BookingDetailScreen } from "@/screens/bookings/BookingDetailScreen";
 
 interface PageProps {
   params: Promise<{ bookingId: string }>;
