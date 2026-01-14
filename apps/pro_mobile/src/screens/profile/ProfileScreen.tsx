@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { StyleSheet, ScrollView, Alert, TouchableOpacity } from "react-native";
+import { StyleSheet, ScrollView, Alert, TouchableOpacity, View } from "react-native";
 import { useRouter } from "expo-router";
+import { Feather } from "@expo/vector-icons";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Text } from "../../components/ui/Text";
@@ -45,18 +46,27 @@ export function ProfileScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text variant="h1" style={styles.title}>
-        Perfil
-      </Text>
+      <View style={styles.titleRow}>
+        <Feather name="user" size={24} color={theme.colors.primary} />
+        <Text variant="h1" style={styles.title}>
+          Perfil
+        </Text>
+      </View>
 
       <Card style={styles.card}>
-        <Text variant="h2" style={styles.sectionTitle}>
-          Información de cuenta
-        </Text>
-        {user?.email && (
-          <Text variant="body" style={styles.email}>
-            {user.email}
+        <View style={styles.sectionHeader}>
+          <Feather name="user" size={20} color={theme.colors.primary} />
+          <Text variant="h2" style={styles.sectionTitle}>
+            Información de cuenta
           </Text>
+        </View>
+        {user?.email && (
+          <View style={styles.emailRow}>
+            <Feather name="mail" size={16} color={theme.colors.muted} />
+            <Text variant="body" style={styles.email}>
+              {user.email}
+            </Text>
+          </View>
         )}
       </Card>
 
@@ -65,12 +75,13 @@ export function ProfileScreen() {
           onPress={() => router.push("/settings/payout")}
           style={styles.linkRow}
         >
-          <Text variant="body" style={styles.linkText}>
-            Configuración de cobros
-          </Text>
-          <Text variant="small" style={styles.linkArrow}>
-            →
-          </Text>
+          <View style={styles.linkLeft}>
+            <Feather name="credit-card" size={20} color={theme.colors.text} />
+            <Text variant="body" style={styles.linkText}>
+              Configuración de cobros
+            </Text>
+          </View>
+          <Feather name="chevron-right" size={20} color={theme.colors.muted} />
         </TouchableOpacity>
       </Card>
 
@@ -96,32 +107,50 @@ const styles = StyleSheet.create({
   content: {
     padding: theme.spacing[4],
   },
-  title: {
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: theme.spacing[6],
+  },
+  title: {
+    marginLeft: theme.spacing[2],
     color: theme.colors.primary,
   },
   card: {
     marginBottom: theme.spacing[4],
   },
-  sectionTitle: {
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: theme.spacing[2],
+  },
+  sectionTitle: {
+    marginLeft: theme.spacing[2],
     color: theme.colors.text,
   },
-  email: {
-    color: theme.colors.muted,
+  emailRow: {
+    flexDirection: "row",
+    alignItems: "center",
   },
-  signOutButton: {
-    width: "100%",
+  email: {
+    marginLeft: theme.spacing[1],
+    color: theme.colors.muted,
   },
   linkRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
+  linkLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
   linkText: {
+    marginLeft: theme.spacing[2],
     color: theme.colors.text,
   },
-  linkArrow: {
-    color: theme.colors.muted,
+  signOutButton: {
+    width: "100%",
   },
 });

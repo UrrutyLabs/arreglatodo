@@ -1,4 +1,5 @@
 import { TouchableOpacity, StyleSheet, View } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { Card } from "../ui/Card";
 import { Text } from "../ui/Text";
 import { Badge } from "../ui/Badge";
@@ -63,17 +64,25 @@ export function BookingCard({ booking, onPress }: BookingCardProps) {
           <Text variant="h2" style={styles.category}>
             {categoryLabel}
           </Text>
-          <Badge variant={statusVariant}>{statusLabel}</Badge>
+          <Badge variant={statusVariant} showIcon>
+            {statusLabel}
+          </Badge>
         </View>
         <Text variant="body" style={styles.description} numberOfLines={2}>
           {descriptionLines}
         </Text>
-        <Text variant="small" style={styles.date}>
-          {formattedDate}
-        </Text>
-        <Text variant="body" style={styles.amount}>
-          Total: ${booking.totalAmount.toFixed(2)}
-        </Text>
+        <View style={styles.dateRow}>
+          <Feather name="clock" size={14} color={theme.colors.muted} />
+          <Text variant="small" style={styles.date}>
+            {formattedDate}
+          </Text>
+        </View>
+        <View style={styles.amountRow}>
+          <Feather name="dollar-sign" size={16} color={theme.colors.primary} />
+          <Text variant="body" style={styles.amount}>
+            Total: ${booking.totalAmount.toFixed(2)}
+          </Text>
+        </View>
       </Card>
     </TouchableOpacity>
   );
@@ -96,11 +105,22 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing[2],
     color: theme.colors.muted,
   },
-  date: {
+  dateRow: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: theme.spacing[1],
+  },
+  date: {
+    marginLeft: theme.spacing[1],
     color: theme.colors.muted,
   },
+  amountRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: theme.spacing[1],
+  },
   amount: {
+    marginLeft: theme.spacing[1],
     fontWeight: theme.typography.weights.semibold,
     color: theme.colors.primary,
   },

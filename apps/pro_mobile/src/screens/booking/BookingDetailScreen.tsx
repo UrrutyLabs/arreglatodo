@@ -1,6 +1,7 @@
 import { View, StyleSheet, ActivityIndicator, ScrollView } from "react-native";
 import { useState } from "react";
 import { useLocalSearchParams } from "expo-router";
+import { Feather } from "@expo/vector-icons";
 import { Text } from "../../components/ui/Text";
 import { Card } from "../../components/ui/Card";
 import { Badge } from "../../components/ui/Badge";
@@ -66,6 +67,7 @@ export function BookingDetailScreen() {
   if (error || !booking) {
     return (
       <View style={styles.center}>
+        <Feather name="alert-circle" size={48} color={theme.colors.danger} />
         <Text variant="body" style={styles.error}>
           {error?.message || "Reserva no encontrada"}
         </Text>
@@ -81,7 +83,7 @@ export function BookingDetailScreen() {
     try {
       await acceptBooking(bookingId);
       setLocalStatus(BookingStatus.ACCEPTED);
-    } catch (err) {
+    } catch {
       // Error handled by hook
     }
   };
@@ -91,7 +93,7 @@ export function BookingDetailScreen() {
     try {
       await rejectBooking(bookingId);
       setLocalStatus(BookingStatus.REJECTED);
-    } catch (err) {
+    } catch {
       // Error handled by hook
     }
   };
@@ -101,7 +103,7 @@ export function BookingDetailScreen() {
     try {
       await markOnMyWay(bookingId);
       setLocalStatus(BookingStatus.ON_MY_WAY);
-    } catch (err) {
+    } catch {
       // Error handled by hook
     }
   };
@@ -111,7 +113,7 @@ export function BookingDetailScreen() {
     try {
       await arriveBooking(bookingId);
       setLocalStatus(BookingStatus.ARRIVED);
-    } catch (err) {
+    } catch {
       // Error handled by hook
     }
   };
@@ -121,7 +123,7 @@ export function BookingDetailScreen() {
     try {
       await completeBooking(bookingId);
       setLocalStatus(BookingStatus.COMPLETED);
-    } catch (err) {
+    } catch {
       // Error handled by hook
     }
   };
@@ -149,43 +151,63 @@ export function BookingDetailScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text variant="h1">Detalle de reserva</Text>
-        <Badge variant={statusVariant}>{statusLabel}</Badge>
+        <Badge variant={statusVariant} showIcon>
+          {statusLabel}
+        </Badge>
       </View>
 
       <Card style={styles.card}>
-        <Text variant="h2" style={styles.sectionTitle}>
-          Resumen
-        </Text>
-        <View style={styles.row}>
-          <Text variant="small" style={styles.label}>
-            Categoría:
+        <View style={styles.sectionHeader}>
+          <Feather name="file-text" size={20} color={theme.colors.primary} />
+          <Text variant="h2" style={styles.sectionTitle}>
+            Resumen
           </Text>
+        </View>
+        <View style={styles.row}>
+          <View style={styles.labelRow}>
+            <Feather name="tag" size={14} color={theme.colors.muted} />
+            <Text variant="small" style={styles.label}>
+              Categoría:
+            </Text>
+          </View>
           <Text variant="body">{categoryLabel}</Text>
         </View>
         <View style={styles.row}>
-          <Text variant="small" style={styles.label}>
-            Fecha y hora:
-          </Text>
+          <View style={styles.labelRow}>
+            <Feather name="calendar" size={14} color={theme.colors.muted} />
+            <Text variant="small" style={styles.label}>
+              Fecha y hora:
+            </Text>
+          </View>
           <Text variant="body">{formattedDate}</Text>
         </View>
         <View style={styles.row}>
-          <Text variant="small" style={styles.label}>
-            Horas estimadas:
-          </Text>
+          <View style={styles.labelRow}>
+            <Feather name="clock" size={14} color={theme.colors.muted} />
+            <Text variant="small" style={styles.label}>
+              Horas estimadas:
+            </Text>
+          </View>
           <Text variant="body">{booking.estimatedHours}</Text>
         </View>
         <View style={styles.row}>
-          <Text variant="small" style={styles.label}>
-            Descripción:
-          </Text>
+          <View style={styles.labelRow}>
+            <Feather name="file-text" size={14} color={theme.colors.muted} />
+            <Text variant="small" style={styles.label}>
+              Descripción:
+            </Text>
+          </View>
           <Text variant="body" style={styles.description}>
             {booking.description}
           </Text>
         </View>
         <View style={styles.row}>
-          <Text variant="small" style={styles.label}>
-            Total estimado:
-          </Text>
+          <View style={styles.labelRow}>
+            <Feather name="dollar-sign" size={14} color={theme.colors.muted} />
+            <Text variant="small" style={styles.label}>
+              Total estimado:
+            </Text>
+          </View>
           <Text variant="h2" style={styles.amount}>
             ${booking.totalAmount.toFixed(2)}
           </Text>
@@ -195,17 +217,23 @@ export function BookingDetailScreen() {
       {/* Actions */}
       {actionError && (
         <Card style={styles.errorCard}>
-          <Text variant="small" style={styles.errorText}>
-            {actionError}
-          </Text>
+          <View style={styles.errorRow}>
+            <Feather name="alert-circle" size={16} color={theme.colors.danger} />
+            <Text variant="small" style={styles.errorText}>
+              {actionError}
+            </Text>
+          </View>
         </Card>
       )}
 
       {!isReadOnly && (
         <Card style={styles.actionsCard}>
-          <Text variant="h2" style={styles.sectionTitle}>
-            Acciones
-          </Text>
+          <View style={styles.sectionHeader}>
+            <Feather name="zap" size={20} color={theme.colors.primary} />
+            <Text variant="h2" style={styles.sectionTitle}>
+              Acciones
+            </Text>
+          </View>
 
           {canAccept && (
             <Button
@@ -290,7 +318,12 @@ const styles = StyleSheet.create({
     backgroundColor: `${theme.colors.danger}1A`,
     borderColor: theme.colors.danger,
   },
+  errorRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   errorText: {
+    marginLeft: theme.spacing[1],
     color: theme.colors.danger,
   },
   error: {
@@ -309,15 +342,25 @@ const styles = StyleSheet.create({
   card: {
     marginBottom: theme.spacing[4],
   },
-  sectionTitle: {
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: theme.spacing[3],
+  },
+  sectionTitle: {
+    marginLeft: theme.spacing[2],
   },
   row: {
     marginBottom: theme.spacing[3],
   },
-  label: {
-    color: theme.colors.muted,
+  labelRow: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: theme.spacing[1],
+  },
+  label: {
+    marginLeft: theme.spacing[1],
+    color: theme.colors.muted,
   },
   description: {
     marginTop: theme.spacing[1],

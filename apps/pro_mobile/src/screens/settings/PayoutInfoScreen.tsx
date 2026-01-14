@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { StyleSheet, ScrollView, Alert } from "react-native";
+import { StyleSheet, ScrollView, Alert, View, ActivityIndicator } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Text } from "../../components/ui/Text";
@@ -50,11 +51,19 @@ export function PayoutInfoScreen() {
   if (isLoading) {
     return (
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-        <Text variant="h1" style={styles.title}>
-          Cobros
-        </Text>
+        <View style={styles.titleRow}>
+          <Feather name="credit-card" size={24} color={theme.colors.primary} />
+          <Text variant="h1" style={styles.title}>
+            Cobros
+          </Text>
+        </View>
         <Card style={styles.card}>
-          <Text variant="body">Cargando...</Text>
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={theme.colors.primary} />
+            <Text variant="body" style={styles.loadingText}>
+              Cargando...
+            </Text>
+          </View>
         </Card>
       </ScrollView>
     );
@@ -64,34 +73,50 @@ export function PayoutInfoScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text variant="h1" style={styles.title}>
-        Cobros
-      </Text>
+      <View style={styles.titleRow}>
+        <Feather name="credit-card" size={24} color={theme.colors.primary} />
+        <Text variant="h1" style={styles.title}>
+          Cobros
+        </Text>
+      </View>
 
       {/* Status Card */}
       <Card style={styles.card}>
-        <Text variant="h2" style={styles.sectionTitle}>
-          Estado
-        </Text>
+        <View style={styles.sectionHeader}>
+          <Feather name="info" size={20} color={theme.colors.primary} />
+          <Text variant="h2" style={styles.sectionTitle}>
+            Estado
+          </Text>
+        </View>
         {isComplete ? (
-          <Text variant="body" style={styles.successText}>
-            Datos completos
-          </Text>
+          <View style={styles.statusRow}>
+            <Feather name="check-circle" size={20} color={theme.colors.success} />
+            <Text variant="body" style={styles.successText}>
+              Datos completos
+            </Text>
+          </View>
         ) : (
-          <Text variant="body" style={styles.warningText}>
-            Completá tus datos para poder cobrar
-          </Text>
+          <View style={styles.statusRow}>
+            <Feather name="alert-circle" size={20} color={theme.colors.warning} />
+            <Text variant="body" style={styles.warningText}>
+              Completá tus datos para poder cobrar
+            </Text>
+          </View>
         )}
       </Card>
 
       {/* Form Fields */}
       <Card style={styles.card}>
-        <Text variant="h2" style={styles.sectionTitle}>
-          Información bancaria
-        </Text>
+        <View style={styles.sectionHeader}>
+          <Feather name="credit-card" size={20} color={theme.colors.primary} />
+          <Text variant="h2" style={styles.sectionTitle}>
+            Información bancaria
+          </Text>
+        </View>
 
         <Input
           label="Nombre completo"
+          icon="user"
           value={fullName}
           onChangeText={setFullName}
           placeholder="Ingresá tu nombre completo"
@@ -100,6 +125,7 @@ export function PayoutInfoScreen() {
 
         <Input
           label="Cuenta bancaria"
+          icon="credit-card"
           value={bankAccountNumber}
           onChangeText={setBankAccountNumber}
           placeholder="Ingresá tu número de cuenta"
@@ -117,6 +143,7 @@ export function PayoutInfoScreen() {
 
         <Input
           label="Documento (opcional)"
+          icon="file-text"
           value={documentId}
           onChangeText={setDocumentId}
           placeholder="Ingresá tu documento"
@@ -144,25 +171,50 @@ const styles = StyleSheet.create({
   content: {
     padding: theme.spacing[4],
   },
-  title: {
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: theme.spacing[6],
+  },
+  title: {
+    marginLeft: theme.spacing[2],
     color: theme.colors.primary,
+  },
+  loadingContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: theme.spacing[4],
+  },
+  loadingText: {
+    marginTop: theme.spacing[2],
+    color: theme.colors.muted,
   },
   card: {
     marginBottom: theme.spacing[4],
   },
-  sectionTitle: {
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: theme.spacing[3],
+  },
+  sectionTitle: {
+    marginLeft: theme.spacing[2],
     color: theme.colors.text,
+  },
+  statusRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  successText: {
+    marginLeft: theme.spacing[2],
+    color: theme.colors.success,
+  },
+  warningText: {
+    marginLeft: theme.spacing[2],
+    color: theme.colors.warning,
   },
   input: {
     marginBottom: theme.spacing[3],
-  },
-  successText: {
-    color: theme.colors.accent,
-  },
-  warningText: {
-    color: theme.colors.muted,
   },
   saveButton: {
     width: "100%",

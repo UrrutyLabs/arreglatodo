@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { StyleSheet, ScrollView, ActivityIndicator, View } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { Card } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
@@ -79,7 +80,7 @@ export function OnboardingScreen() {
         categories: selectedCategories,
         serviceArea: serviceArea.trim() || undefined,
       });
-    } catch (err) {
+    } catch {
       // Error is handled by useOnboarding hook
     }
   };
@@ -90,15 +91,19 @@ export function OnboardingScreen() {
       keyboardShouldPersistTaps="handled"
     >
       <Card style={styles.card}>
-        <Text variant="h1" style={styles.title}>
-          Completar perfil
-        </Text>
+        <View style={styles.titleRow}>
+          <Feather name="user-plus" size={24} color={theme.colors.primary} />
+          <Text variant="h1" style={styles.title}>
+            Completar perfil
+          </Text>
+        </View>
         <Text variant="body" style={styles.subtitle}>
           Completá tu perfil para comenzar a recibir trabajos
         </Text>
 
         <Input
           label="Nombre completo *"
+          icon="user"
           value={name}
           onChangeText={(text) => {
             setName(text);
@@ -111,13 +116,17 @@ export function OnboardingScreen() {
           style={styles.input}
         />
         {errors.name && (
-          <Text variant="small" style={styles.error}>
-            {errors.name}
-          </Text>
+          <View style={styles.errorContainer}>
+            <Feather name="alert-circle" size={14} color={theme.colors.danger} />
+            <Text variant="small" style={styles.error}>
+              {errors.name}
+            </Text>
+          </View>
         )}
 
         <Input
           label="Teléfono *"
+          icon="phone"
           value={phone}
           onChangeText={(text) => {
             setPhone(text);
@@ -130,13 +139,17 @@ export function OnboardingScreen() {
           style={styles.input}
         />
         {errors.phone && (
-          <Text variant="small" style={styles.error}>
-            {errors.phone}
-          </Text>
+          <View style={styles.errorContainer}>
+            <Feather name="alert-circle" size={14} color={theme.colors.danger} />
+            <Text variant="small" style={styles.error}>
+              {errors.phone}
+            </Text>
+          </View>
         )}
 
         <Input
           label="Tarifa por hora (UYU) *"
+          icon="dollar-sign"
           value={hourlyRate}
           onChangeText={(text) => {
             setHourlyRate(text);
@@ -149,9 +162,12 @@ export function OnboardingScreen() {
           style={styles.input}
         />
         {errors.hourlyRate && (
-          <Text variant="small" style={styles.error}>
-            {errors.hourlyRate}
-          </Text>
+          <View style={styles.errorContainer}>
+            <Feather name="alert-circle" size={14} color={theme.colors.danger} />
+            <Text variant="small" style={styles.error}>
+              {errors.hourlyRate}
+            </Text>
+          </View>
         )}
 
         <CategorySelector
@@ -164,13 +180,17 @@ export function OnboardingScreen() {
           }}
         />
         {errors.categories && (
-          <Text variant="small" style={styles.error}>
-            {errors.categories}
-          </Text>
+          <View style={styles.errorContainer}>
+            <Feather name="alert-circle" size={14} color={theme.colors.danger} />
+            <Text variant="small" style={styles.error}>
+              {errors.categories}
+            </Text>
+          </View>
         )}
 
         <Input
           label="Zona de servicio (opcional)"
+          icon="map-pin"
           value={serviceArea}
           onChangeText={setServiceArea}
           placeholder="Ej: Montevideo, Centro"
@@ -179,9 +199,12 @@ export function OnboardingScreen() {
         />
 
         {(error || errors.submit) && (
-          <Text variant="small" style={styles.error}>
-            {error || errors.submit}
-          </Text>
+          <View style={styles.errorContainer}>
+            <Feather name="alert-circle" size={14} color={theme.colors.danger} />
+            <Text variant="small" style={styles.error}>
+              {error || errors.submit}
+            </Text>
+          </View>
         )}
 
         {(isLoading || sessionLoading) ? (
@@ -214,9 +237,14 @@ const styles = StyleSheet.create({
     maxWidth: 600,
     alignSelf: "center",
   },
-  title: {
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: theme.spacing[2],
-    textAlign: "center",
+  },
+  title: {
+    marginLeft: theme.spacing[2],
   },
   subtitle: {
     marginBottom: theme.spacing[6],
@@ -230,10 +258,15 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing[4],
     marginBottom: theme.spacing[2],
   },
-  error: {
-    color: theme.colors.danger,
+  errorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: theme.spacing[2],
     marginTop: -theme.spacing[1],
+  },
+  error: {
+    marginLeft: theme.spacing[1],
+    color: theme.colors.danger,
   },
   loadingContainer: {
     alignItems: "center",

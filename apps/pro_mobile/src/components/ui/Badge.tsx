@@ -1,12 +1,27 @@
 import { View, Text, StyleSheet, ViewProps } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { theme } from "../../theme";
 
 interface BadgeProps extends ViewProps {
   children: string;
   variant?: "success" | "warning" | "danger" | "info";
+  showIcon?: boolean;
 }
 
-export function Badge({ children, variant = "info", style, ...props }: BadgeProps) {
+const variantIcons = {
+  success: "check-circle",
+  warning: "alert-circle",
+  danger: "x-circle",
+  info: "info",
+} as const;
+
+export function Badge({
+  children,
+  variant = "info",
+  showIcon = false,
+  style,
+  ...props
+}: BadgeProps) {
   const variantStyles = {
     success: {
       backgroundColor: `${theme.colors.success}1A`,
@@ -31,6 +46,7 @@ export function Badge({ children, variant = "info", style, ...props }: BadgeProp
   };
 
   const variantStyle = variantStyles[variant];
+  const iconName = variantIcons[variant];
 
   return (
     <View
@@ -44,6 +60,14 @@ export function Badge({ children, variant = "info", style, ...props }: BadgeProp
       ]}
       {...props}
     >
+      {showIcon && (
+        <Feather
+          name={iconName}
+          size={12}
+          color={variantStyle.color}
+          style={styles.icon}
+        />
+      )}
       <Text style={[styles.badgeText, { color: variantStyle.color }]}>{children}</Text>
     </View>
   );
@@ -52,10 +76,15 @@ export function Badge({ children, variant = "info", style, ...props }: BadgeProp
 const styles = StyleSheet.create({
   badge: {
     alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: theme.spacing[3],
     paddingVertical: theme.spacing[1],
     borderRadius: theme.radius.full,
     borderWidth: 1,
+  },
+  icon: {
+    marginRight: theme.spacing[1],
   },
   badgeText: {
     fontSize: theme.typography.sizes.xs.fontSize,

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { View, StyleSheet, ActivityIndicator, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
+import { Feather } from "@expo/vector-icons";
 import { Text } from "../../components/ui/Text";
 import { BookingCard } from "../../components/presentational/BookingCard";
 import { BookingStatus, Booking } from "@repo/domain";
@@ -49,6 +50,7 @@ export function JobsScreen() {
   if (error) {
     return (
       <View style={styles.center}>
+        <Feather name="alert-circle" size={48} color={theme.colors.danger} />
         <Text variant="body" style={styles.error}>
           Error al cargar trabajos
         </Text>
@@ -59,13 +61,19 @@ export function JobsScreen() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.section}>
-        <Text variant="h2" style={styles.sectionTitle}>
-          Próximos
-        </Text>
-        {upcoming.length === 0 ? (
-          <Text variant="body" style={styles.empty}>
-            No hay trabajos próximos
+        <View style={styles.sectionHeader}>
+          <Feather name="clock" size={20} color={theme.colors.primary} />
+          <Text variant="h2" style={styles.sectionTitle}>
+            Próximos
           </Text>
+        </View>
+        {upcoming.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Feather name="clock" size={48} color={theme.colors.muted} />
+            <Text variant="body" style={styles.empty}>
+              No hay trabajos próximos
+            </Text>
+          </View>
         ) : (
           upcoming.map((booking: Booking) => (
             <BookingCard
@@ -79,13 +87,19 @@ export function JobsScreen() {
 
       {/* Completed Jobs Section */}
       <View style={styles.section}>
-        <Text variant="h2" style={styles.sectionTitle}>
-          Completados
-        </Text>
-        {completed.length === 0 ? (
-          <Text variant="body" style={styles.empty}>
-            No hay trabajos completados
+        <View style={styles.sectionHeader}>
+          <Feather name="check-circle" size={20} color={theme.colors.primary} />
+          <Text variant="h2" style={styles.sectionTitle}>
+            Completados
           </Text>
+        </View>
+        {completed.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Feather name="check-circle" size={48} color={theme.colors.muted} />
+            <Text variant="body" style={styles.empty}>
+              No hay trabajos completados
+            </Text>
+          </View>
         ) : (
           completed.map((booking: Booking) => (
             <BookingCard
@@ -124,12 +138,22 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: theme.spacing[6],
   },
-  sectionTitle: {
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: theme.spacing[3],
   },
+  sectionTitle: {
+    marginLeft: theme.spacing[2],
+  },
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: theme.spacing[8],
+  },
   empty: {
+    marginTop: theme.spacing[3],
     color: theme.colors.muted,
     textAlign: "center",
-    paddingVertical: theme.spacing[4],
   },
 });

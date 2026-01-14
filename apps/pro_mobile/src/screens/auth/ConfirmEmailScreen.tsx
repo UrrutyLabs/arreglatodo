@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { StyleSheet, ScrollView } from "react-native";
+import { StyleSheet, ScrollView, View } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { Feather } from "@expo/vector-icons";
 import { Card } from "../../components/ui/Card";
 import { Button } from "../../components/ui/Button";
 import { Text } from "../../components/ui/Text";
@@ -52,31 +53,43 @@ export function ConfirmEmailScreen() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Card style={styles.card}>
-        <Text variant="h1" style={styles.title}>
-          Confirmá tu email
-        </Text>
+        <View style={styles.titleRow}>
+          <Feather name="mail" size={24} color={theme.colors.primary} />
+          <Text variant="h1" style={styles.title}>
+            Confirmá tu email
+          </Text>
+        </View>
         <Text variant="body" style={styles.message}>
           Te enviamos un link de confirmación a:
         </Text>
         {email && (
-          <Text variant="body" style={styles.email}>
-            {email}
-          </Text>
+          <View style={styles.emailRow}>
+            <Feather name="mail" size={16} color={theme.colors.primary} />
+            <Text variant="body" style={styles.email}>
+              {email}
+            </Text>
+          </View>
         )}
         <Text variant="body" style={styles.instructions}>
           Hacé click en el link del email para confirmar tu cuenta y continuar.
         </Text>
 
         {resendSuccess && (
-          <Text variant="small" style={styles.success}>
-            ✅ Email reenviado. Revisá tu bandeja de entrada.
-          </Text>
+          <View style={styles.successContainer}>
+            <Feather name="check-circle" size={16} color={theme.colors.success} />
+            <Text variant="small" style={styles.success}>
+              Email reenviado. Revisá tu bandeja de entrada.
+            </Text>
+          </View>
         )}
 
         {error && (
-          <Text variant="small" style={styles.error}>
-            {error}
-          </Text>
+          <View style={styles.errorContainer}>
+            <Feather name="alert-circle" size={16} color={theme.colors.danger} />
+            <Text variant="small" style={styles.error}>
+              {error}
+            </Text>
+          </View>
         )}
 
         <Button
@@ -112,17 +125,28 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 400,
   },
-  title: {
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: theme.spacing[4],
-    textAlign: "center",
+  },
+  title: {
+    marginLeft: theme.spacing[2],
   },
   message: {
     marginBottom: theme.spacing[2],
     textAlign: "center",
     color: theme.colors.text,
   },
-  email: {
+  emailRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: theme.spacing[4],
+  },
+  email: {
+    marginLeft: theme.spacing[1],
     textAlign: "center",
     fontWeight: theme.typography.weights.medium,
     color: theme.colors.primary,
@@ -132,21 +156,43 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: theme.colors.muted,
   },
+  successContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: theme.spacing[2],
+    padding: theme.spacing[2],
+    backgroundColor: `${theme.colors.success}1A`,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: `${theme.colors.success}33`,
+  },
+  success: {
+    marginLeft: theme.spacing[1],
+    color: theme.colors.success,
+    textAlign: "center",
+  },
+  errorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: theme.spacing[2],
+    padding: theme.spacing[2],
+    backgroundColor: `${theme.colors.danger}1A`,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: `${theme.colors.danger}33`,
+  },
+  error: {
+    marginLeft: theme.spacing[1],
+    color: theme.colors.danger,
+    textAlign: "center",
+  },
   button: {
     marginTop: theme.spacing[4],
     marginBottom: theme.spacing[2],
   },
   linkButton: {
     marginTop: theme.spacing[2],
-  },
-  error: {
-    color: theme.colors.danger,
-    marginBottom: theme.spacing[2],
-    textAlign: "center",
-  },
-  success: {
-    color: theme.colors.success,
-    marginBottom: theme.spacing[2],
-    textAlign: "center",
   },
 });

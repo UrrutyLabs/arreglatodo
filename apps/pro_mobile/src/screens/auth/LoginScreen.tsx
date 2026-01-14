@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { StyleSheet, ScrollView } from "react-native";
+import { StyleSheet, ScrollView, View } from "react-native";
 import { useRouter } from "expo-router";
+import { Feather } from "@expo/vector-icons";
 import { Card } from "../../components/ui/Card";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
@@ -33,11 +34,15 @@ export function LoginScreen() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Card style={styles.card}>
-        <Text variant="h1" style={styles.title}>
-          Iniciar sesión
-        </Text>
+        <View style={styles.titleRow}>
+          <Feather name="log-in" size={24} color={theme.colors.primary} />
+          <Text variant="h1" style={styles.title}>
+            Iniciar sesión
+          </Text>
+        </View>
         <Input
           label="Email"
+          icon="mail"
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -47,6 +52,7 @@ export function LoginScreen() {
         />
         <Input
           label="Contraseña"
+          icon="lock"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -55,9 +61,12 @@ export function LoginScreen() {
           style={styles.input}
         />
         {error && (
-          <Text variant="small" style={styles.error}>
-            {error}
-          </Text>
+          <View style={styles.errorContainer}>
+            <Feather name="alert-circle" size={16} color={theme.colors.danger} />
+            <Text variant="small" style={styles.error}>
+              {error}
+            </Text>
+          </View>
         )}
         <Button
           variant="primary"
@@ -91,12 +100,31 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 400,
   },
-  title: {
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: theme.spacing[6],
-    textAlign: "center",
+  },
+  title: {
+    marginLeft: theme.spacing[2],
   },
   input: {
     marginBottom: theme.spacing[4],
+  },
+  errorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: theme.spacing[2],
+    padding: theme.spacing[2],
+    backgroundColor: `${theme.colors.danger}1A`,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: `${theme.colors.danger}33`,
+  },
+  error: {
+    marginLeft: theme.spacing[1],
+    color: theme.colors.danger,
   },
   button: {
     marginTop: theme.spacing[4],
@@ -104,9 +132,5 @@ const styles = StyleSheet.create({
   },
   linkButton: {
     marginTop: theme.spacing[2],
-  },
-  error: {
-    color: theme.colors.danger,
-    marginBottom: theme.spacing[2],
   },
 });
