@@ -4,26 +4,26 @@
  */
 export const colors = {
   // Primary palette
-  primary: "#1F3A5F",
-  secondary: "#4A6FA5",
+  primary: "#2563eb",        /* trust-600 */
+  secondary: "#3b82f6",     /* trust-500 */
   accent: "#2CB1BC",
 
   // Background and surface
-  bg: "#F7F9FC",
+  bg: "#f8f9fa",            /* calm-50 */
   surface: "#FFFFFF",
 
   // Text colors
-  text: "#0F172A",
-  muted: "#64748B",
+  text: "#212529",          /* calm-900 */
+  muted: "#868e96",         /* calm-600 */
 
   // Borders
-  border: "#E2E8F0",
+  border: "#e9ecef",         /* calm-200 */
 
   // Semantic colors
   success: "#16A34A",
   warning: "#F59E0B",
   danger: "#DC2626",
-  info: "#2563EB",
+  info: "#2563eb",          /* trust-600 */
 } as const;
 
 export type Colors = typeof colors;

@@ -1,35 +1,62 @@
 @import "tailwindcss";
 
-:root {
-  /* Calm Trust color tokens */
-  --color-primary: #1F3A5F;
-  --color-secondary: #4A6FA5;
-  --color-accent: #2CB1BC;
-  --color-bg: #F7F9FC;
-  --color-surface: #FFFFFF;
-  --color-text: #0F172A;
-  --color-muted: #64748B;
-  --color-border: #E2E8F0;
+@theme {
+  /* Calm color scale (grays) */
+  --color-calm-50: #f8f9fa;
+  --color-calm-100: #f1f3f5;
+  --color-calm-200: #e9ecef;
+  --color-calm-300: #dee2e6;
+  --color-calm-400: #ced4da;
+  --color-calm-500: #adb5bd;
+  --color-calm-600: #868e96;
+  --color-calm-700: #495057;
+  --color-calm-800: #343a40;
+  --color-calm-900: #212529;
+
+  /* Trust color scale (blues) */
+  --color-trust-50: #eff6ff;
+  --color-trust-100: #dbeafe;
+  --color-trust-200: #bfdbfe;
+  --color-trust-300: #93c5fd;
+  --color-trust-400: #60a5fa;
+  --color-trust-500: #3b82f6;
+  --color-trust-600: #2563eb;
+  --color-trust-700: #1d4ed8;
+  --color-trust-800: #1e40af;
+  --color-trust-900: #1e3a8a;
+
+  /* Semantic tokens mapped to new color scales */
+  --color-primary: #2563eb;        /* trust-600 */
+  --color-secondary: #3b82f6;      /* trust-500 */
+  --color-accent: #2CB1BC;         /* Keep existing accent */
+  --color-bg: #f8f9fa;             /* calm-50 */
+  --color-surface: #FFFFFF;        /* white */
+  --color-text: #212529;           /* calm-900 */
+  --color-muted: #868e96;          /* calm-600 */
+  --color-border: #e9ecef;         /* calm-200 */
   --color-success: #16A34A;
   --color-warning: #F59E0B;
   --color-danger: #DC2626;
-  --color-info: #2563EB;
+  --color-info: #2563eb;           /* trust-600 */
+
+  /* Typography */
+  --font-sans: var(--font-sans), 'Inter', system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-primary: #1F3A5F;
-  --color-secondary: #4A6FA5;
+:root {
+  /* CSS variables for runtime access */
+  --color-primary: #2563eb;
+  --color-secondary: #3b82f6;
   --color-accent: #2CB1BC;
-  --color-bg: #F7F9FC;
+  --color-bg: #f8f9fa;
   --color-surface: #FFFFFF;
-  --color-text: #0F172A;
-  --color-muted: #64748B;
-  --color-border: #E2E8F0;
+  --color-text: #212529;
+  --color-muted: #868e96;
+  --color-border: #e9ecef;
   --color-success: #16A34A;
   --color-warning: #F59E0B;
   --color-danger: #DC2626;
-  --color-info: #2563EB;
-  --font-sans: var(--font-sans), system-ui, sans-serif;
+  --color-info: #2563eb;
 }
 
 body {

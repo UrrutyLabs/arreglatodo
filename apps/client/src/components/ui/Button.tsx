@@ -11,12 +11,16 @@ export function Button({
   className = "",
   ...props
 }: ButtonProps) {
-  const baseClasses = "px-4 py-2 rounded-md font-medium transition-colors";
+  const baseClasses =
+    "px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2";
   const variantClasses = {
-    primary: "bg-primary text-white hover:opacity-90",
-    secondary: "bg-secondary text-white hover:opacity-90",
-    ghost: "bg-transparent text-primary border border-border hover:bg-surface",
-    danger: "bg-danger text-white hover:opacity-90",
+    primary:
+      "bg-primary text-white hover:opacity-90 focus:ring-primary",
+    secondary:
+      "bg-secondary text-white hover:opacity-90 focus:ring-secondary",
+    ghost:
+      "bg-transparent text-primary border border-border hover:bg-surface focus:ring-primary",
+    danger: "bg-danger text-white hover:opacity-90 focus:ring-danger",
   };
 
   return (

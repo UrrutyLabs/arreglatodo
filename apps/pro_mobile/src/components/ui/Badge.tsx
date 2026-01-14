@@ -52,9 +52,9 @@ export function Badge({ children, variant = "info", style, ...props }: BadgeProp
 const styles = StyleSheet.create({
   badge: {
     alignSelf: "flex-start",
-    paddingHorizontal: theme.spacing[2],
+    paddingHorizontal: theme.spacing[3],
     paddingVertical: theme.spacing[1],
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radius.full,
     borderWidth: 1,
   },
   badgeText: {
