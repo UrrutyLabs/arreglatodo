@@ -7,6 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
     "db:generate": "pnpm exec prisma generate",
     "db:migrate": "pnpm exec prisma migrate dev --config=./prisma/config.ts",
     "db:studio": "pnpm exec prisma studio"
@@ -41,11 +44,13 @@
     "@types/pg": "^8.10.9",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^2.1.8",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "prisma": "^7.2.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^2.1.8"
   },
   "prisma": {
     "schema": "prisma/schema.prisma"

@@ -24,7 +24,12 @@ export const TOKENS = {
 
   // Services
   AuthService: "AuthService",
-  BookingService: "BookingService",
+  BookingService: "BookingService", // Legacy - kept for backward compatibility
+  BookingCreationService: "BookingCreationService",
+  BookingLifecycleService: "BookingLifecycleService",
+  BookingCompletionService: "BookingCompletionService",
+  BookingQueryService: "BookingQueryService",
+  BookingAdminService: "BookingAdminService",
   PaymentService: "PaymentService",
   PaymentServiceFactory: "PaymentServiceFactory",
   ProService: "ProService",

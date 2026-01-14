@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import type { Actor } from "@infra/auth/roles";
 import type { DevicePushTokenRepository } from "./devicePushToken.repo";
-import { TOKENS } from "@/server/container";
+import { TOKENS } from "@/server/container/tokens";
 import { $Enums } from "../../../../prisma/generated/prisma/client";
 
 /**

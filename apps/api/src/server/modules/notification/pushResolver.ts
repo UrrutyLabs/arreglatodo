@@ -1,6 +1,6 @@
 import { injectable, inject } from "tsyringe";
 import type { DevicePushTokenRepository } from "../push/devicePushToken.repo";
-import { TOKENS } from "@/server/container";
+import { TOKENS } from "@/server/container/tokens";
 
 /**
  * Error thrown when no active push tokens are found for a user
