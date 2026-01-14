@@ -18,7 +18,7 @@ import {
   UnauthorizedBookingActionError,
   BookingNotFoundError,
 } from "./booking.errors";
-import { TOKENS } from "@/server/container";
+import { TOKENS } from "@/server/container/tokens";
 import type { PaymentServiceFactory } from "@/server/container";
 import type { PaymentRepository } from "@modules/payment/payment.repo";
 import type { ClientProfileService } from "@modules/user/clientProfile.service";
