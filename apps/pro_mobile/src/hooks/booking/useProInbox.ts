@@ -1,11 +1,11 @@
-import { trpc } from "../lib/trpc/client";
-import { useSmartPolling } from "./useSmartPolling";
+import { trpc } from "../../lib/trpc/client";
+import { useSmartPolling } from "../shared/useSmartPolling";
 
 /**
- * Hook to fetch pro jobs (accepted, arrived, completed)
- * Encapsulates the booking.proJobs query with smart polling
+ * Hook to fetch pro inbox bookings (pending and accepted)
+ * Encapsulates the booking.proInbox query with smart polling
  */
-export function useProJobs() {
+export function useProInbox() {
   // Smart polling: pauses when app is in background, resumes in foreground
   const pollingOptions = useSmartPolling({
     interval: 10000, // Poll every 10 seconds when in foreground
@@ -13,7 +13,7 @@ export function useProJobs() {
     refetchOnForeground: true,
   });
 
-  const { data: bookings = [], isLoading, error } = trpc.booking.proJobs.useQuery(
+  const { data: bookings = [], isLoading, error } = trpc.booking.proInbox.useQuery(
     undefined,
     {
       retry: false,

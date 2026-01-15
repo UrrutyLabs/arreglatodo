@@ -2,11 +2,11 @@ import { useState } from "react";
 import { StyleSheet, ScrollView, View } from "react-native";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-import { Card } from "../../components/ui/Card";
-import { Input } from "../../components/ui/Input";
-import { Button } from "../../components/ui/Button";
-import { Text } from "../../components/ui/Text";
-import { useProSignup } from "../../hooks/useProSignup";
+import { Card } from "@components/ui/Card";
+import { Input } from "@components/ui/Input";
+import { Button } from "@components/ui/Button";
+import { Text } from "@components/ui/Text";
+import { useProSignup } from "@hooks/auth";
 import { theme } from "../../theme";
 
 export function SignupScreen() {

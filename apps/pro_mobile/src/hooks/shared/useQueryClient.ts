@@ -4,7 +4,7 @@
  */
 
 import { useQueryClient as useRQQueryClient } from "@tanstack/react-query";
-import { getQueryClient } from "../lib/trpc/Provider";
+import { getQueryClient } from "@lib/trpc/Provider";
 
 /**
  * Hook to get QueryClient instance

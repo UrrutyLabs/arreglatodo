@@ -2,9 +2,9 @@ import { useState } from "react";
 import { StyleSheet, ScrollView, View } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-import { Card } from "../../components/ui/Card";
-import { Button } from "../../components/ui/Button";
-import { Text } from "../../components/ui/Text";
+import { Card } from "@components/ui/Card";
+import { Button } from "@components/ui/Button";
+import { Text } from "@components/ui/Text";
 import { theme } from "../../theme";
 import { supabase } from "../../lib/supabase/client";
 

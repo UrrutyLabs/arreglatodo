@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { StyleSheet, ScrollView, Alert, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { Card } from "../../components/ui/Card";
-import { Button } from "../../components/ui/Button";
-import { Text } from "../../components/ui/Text";
-import { Input } from "../../components/ui/Input";
-import { PayoutInfoSkeleton } from "../../components/presentational/PayoutInfoSkeleton";
+import { Card } from "@components/ui/Card";
+import { Button } from "@components/ui/Button";
+import { Text } from "@components/ui/Text";
+import { Input } from "@components/ui/Input";
+import { PayoutInfoSkeleton } from "@components/presentational/PayoutInfoSkeleton";
 import { trpc } from "../../lib/trpc/client";
-import { useQueryClient } from "../../hooks/useQueryClient";
+import { useQueryClient } from "@hooks/shared";
 import { invalidateRelatedQueries } from "../../lib/react-query/utils";
 import { theme } from "../../theme";
 

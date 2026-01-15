@@ -2,12 +2,12 @@ import { useMemo, useCallback } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-import { Text } from "../../components/ui/Text";
-import { BookingCard } from "../../components/presentational/BookingCard";
-import { JobsSkeleton } from "../../components/presentational/JobsSkeleton";
+import { Text } from "@components/ui/Text";
+import { BookingCard } from "@components/presentational/BookingCard";
+import { JobsSkeleton } from "@components/presentational/JobsSkeleton";
 import { BookingStatus, Booking } from "@repo/domain";
 import { theme } from "../../theme";
-import { useProJobs } from "../../hooks/useProJobs";
+import { useProJobs } from "@hooks/booking";
 
 export function JobsScreen() {
   const router = useRouter();

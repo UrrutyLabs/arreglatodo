@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Redirect } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
-import { useAuth } from "../src/hooks/useAuth";
+import { useAuth } from "@hooks/auth";
 import { theme } from "../src/theme";
 import { trpc } from "../src/lib/trpc/client";
 import { Role } from "@repo/domain";

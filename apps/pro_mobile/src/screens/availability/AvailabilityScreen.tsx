@@ -1,7 +1,7 @@
 import { View, StyleSheet, Switch } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { Text } from "../../components/ui/Text";
-import { useAvailability } from "../../hooks/useAvailability";
+import { Text } from "@components/ui/Text";
+import { useAvailability } from "@hooks/pro";
 import { theme } from "../../theme";
 
 export function AvailabilityScreen() {

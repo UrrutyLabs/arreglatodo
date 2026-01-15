@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import { Alert } from "react-native";
-import { trpc } from "../lib/trpc/client";
-import { getExpoPushToken } from "../lib/push/getExpoPushToken";
-import { logger } from "../lib/logger";
+import { trpc } from "@lib/trpc/client";
+import { getExpoPushToken } from "@lib/push/getExpoPushToken";
+import { logger } from "@lib/logger";
 
 /**
  * Hook to register push token after authentication

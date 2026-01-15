@@ -1,5 +1,5 @@
-import { trpc } from "../lib/trpc/client";
-import { useSmartPolling } from "./useSmartPolling";
+import { trpc } from "../../lib/trpc/client";
+import { useSmartPolling } from "../shared/useSmartPolling";
 
 /**
  * Hook to fetch booking details by ID

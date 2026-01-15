@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { trpc } from "../lib/trpc/client";
-import { useQueryClient } from "./useQueryClient";
+import { trpc } from "../../lib/trpc/client";
+import { useQueryClient } from "../shared/useQueryClient";
 
 interface UseAvailabilityReturn {
   isAvailable: boolean;

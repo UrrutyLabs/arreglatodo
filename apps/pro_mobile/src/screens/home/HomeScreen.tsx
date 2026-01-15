@@ -2,12 +2,12 @@ import { useMemo, useCallback } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
-import { Text } from "../../components/ui/Text";
-import { BookingCard } from "../../components/presentational/BookingCard";
-import { HomeSkeleton } from "../../components/presentational/HomeSkeleton";
+import { Text } from "@components/ui/Text";
+import { BookingCard } from "@components/presentational/BookingCard";
+import { HomeSkeleton } from "@components/presentational/HomeSkeleton";
 import { Booking, BookingStatus } from "@repo/domain";
 import { theme } from "../../theme";
-import { useProInbox } from "../../hooks/useProInbox";
+import { useProInbox } from "@hooks/booking";
 
 export function HomeScreen() {
   const router = useRouter();

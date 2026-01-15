@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { StyleSheet, ScrollView, ActivityIndicator, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { Card } from "../../components/ui/Card";
-import { Input } from "../../components/ui/Input";
-import { Button } from "../../components/ui/Button";
-import { Text } from "../../components/ui/Text";
-import { CategorySelector } from "../../components/presentational/CategorySelector";
+import { Card } from "@components/ui/Card";
+import { Input } from "@components/ui/Input";
+import { Button } from "@components/ui/Button";
+import { Text } from "@components/ui/Text";
+import { CategorySelector } from "@components/presentational/CategorySelector";
 import { theme } from "../../theme";
-import { useOnboarding } from "../../hooks/useOnboarding";
-import { useAuth } from "../../hooks/useAuth";
+import { useOnboarding, useAuth } from "@hooks/auth";
 import { Category } from "@repo/domain";
 import { supabase } from "../../lib/supabase/client";
 

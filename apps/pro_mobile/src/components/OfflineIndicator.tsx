@@ -1,7 +1,7 @@
 import { View, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { Text } from "./ui/Text";
-import { useNetworkStatus } from "../hooks/useNetworkStatus";
+import { useNetworkStatus } from "@hooks/shared";
 import { theme } from "../theme";
 
 /**
