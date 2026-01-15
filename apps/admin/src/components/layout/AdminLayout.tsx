@@ -41,10 +41,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen flex bg-bg">
+    <div className="h-screen flex bg-bg overflow-hidden">
       {/* Left Navigation */}
-      <aside className="w-64 bg-surface border-r border-border flex flex-col">
-        <div className="p-4 border-b border-border">
+      <aside className="w-64 bg-surface border-r border-border flex flex-col h-full">
+        <div className="p-4 border-b border-border flex-shrink-0">
           <Link href="/admin" className="flex items-center gap-2">
             <LayoutDashboard className="w-6 h-6 text-primary" />
             <Text variant="h2" className="text-text">
@@ -52,7 +52,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             </Text>
           </Link>
         </div>
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = pathname === item.href || (item.href === "/admin" && pathname === "/admin");
             const Icon = item.icon;
@@ -72,7 +72,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             );
           })}
         </nav>
-        <div className="p-4 border-t border-border">
+        <div className="p-4 border-t border-border flex-shrink-0">
           <Button
             variant="ghost"
             onClick={handleSignOut}

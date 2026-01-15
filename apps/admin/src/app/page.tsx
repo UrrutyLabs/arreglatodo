@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { AuthLoadingState } from "@/components/auth/AuthLoadingState";
 
 export default function Home() {
   const router = useRouter();
@@ -18,9 +19,5 @@ export default function Home() {
     }
   }, [user, loading, router]);
 
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <p className="text-gray-600">Cargando...</p>
-    </main>
-  );
+  return <AuthLoadingState />;
 }
