@@ -83,6 +83,13 @@ export function LoginScreen() {
         >
           ¿No tenés cuenta? Registrate
         </Button>
+        <Button
+          variant="ghost"
+          onPress={() => router.push("/auth/forgot-password" as any)}
+          style={styles.linkButton}
+        >
+          ¿Olvidaste tu contraseña?
+        </Button>
       </Card>
     </ScrollView>
   );

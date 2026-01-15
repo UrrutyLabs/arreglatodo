@@ -56,6 +56,7 @@ export {
   deleteAccountInputSchema,
   requestPasswordResetInputSchema,
   resetPasswordInputSchema,
+  resetPasswordWithOtpInputSchema,
   type ClientSearchProsInput,
   type PreferredContactMethod,
   type ClientSignupInput,
@@ -64,6 +65,7 @@ export {
   type DeleteAccountInput,
   type RequestPasswordResetInput,
   type ResetPasswordInput,
+  type ResetPasswordWithOtpInput,
 } from "./schemas/client.schema";
 
 // Format utilities

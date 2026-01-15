@@ -272,6 +272,69 @@ export class AuthService {
   }
 
   /**
+   * Reset password with OTP code
+   * Verifies the OTP code from email and updates the password
+   * This is used for mobile apps that don't support deep links
+   * 
+   * Note: Supabase's OTP-based password reset flow works as follows:
+   * 1. User requests password reset via requestPasswordReset
+   * 2. Supabase sends email with OTP code (if email template is configured)
+   * 3. User enters OTP code and new password in mobile app
+   * 4. Mobile app calls this endpoint with email, OTP, and new password
+   * 5. We verify OTP using Supabase's verifyOtp, then update password via admin API
+   */
+  async resetPasswordWithOtp(
+    email: string,
+    otp: string,
+    newPassword: string
+  ): Promise<void> {
+    const supabaseUrl = process.env.SUPABASE_URL;
+    // Try SUPABASE_ANON_KEY first, then fallback to NEXT_PUBLIC_SUPABASE_ANON_KEY for convenience
+    const anonKey = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !anonKey) {
+      throw new Error(
+        "Missing Supabase configuration: SUPABASE_URL and SUPABASE_ANON_KEY must be set"
+      );
+    }
+
+    const { createClient } = await import("@supabase/supabase-js");
+    const supabasePublic = createClient(supabaseUrl, anonKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+
+    // Verify OTP code using Supabase's verifyOtp
+    const { data: verifyData, error: verifyError } =
+      await supabasePublic.auth.verifyOtp({
+        email,
+        token: otp,
+        type: "recovery",
+      });
+
+    if (verifyError || !verifyData.user) {
+      throw new Error("Invalid or expired OTP code");
+    }
+
+    const userId = verifyData.user.id;
+
+    // Update password using admin client
+    const supabaseAdmin = this.getSupabaseAdmin();
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+      userId,
+      {
+        password: newPassword,
+      }
+    );
+
+    if (updateError) {
+      throw new Error(updateError.message || "Failed to reset password");
+    }
+  }
+
+  /**
    * Reset password with token
    * Verifies the reset token and updates the password
    * This is called when user clicks the reset link and submits new password

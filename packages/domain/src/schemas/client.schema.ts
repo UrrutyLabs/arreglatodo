@@ -81,3 +81,15 @@ export const resetPasswordInputSchema = z.object({
 });
 
 export type ResetPasswordInput = z.infer<typeof resetPasswordInputSchema>;
+
+/**
+ * Reset password with OTP input schema
+ * Used for mobile apps that don't support deep links
+ */
+export const resetPasswordWithOtpInputSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  otp: z.string().min(6, "OTP code must be at least 6 characters").max(8, "OTP code must be at most 8 characters"),
+  newPassword: z.string().min(8, "New password must be at least 8 characters"),
+});
+
+export type ResetPasswordWithOtpInput = z.infer<typeof resetPasswordWithOtpInputSchema>;

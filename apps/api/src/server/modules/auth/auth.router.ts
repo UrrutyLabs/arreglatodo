@@ -8,6 +8,7 @@ import {
   deleteAccountInputSchema,
   requestPasswordResetInputSchema,
   resetPasswordInputSchema,
+  resetPasswordWithOtpInputSchema,
 } from "@repo/domain";
 import { TRPCError } from "@trpc/server";
 
@@ -187,6 +188,47 @@ export const authRouter = router({
             error.message.includes("Invalid") ||
             error.message.includes("expired") ||
             error.message.includes("token")
+          ) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: error.message,
+            });
+          }
+
+          if (error.message.includes("password")) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: error.message,
+            });
+          }
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to reset password",
+        });
+      }
+    }),
+
+  resetPasswordWithOtp: publicProcedure
+    .input(resetPasswordWithOtpInputSchema)
+    .mutation(async ({ input }) => {
+      try {
+        await authService.resetPasswordWithOtp(
+          input.email,
+          input.otp,
+          input.newPassword
+        );
+        return { success: true };
+      } catch (error) {
+        if (error instanceof Error) {
+          if (
+            error.message.includes("Invalid") ||
+            error.message.includes("expired") ||
+            error.message.includes("OTP")
           ) {
             throw new TRPCError({
               code: "BAD_REQUEST",
