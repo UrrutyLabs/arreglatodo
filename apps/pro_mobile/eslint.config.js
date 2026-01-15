@@ -14,7 +14,21 @@ module.exports = defineConfig([
           alwaysTryTypes: true,
           project: './tsconfig.json',
         },
+        node: {
+          extensions: ['.js', '.jsx', '.ts', '.tsx'],
+          moduleDirectory: ['node_modules', '../../packages'],
+        },
       },
+    },
+  },
+  {
+    rules: {
+      'import/no-unresolved': [
+        'error',
+        {
+          ignore: ['^@repo/monitoring/'],
+        },
+      ],
     },
   },
   {

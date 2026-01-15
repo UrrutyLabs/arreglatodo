@@ -15,7 +15,9 @@
       "@lib": ["./src/lib"],
       "@modules/*": ["../api/src/server/modules/*"],
       "@infra/*": ["../api/src/server/infrastructure/*"],
-      "@shared/*": ["../api/src/server/shared/*"]
+      "@shared/*": ["../api/src/server/shared/*"],
+      "@repo/monitoring/sentry": ["../../packages/monitoring/src/sentry/index.ts"],
+      "@repo/monitoring/logger": ["../../packages/monitoring/src/logger/index.ts"]
     }
   },
   "include": [
