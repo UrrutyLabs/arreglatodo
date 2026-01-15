@@ -99,7 +99,7 @@ export function ProProfileScreen() {
 
   return (
     <div className="min-h-screen bg-bg">
-      <Navigation showLogin={false} showProfile={true} />
+      <Navigation showLogin={true} showProfile={true} />
       <div className="px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Pro Header */}

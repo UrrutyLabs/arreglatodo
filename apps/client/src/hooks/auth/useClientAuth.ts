@@ -1,24 +1,39 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "./useAuth";
+import { useUserRole } from "./useUserRole";
+import { Role } from "@repo/domain";
 
 /**
  * Hook to check if user is authenticated
- * Redirects to /search if authenticated (any role)
+ * Redirects based on role:
+ * - CLIENT -> /search
+ * - PRO -> /pro
  * Returns loading state
  */
 export function useClientAuth() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const { role, isLoading: isLoadingRole } = useUserRole();
 
   useEffect(() => {
-    if (!authLoading && user) {
-      // User is authenticated, redirect away from landing page
-      router.replace("/search");
+    if (authLoading || (user && isLoadingRole)) {
+      // Still loading auth or role
+      return;
     }
-  }, [user, authLoading, router]);
+
+    if (user) {
+      // User is authenticated, redirect based on role
+      if (role === Role.PRO) {
+        router.replace("/pro/download-app");
+      } else {
+        // CLIENT or no role yet -> redirect to search
+        router.replace("/my-bookings");
+      }
+    }
+  }, [user, authLoading, role, isLoadingRole, router]);
 
   return {
-    isLoading: authLoading,
+    isLoading: authLoading || (user && isLoadingRole),
   };
 }

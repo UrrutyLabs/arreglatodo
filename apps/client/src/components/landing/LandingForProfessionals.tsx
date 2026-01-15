@@ -16,7 +16,7 @@ export function LandingForProfessionals() {
         <Text variant="body" className="mb-8 text-muted max-w-2xl mx-auto">
           Sumate a Arreglatodo y conseguí trabajos sin intermediarios innecesarios.
         </Text>
-        <Link href="/login">
+        <Link href="/pro">
           <Button variant="primary" className="px-8 py-3 text-lg">
             Registrarme como profesional
           </Button>

@@ -96,7 +96,7 @@ describe("useResetPassword", () => {
     await waitFor(
       () => {
         expect(mockRouter.push).toHaveBeenCalledWith(
-          "/login?passwordReset=true"
+          "/my-bookings"
         );
       },
       { timeout: 2000 }

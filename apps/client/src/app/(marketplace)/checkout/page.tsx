@@ -1,9 +1,10 @@
 import { CheckoutScreen } from "@/screens/booking/CheckoutScreen";
 import { AuthenticatedGuard } from "@/components/auth/AuthenticatedGuard";
+import { Role } from "@repo/domain";
 
 export default function CheckoutPage() {
   return (
-    <AuthenticatedGuard>
+    <AuthenticatedGuard requiredRole={Role.CLIENT}>
       <CheckoutScreen />
     </AuthenticatedGuard>
   );

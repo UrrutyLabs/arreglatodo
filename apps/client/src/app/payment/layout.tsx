@@ -1,13 +1,10 @@
-import { BookingCreateScreen } from "@/screens/booking/BookingCreateScreen";
 import { AuthenticatedGuard } from "@/components/auth/AuthenticatedGuard";
 import { Role } from "@repo/domain";
 
-export const dynamic = "force-dynamic";
-
-export default function BookPage() {
+export default function PaymentLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthenticatedGuard requiredRole={Role.CLIENT}>
-      <BookingCreateScreen />
+      {children}
     </AuthenticatedGuard>
   );
 }

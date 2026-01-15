@@ -21,7 +21,7 @@ export function LandingHero() {
               Buscar profesionales
             </Button>
           </Link>
-          <Link href="/login">
+          <Link href="/pro">
             <Button variant="ghost" className="px-8 py-3 text-lg w-full sm:w-auto">
               Soy profesional
             </Button>

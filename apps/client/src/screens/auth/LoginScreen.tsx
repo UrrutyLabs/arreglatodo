@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LogIn, Loader2, CheckCircle } from "lucide-react";
 import { useAuth } from "@/hooks/auth";
+import { useUserRole } from "@/hooks/auth";
+import { Role } from "@repo/domain";
 import { AuthForm } from "@/components/forms/AuthForm";
 import { Text, Card } from "@repo/ui";
 
@@ -11,6 +13,7 @@ export function LoginScreen() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading, signIn } = useAuth();
+  const { role, isLoading: isLoadingRole } = useUserRole();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,17 +22,28 @@ export function LoginScreen() {
   const passwordReset = searchParams.get("passwordReset") === "true";
   const returnUrl = searchParams.get("returnUrl");
 
-  // Redirect if already logged in
+  // Redirect if already logged in (check role and redirect accordingly)
   useEffect(() => {
-    if (!authLoading && user) {
-      // If there's a returnUrl, go there; otherwise go to search
+    if (authLoading || (user && isLoadingRole)) {
+      return; // Still loading
+    }
+
+    if (user) {
+      // If there's a returnUrl, go there (skip role check)
       if (returnUrl) {
         router.replace(decodeURIComponent(returnUrl));
+        return;
+      }
+
+      // Otherwise, redirect based on role
+      if (role === Role.PRO) {
+        router.replace("/pro/download-app");
       } else {
+        // CLIENT or no role yet -> redirect to search
         router.replace("/search");
       }
     }
-  }, [user, authLoading, router, returnUrl]);
+  }, [user, role, authLoading, isLoadingRole, router, returnUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,16 +56,13 @@ export function LoginScreen() {
       setError(error.message);
       setLoading(false);
     } else {
-      // Redirect to returnUrl if provided, otherwise to search
-      if (returnUrl) {
-        router.push(decodeURIComponent(returnUrl));
-      } else {
-        router.push("/search");
-      }
+      // Don't redirect here - let the useEffect handle it after role is fetched
+      // This ensures we redirect to the correct place based on user role
+      setLoading(false);
     }
   };
 
-  if (authLoading) {
+  if (authLoading || (user && isLoadingRole)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg">
         <div className="flex flex-col items-center gap-3">
