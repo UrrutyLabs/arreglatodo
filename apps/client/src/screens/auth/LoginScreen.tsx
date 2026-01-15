@@ -8,6 +8,7 @@ import { useUserRole } from "@/hooks/auth";
 import { Role } from "@repo/domain";
 import { AuthForm } from "@/components/forms/AuthForm";
 import { Text, Card } from "@repo/ui";
+import { translateAuthError } from "@/lib/supabase/auth-utils";
 
 export function LoginScreen() {
   const router = useRouter();
@@ -39,8 +40,8 @@ export function LoginScreen() {
       if (role === Role.PRO) {
         router.replace("/pro/download-app");
       } else {
-        // CLIENT or no role yet -> redirect to search
-        router.replace("/search");
+        // CLIENT or no role yet -> redirect to my-bookings
+        router.replace("/my-bookings");
       }
     }
   }, [user, role, authLoading, isLoadingRole, router, returnUrl]);
@@ -53,7 +54,7 @@ export function LoginScreen() {
     const { error } = await signIn(email, password);
 
     if (error) {
-      setError(error.message);
+      setError(translateAuthError(error));
       setLoading(false);
     } else {
       // Don't redirect here - let the useEffect handle it after role is fetched

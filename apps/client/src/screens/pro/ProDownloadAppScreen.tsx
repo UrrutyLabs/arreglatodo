@@ -18,7 +18,6 @@ import { ProHeader } from "@/components/pro/ProHeader";
 import { useAuth } from "@/hooks/auth";
 
 function ProDownloadAppContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
   const { user, session } = useAuth();

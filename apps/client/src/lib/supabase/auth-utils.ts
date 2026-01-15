@@ -1,4 +1,4 @@
-import type { Session } from "@supabase/supabase-js";
+import type { Session, AuthError } from "@supabase/supabase-js";
 import { supabase } from "./client";
 import { logger } from "../crash-reporting";
 
@@ -163,4 +163,55 @@ export async function validateAndRefreshSession(session: Session | null): Promis
     await clearSessionStorage();
     return null;
   }
+}
+
+/**
+ * Translate Supabase auth error messages to Spanish
+ * @param error - Supabase AuthError object
+ * @returns Translated error message in Spanish
+ */
+export function translateAuthError(error: AuthError | null): string {
+  if (!error) {
+    return "Ocurrió un error inesperado";
+  }
+
+  // Check error code first (most reliable)
+  if (error.code === "email_not_confirmed") {
+    return "Tu email no ha sido confirmado. Por favor, revisá tu correo y hacé clic en el enlace de confirmación.";
+  }
+
+  if (error.code === "invalid_credentials") {
+    return "Email o contraseña incorrectos. Por favor, intentá nuevamente.";
+  }
+
+  // Check error message as fallback (for cases where code might not be set)
+  const message = error.message.toLowerCase();
+
+  if (message.includes("email not confirmed") || message.includes("email address is not confirmed")) {
+    return "Tu email no ha sido confirmado. Por favor, revisá tu correo y hacé clic en el enlace de confirmación.";
+  }
+
+  if (message.includes("invalid login credentials") || message.includes("invalid credentials")) {
+    return "Email o contraseña incorrectos. Por favor, intentá nuevamente.";
+  }
+
+  if (message.includes("user not found")) {
+    return "No se encontró un usuario con ese email.";
+  }
+
+  if (message.includes("password")) {
+    return "Contraseña incorrecta. Por favor, intentá nuevamente.";
+  }
+
+  if (message.includes("email")) {
+    return "Email inválido. Por favor, verificá que sea correcto.";
+  }
+
+  if (message.includes("too many requests") || message.includes("rate limit")) {
+    return "Demasiados intentos. Por favor, esperá un momento e intentá nuevamente.";
+  }
+
+  // Generic fallback - return original message if we can't translate it
+  // This ensures we don't lose important error information
+  return error.message || "Error al iniciar sesión. Por favor, intentá nuevamente.";
 }
