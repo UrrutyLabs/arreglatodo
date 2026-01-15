@@ -1,13 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { UserPlus } from "lucide-react";
 import { useSignup } from "@/hooks/useSignup";
 import { AuthForm } from "@/components/forms/AuthForm";
 import { Text } from "@repo/ui";
 
 export function SignupScreen() {
-  const { signup, isPending, error } = useSignup();
+  const searchParams = useSearchParams();
+  const returnUrl = searchParams.get("returnUrl");
+  const { signup, isPending, error } = useSignup(returnUrl);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -54,7 +57,7 @@ export function SignupScreen() {
           footerLink={{
             text: "¿Ya tenés cuenta?",
             linkText: "Iniciar sesión",
-            href: "/login",
+            href: returnUrl ? `/login?returnUrl=${encodeURIComponent(returnUrl)}` : "/login",
           }}
         />
       </div>

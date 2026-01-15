@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Settings, Save, X, Loader2, AlertCircle } from "lucide-react";
 import { Text } from "@repo/ui";
@@ -113,16 +113,20 @@ export function SettingsScreen() {
 
   // Ensure activeTab is valid, default to first tab if not
   const validActiveTab = useMemo(() => {
-    if (activeSection) return activeTab;
+    const section = getSectionByTabId(settingsSections, activeTab, profile);
+    if (section) return activeTab;
     return tabs[0]?.id || "personalData";
-  }, [activeTab, activeSection, tabs]);
+  }, [activeTab, profile, tabs]);
 
-  // Update activeTab if current one is invalid
-  useEffect(() => {
-    if (validActiveTab !== activeTab && tabs.length > 0) {
-      setActiveTab(validActiveTab);
-    }
-  }, [validActiveTab, activeTab, tabs]);
+  const sidebarItems = useMemo(
+    () =>
+      tabs.map((tab) => ({
+        id: tab.id,
+        label: tab.label,
+        icon: tab.icon,
+      })),
+    [tabs]
+  );
 
   if (isLoading) {
     return (
@@ -170,17 +174,6 @@ export function SettingsScreen() {
   });
 
   const isEditableTab = currentSection.isEditable;
-
-  // Convert tabs to sidebar menu items (same structure)
-  const sidebarItems = useMemo(
-    () =>
-      tabs.map((tab) => ({
-        id: tab.id,
-        label: tab.label,
-        icon: tab.icon,
-      })),
-    [tabs]
-  );
 
   const renderContent = () => (
     <>

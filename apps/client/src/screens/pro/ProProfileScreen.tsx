@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   MapPin,
   Star,
@@ -18,7 +19,9 @@ import { Button } from "@repo/ui";
 import { Badge } from "@repo/ui";
 import { Navigation } from "@/components/presentational/Navigation";
 import { ProProfileSkeleton } from "@/components/presentational/ProProfileSkeleton";
+import { AuthPromptModal } from "@/components/auth/AuthPromptModal";
 import { useProDetail } from "@/hooks/useProDetail";
+import { useAuth } from "@/hooks/useAuth";
 import { Category } from "@repo/domain";
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -31,9 +34,30 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 export function ProProfileScreen() {
   const params = useParams();
+  const router = useRouter();
   const proId = params.proId as string;
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const { pro, isLoading, error } = useProDetail(proId);
+  const { user, loading: authLoading } = useAuth();
+
+  const handleReserveClick = () => {
+    if (authLoading) {
+      // Still checking auth, wait
+      return;
+    }
+    if (!user) {
+      // Not authenticated, show modal
+      setShowAuthModal(true);
+      return;
+    }
+    // Ensure pro exists before proceeding
+    if (!pro?.id) {
+      return;
+    }
+    // Authenticated, proceed to booking
+    router.push(`/book?proId=${pro.id}`);
+  };
 
   if (isLoading) {
     return (
@@ -121,12 +145,15 @@ export function ProProfileScreen() {
                 )}
               </div>
             </div>
-            <Link href={`/book?proId=${pro.id}`}>
-              <Button variant="primary" className="w-full md:w-auto flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Reservar
-              </Button>
-            </Link>
+            <Button
+              variant="primary"
+              onClick={handleReserveClick}
+              disabled={authLoading}
+              className="w-full md:w-auto flex items-center gap-2"
+            >
+              <Calendar className="w-4 h-4" />
+              Reservar
+            </Button>
           </Card>
 
           {/* About Section */}
@@ -187,6 +214,15 @@ export function ProProfileScreen() {
           </Card>
         </div>
       </div>
+
+      {/* Auth Prompt Modal */}
+      <AuthPromptModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        returnUrl={`/book?proId=${pro.id}`}
+        title="Iniciá sesión para reservar"
+        message="Necesitás iniciar sesión para reservar un servicio con este profesional."
+      />
     </div>
   );
 }

@@ -51,6 +51,18 @@ function BookingCreateContent() {
   // Track previous rebookValues to update state only when template first loads
   const prevRebookValuesRef = useRef(rebookValues);
 
+  // Determine proId: from rebook template or query param
+  const effectiveProId = rebookTemplate?.proProfileId || proId;
+
+  // Fetch pro details to get hourly rate
+  const { pro, isLoading: isLoadingPro } = useProDetail(effectiveProId || undefined);
+
+  // Booking creation hook
+  const { createBooking, isPending, error: createError } = useCreateBooking();
+
+  // Fetch client profile for WhatsApp prompt
+  const { profile } = useClientProfile();
+
   // Update form fields when rebook template first becomes available
   // Using startTransition to mark updates as non-urgent, avoiding cascading renders
   useEffect(() => {
@@ -71,18 +83,6 @@ function BookingCreateContent() {
       });
     }
   }, [rebookValues, category, address, hours]);
-
-  // Determine proId: from rebook template or query param
-  const effectiveProId = rebookTemplate?.proProfileId || proId;
-
-  // Fetch pro details to get hourly rate
-  const { pro, isLoading: isLoadingPro } = useProDetail(effectiveProId || undefined);
-
-  // Booking creation hook
-  const { createBooking, isPending, error: createError } = useCreateBooking();
-
-  // Fetch client profile for WhatsApp prompt
-  const { profile } = useClientProfile();
 
   // Calculate estimated cost
   const estimatedCost =

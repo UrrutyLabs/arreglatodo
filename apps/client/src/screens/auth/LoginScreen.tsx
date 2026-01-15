@@ -16,13 +16,19 @@ export function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const passwordChanged = searchParams.get("passwordChanged") === "true";
+  const returnUrl = searchParams.get("returnUrl");
 
   // Redirect if already logged in
   useEffect(() => {
     if (!authLoading && user) {
-      router.replace("/search");
+      // If there's a returnUrl, go there; otherwise go to search
+      if (returnUrl) {
+        router.replace(decodeURIComponent(returnUrl));
+      } else {
+        router.replace("/search");
+      }
     }
-  }, [user, authLoading, router]);
+  }, [user, authLoading, router, returnUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +41,12 @@ export function LoginScreen() {
       setError(error.message);
       setLoading(false);
     } else {
-      router.push("/search");
+      // Redirect to returnUrl if provided, otherwise to search
+      if (returnUrl) {
+        router.push(decodeURIComponent(returnUrl));
+      } else {
+        router.push("/search");
+      }
     }
   };
 
@@ -84,7 +95,7 @@ export function LoginScreen() {
           footerLink={{
             text: "¿No tenés cuenta?",
             linkText: "Registrate",
-            href: "/signup",
+            href: returnUrl ? `/signup?returnUrl=${encodeURIComponent(returnUrl)}` : "/signup",
           }}
         />
       </div>

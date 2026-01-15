@@ -1,5 +1,10 @@
 import { BookingDetailScreen } from "@/screens/booking/BookingDetailScreen";
+import { AuthenticatedGuard } from "@/components/auth/AuthenticatedGuard";
 
 export default function BookingDetailPage() {
-  return <BookingDetailScreen />;
+  return (
+    <AuthenticatedGuard>
+      <BookingDetailScreen />
+    </AuthenticatedGuard>
+  );
 }
