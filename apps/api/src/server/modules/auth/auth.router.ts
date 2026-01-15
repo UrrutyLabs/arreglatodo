@@ -6,6 +6,8 @@ import {
   proSignupInputSchema,
   changePasswordInputSchema,
   deleteAccountInputSchema,
+  requestPasswordResetInputSchema,
+  resetPasswordInputSchema,
 } from "@repo/domain";
 import { TRPCError } from "@trpc/server";
 
@@ -152,6 +154,60 @@ export const authRouter = router({
             error instanceof Error
               ? error.message
               : "Failed to delete account",
+        });
+      }
+    }),
+
+  requestPasswordReset: publicProcedure
+    .input(requestPasswordResetInputSchema)
+    .mutation(async ({ input }) => {
+      try {
+        await authService.requestPasswordReset(input.email);
+        // Always return success to prevent email enumeration
+        return { success: true };
+      } catch (error) {
+        // Don't reveal if email exists or not (security best practice)
+        // Log error but return generic message
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "If an account exists with this email, a password reset link has been sent.",
+        });
+      }
+    }),
+
+  resetPassword: publicProcedure
+    .input(resetPasswordInputSchema)
+    .mutation(async ({ input }) => {
+      try {
+        await authService.resetPassword(input.token, input.newPassword);
+        return { success: true };
+      } catch (error) {
+        if (error instanceof Error) {
+          if (
+            error.message.includes("Invalid") ||
+            error.message.includes("expired") ||
+            error.message.includes("token")
+          ) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: error.message,
+            });
+          }
+
+          if (error.message.includes("password")) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: error.message,
+            });
+          }
+        }
+
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to reset password",
         });
       }
     }),

@@ -2,41 +2,74 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { AuthService } from "../auth.service";
 import type { UserRepository } from "@modules/user/user.repo";
 import type { ClientProfileService } from "@modules/user/clientProfile.service";
+import type { BookingRepository } from "@modules/booking/booking.repo";
+import type { PaymentRepository } from "@modules/payment/payment.repo";
 import { Role } from "@repo/domain";
 
 // Mock Supabase
-type MockSupabaseClient = {
+type MockSupabaseAdminClient = {
   auth: {
     admin: {
       createUser: ReturnType<typeof vi.fn>;
       deleteUser: ReturnType<typeof vi.fn>;
+      getUserById: ReturnType<typeof vi.fn>;
+      updateUserById: ReturnType<typeof vi.fn>;
     };
+    getUser: ReturnType<typeof vi.fn>;
+  };
+};
+
+type MockSupabasePublicClient = {
+  auth: {
+    resetPasswordForEmail: ReturnType<typeof vi.fn>;
   };
 };
 
 vi.mock("@supabase/supabase-js", () => {
-  const mockSupabaseClient: MockSupabaseClient = {
+  const mockSupabaseAdminClient: MockSupabaseAdminClient = {
     auth: {
       admin: {
         createUser: vi.fn(),
         deleteUser: vi.fn(),
+        getUserById: vi.fn(),
+        updateUserById: vi.fn(),
       },
+      getUser: vi.fn(),
     },
   };
 
+  const mockSupabasePublicClient: MockSupabasePublicClient = {
+    auth: {
+      resetPasswordForEmail: vi.fn(),
+    },
+  };
+
+  // Track which client type to return based on key used
+  let usePublicClient = false;
+
   return {
-    createClient: vi.fn((): MockSupabaseClient => mockSupabaseClient) as () => MockSupabaseClient,
+    createClient: vi.fn((url: string, key: string) => {
+      // If anon key is used, return public client; otherwise admin client
+      usePublicClient = key !== "test-service-role-key";
+      return usePublicClient
+        ? (mockSupabasePublicClient as unknown as MockSupabaseAdminClient)
+        : mockSupabaseAdminClient;
+    }) as (url: string, key: string) => MockSupabaseAdminClient | MockSupabasePublicClient,
   };
 });
 
 // Import after mock to get the mocked version
 import { createClient } from "@supabase/supabase-js";
 
+
 describe("AuthService", () => {
   let service: AuthService;
   let mockUserRepository: ReturnType<typeof createMockUserRepository>;
   let mockClientProfileService: ReturnType<typeof createMockClientProfileService>;
-  let mockSupabaseClient: MockSupabaseClient;
+  let mockBookingRepository: ReturnType<typeof createMockBookingRepository>;
+  let mockPaymentRepository: ReturnType<typeof createMockPaymentRepository>;
+  let mockSupabaseAdminClient: MockSupabaseAdminClient;
+  let mockSupabasePublicClient: MockSupabasePublicClient;
 
   function createMockUserRepository(): {
     create: ReturnType<typeof vi.fn>;
@@ -48,9 +81,27 @@ describe("AuthService", () => {
 
   function createMockClientProfileService(): {
     updateProfile: ReturnType<typeof vi.fn>;
+    anonymizeProfile: ReturnType<typeof vi.fn>;
   } {
     return {
       updateProfile: vi.fn(),
+      anonymizeProfile: vi.fn(),
+    };
+  }
+
+  function createMockBookingRepository(): {
+    findActiveByClientUserId: ReturnType<typeof vi.fn>;
+  } {
+    return {
+      findActiveByClientUserId: vi.fn(),
+    };
+  }
+
+  function createMockPaymentRepository(): {
+    findPendingByClientUserId: ReturnType<typeof vi.fn>;
+  } {
+    return {
+      findPendingByClientUserId: vi.fn(),
     };
   }
 
@@ -58,16 +109,29 @@ describe("AuthService", () => {
     // Set up environment variables
     process.env.SUPABASE_URL = "https://test.supabase.co";
     process.env.SUPABASE_SERVICE_ROLE_KEY = "test-service-role-key";
+    process.env.SUPABASE_ANON_KEY = "test-anon-key";
+    process.env.CLIENT_APP_URL = "http://localhost:3000";
 
     mockUserRepository = createMockUserRepository();
     mockClientProfileService = createMockClientProfileService();
+    mockBookingRepository = createMockBookingRepository();
+    mockPaymentRepository = createMockPaymentRepository();
 
-    // Get mocked Supabase client
-    mockSupabaseClient = createClient("", "") as unknown as MockSupabaseClient;
+    // Get mocked Supabase clients
+    mockSupabaseAdminClient = createClient(
+      "https://test.supabase.co",
+      "test-service-role-key"
+    ) as unknown as MockSupabaseAdminClient;
+    mockSupabasePublicClient = createClient(
+      "https://test.supabase.co",
+      "test-anon-key"
+    ) as unknown as MockSupabasePublicClient;
 
     service = new AuthService(
       mockUserRepository as unknown as UserRepository,
-      mockClientProfileService as unknown as ClientProfileService
+      mockClientProfileService as unknown as ClientProfileService,
+      mockBookingRepository as unknown as BookingRepository,
+      mockPaymentRepository as unknown as PaymentRepository
     );
 
     vi.clearAllMocks();
@@ -90,7 +154,7 @@ describe("AuthService", () => {
       const supabaseUserId = "supabase-user-1";
       const dbUser = { id: supabaseUserId, role: Role.CLIENT, createdAt: new Date() };
 
-      mockSupabaseClient.auth.admin.createUser.mockResolvedValue({
+      mockSupabaseAdminClient.auth.admin.createUser.mockResolvedValue({
         data: { user: { id: supabaseUserId } },
         error: null,
       });
@@ -111,7 +175,7 @@ describe("AuthService", () => {
       const result = await service.signupClient(input);
 
       // Assert
-      expect(mockSupabaseClient.auth.admin.createUser).toHaveBeenCalledWith({
+      expect(mockSupabaseAdminClient.auth.admin.createUser).toHaveBeenCalledWith({
         email: input.email,
         password: input.password,
         email_confirm: false,
@@ -138,18 +202,18 @@ describe("AuthService", () => {
       const supabaseUserId = "supabase-user-1";
       const dbError = new Error("Database error");
 
-      mockSupabaseClient.auth.admin.createUser.mockResolvedValue({
+      mockSupabaseAdminClient.auth.admin.createUser.mockResolvedValue({
         data: { user: { id: supabaseUserId } },
         error: null,
       });
       mockUserRepository.create.mockRejectedValue(dbError);
-      mockSupabaseClient.auth.admin.deleteUser.mockResolvedValue({ data: {}, error: null });
+      mockSupabaseAdminClient.auth.admin.deleteUser.mockResolvedValue({ data: {}, error: null });
 
       // Act & Assert
       await expect(service.signupClient(input)).rejects.toThrow("Database error");
 
       // Should attempt to delete Supabase user
-      expect(mockSupabaseClient.auth.admin.deleteUser).toHaveBeenCalledWith(supabaseUserId);
+      expect(mockSupabaseAdminClient.auth.admin.deleteUser).toHaveBeenCalledWith(supabaseUserId);
     });
 
     it("should throw error when Supabase user creation fails", async () => {
@@ -160,7 +224,7 @@ describe("AuthService", () => {
       };
       const supabaseError = { message: "Email already exists" };
 
-      mockSupabaseClient.auth.admin.createUser.mockResolvedValue({
+      mockSupabaseAdminClient.auth.admin.createUser.mockResolvedValue({
         data: { user: null },
         error: supabaseError,
       });
@@ -180,7 +244,7 @@ describe("AuthService", () => {
       const supabaseUserId = "supabase-user-1";
       const dbUser = { id: supabaseUserId, role: Role.CLIENT, createdAt: new Date() };
 
-      mockSupabaseClient.auth.admin.createUser.mockResolvedValue({
+      mockSupabaseAdminClient.auth.admin.createUser.mockResolvedValue({
         data: { user: { id: supabaseUserId } },
         error: null,
       });
@@ -224,7 +288,7 @@ describe("AuthService", () => {
       const supabaseUserId = "supabase-pro-1";
       const dbUser = { id: supabaseUserId, role: Role.PRO, createdAt: new Date() };
 
-      mockSupabaseClient.auth.admin.createUser.mockResolvedValue({
+      mockSupabaseAdminClient.auth.admin.createUser.mockResolvedValue({
         data: { user: { id: supabaseUserId } },
         error: null,
       });
@@ -234,7 +298,7 @@ describe("AuthService", () => {
       const result = await service.signupPro(input);
 
       // Assert
-      expect(mockSupabaseClient.auth.admin.createUser).toHaveBeenCalledWith({
+      expect(mockSupabaseAdminClient.auth.admin.createUser).toHaveBeenCalledWith({
         email: input.email,
         password: input.password,
         email_confirm: false,
@@ -256,18 +320,18 @@ describe("AuthService", () => {
       const supabaseUserId = "supabase-pro-1";
       const dbError = new Error("Database error");
 
-      mockSupabaseClient.auth.admin.createUser.mockResolvedValue({
+      mockSupabaseAdminClient.auth.admin.createUser.mockResolvedValue({
         data: { user: { id: supabaseUserId } },
         error: null,
       });
       mockUserRepository.create.mockRejectedValue(dbError);
-      mockSupabaseClient.auth.admin.deleteUser.mockResolvedValue({ data: {}, error: null });
+      mockSupabaseAdminClient.auth.admin.deleteUser.mockResolvedValue({ data: {}, error: null });
 
       // Act & Assert
       await expect(service.signupPro(input)).rejects.toThrow("Database error");
 
       // Should attempt to delete Supabase user
-      expect(mockSupabaseClient.auth.admin.deleteUser).toHaveBeenCalledWith(supabaseUserId);
+      expect(mockSupabaseAdminClient.auth.admin.deleteUser).toHaveBeenCalledWith(supabaseUserId);
     });
 
     it("should not create ProProfile during signup", async () => {
@@ -279,7 +343,7 @@ describe("AuthService", () => {
       const supabaseUserId = "supabase-pro-1";
       const dbUser = { id: supabaseUserId, role: Role.PRO, createdAt: new Date() };
 
-      mockSupabaseClient.auth.admin.createUser.mockResolvedValue({
+      mockSupabaseAdminClient.auth.admin.createUser.mockResolvedValue({
         data: { user: { id: supabaseUserId } },
         error: null,
       });
@@ -290,6 +354,208 @@ describe("AuthService", () => {
 
       // Assert - ProProfile should NOT be created (that happens in onboarding)
       expect(mockClientProfileService.updateProfile).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("requestPasswordReset", () => {
+    it("should send password reset email using public client", async () => {
+      // Arrange
+      const email = "user@example.com";
+
+      mockSupabasePublicClient.auth.resetPasswordForEmail.mockResolvedValue({
+        data: {},
+        error: null,
+      });
+
+      // Act
+      await service.requestPasswordReset(email);
+
+      // Assert
+      expect(mockSupabasePublicClient.auth.resetPasswordForEmail).toHaveBeenCalledWith(
+        email,
+        {
+          redirectTo: "http://localhost:3000/reset-password",
+        }
+      );
+    });
+
+    it("should not throw error even if email doesn't exist (security)", async () => {
+      // Arrange
+      const email = "nonexistent@example.com";
+
+      mockSupabasePublicClient.auth.resetPasswordForEmail.mockResolvedValue({
+        data: {},
+        error: { message: "User not found" },
+      });
+
+      // Act & Assert - should not throw
+      await expect(service.requestPasswordReset(email)).resolves.not.toThrow();
+    });
+
+    it("should use CLIENT_APP_URL from environment", async () => {
+      // Arrange
+      const email = "user@example.com";
+      process.env.CLIENT_APP_URL = "https://myapp.com";
+
+      mockSupabasePublicClient.auth.resetPasswordForEmail.mockResolvedValue({
+        data: {},
+        error: null,
+      });
+
+      // Act
+      await service.requestPasswordReset(email);
+
+      // Assert
+      expect(mockSupabasePublicClient.auth.resetPasswordForEmail).toHaveBeenCalledWith(
+        email,
+        {
+          redirectTo: "https://myapp.com/reset-password",
+        }
+      );
+
+      // Cleanup
+      process.env.CLIENT_APP_URL = "http://localhost:3000";
+    });
+
+    it("should throw error if Supabase configuration is missing", async () => {
+      // Arrange
+      const email = "user@example.com";
+      const originalUrl = process.env.SUPABASE_URL;
+      const originalKey = process.env.SUPABASE_ANON_KEY;
+
+      delete process.env.SUPABASE_URL;
+
+      // Act & Assert
+      await expect(service.requestPasswordReset(email)).rejects.toThrow(
+        "Missing Supabase configuration"
+      );
+
+      // Restore
+      process.env.SUPABASE_URL = originalUrl;
+      process.env.SUPABASE_ANON_KEY = originalKey;
+    });
+  });
+
+  describe("resetPassword", () => {
+    it("should verify token and update password", async () => {
+      // Arrange
+      const accessToken = "valid-access-token";
+      const newPassword = "newPassword123";
+      const userId = "user-123";
+
+      mockSupabaseAdminClient.auth.getUser.mockResolvedValue({
+        data: {
+          user: {
+            id: userId,
+            email: "user@example.com",
+          },
+        },
+        error: null,
+      });
+
+      mockSupabaseAdminClient.auth.admin.updateUserById.mockResolvedValue({
+        data: {
+          user: {
+            id: userId,
+          },
+        },
+        error: null,
+      });
+
+      // Act
+      await service.resetPassword(accessToken, newPassword);
+
+      // Assert
+      expect(mockSupabaseAdminClient.auth.getUser).toHaveBeenCalledWith(accessToken);
+      expect(mockSupabaseAdminClient.auth.admin.updateUserById).toHaveBeenCalledWith(userId, {
+        password: newPassword,
+      });
+    });
+
+    it("should throw error if token is invalid", async () => {
+      // Arrange
+      const accessToken = "invalid-token";
+      const newPassword = "newPassword123";
+
+      mockSupabaseAdminClient.auth.getUser.mockResolvedValue({
+        data: {
+          user: null,
+        },
+        error: { message: "Invalid token" },
+      });
+
+      // Act & Assert
+      await expect(service.resetPassword(accessToken, newPassword)).rejects.toThrow(
+        "Invalid or expired reset token"
+      );
+
+      expect(mockSupabaseAdminClient.auth.admin.updateUserById).not.toHaveBeenCalled();
+    });
+
+    it("should throw error if token is expired", async () => {
+      // Arrange
+      const accessToken = "expired-token";
+      const newPassword = "newPassword123";
+
+      mockSupabaseAdminClient.auth.getUser.mockResolvedValue({
+        data: {
+          user: null,
+        },
+        error: { message: "Token expired" },
+      });
+
+      // Act & Assert
+      await expect(service.resetPassword(accessToken, newPassword)).rejects.toThrow(
+        "Invalid or expired reset token"
+      );
+    });
+
+    it("should throw error if password update fails", async () => {
+      // Arrange
+      const accessToken = "valid-access-token";
+      const newPassword = "newPassword123";
+      const userId = "user-123";
+
+      mockSupabaseAdminClient.auth.getUser.mockResolvedValue({
+        data: {
+          user: {
+            id: userId,
+            email: "user@example.com",
+          },
+        },
+        error: null,
+      });
+
+      mockSupabaseAdminClient.auth.admin.updateUserById.mockResolvedValue({
+        data: {
+          user: null,
+        },
+        error: { message: "Password update failed" },
+      });
+
+      // Act & Assert
+      await expect(service.resetPassword(accessToken, newPassword)).rejects.toThrow(
+        "Password update failed"
+      );
+    });
+
+    it("should throw error if Supabase configuration is missing", async () => {
+      // Arrange
+      const accessToken = "valid-token";
+      const newPassword = "newPassword123";
+      const originalUrl = process.env.SUPABASE_URL;
+      const originalKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+      delete process.env.SUPABASE_URL;
+
+      // Act & Assert
+      await expect(service.resetPassword(accessToken, newPassword)).rejects.toThrow(
+        "Missing Supabase configuration"
+      );
+
+      // Restore
+      process.env.SUPABASE_URL = originalUrl;
+      process.env.SUPABASE_SERVICE_ROLE_KEY = originalKey;
     });
   });
 });

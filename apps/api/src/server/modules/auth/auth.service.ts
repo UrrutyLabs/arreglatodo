@@ -225,6 +225,99 @@ export class AuthService {
   }
 
   /**
+   * Request password reset
+   * Sends password reset email to user
+   * Uses Supabase's public client to send reset email
+   * Always returns success to prevent email enumeration attacks
+   */
+  async requestPasswordReset(email: string): Promise<void> {
+    const supabaseUrl = process.env.SUPABASE_URL;
+    // Try SUPABASE_ANON_KEY first, then fallback to NEXT_PUBLIC_SUPABASE_ANON_KEY for convenience
+    const anonKey = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !anonKey) {
+      throw new Error(
+        "Missing Supabase configuration: SUPABASE_URL and SUPABASE_ANON_KEY must be set"
+      );
+    }
+
+    const { createClient } = await import("@supabase/supabase-js");
+    const supabasePublic = createClient(supabaseUrl, anonKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+
+    // Get client app URL from environment (where user will be redirected)
+    // This should be the client app URL, not the API URL
+    const clientAppUrl =
+      process.env.CLIENT_APP_URL ||
+      process.env.NEXT_PUBLIC_CLIENT_APP_URL ||
+      "http://localhost:3000";
+
+    // Use Supabase's resetPasswordForEmail which sends the email automatically
+    // This method always returns success (even if email doesn't exist) to prevent enumeration
+    const { error } = await supabasePublic.auth.resetPasswordForEmail(email, {
+      redirectTo: `${clientAppUrl}/reset-password`,
+    });
+
+    // Don't throw error even if email doesn't exist (security best practice)
+    // This prevents attackers from enumerating valid email addresses
+    if (error) {
+      // Log error but don't reveal to client
+      console.error("Password reset request error:", error.message);
+      // Return silently - client will always see success
+    }
+  }
+
+  /**
+   * Reset password with token
+   * Verifies the reset token and updates the password
+   * This is called when user clicks the reset link and submits new password
+   * 
+   * Note: Supabase's password reset flow works as follows:
+   * 1. User clicks reset link from email (contains access_token in URL hash)
+   * 2. Frontend extracts access_token from URL hash
+   * 3. Frontend calls this endpoint with token and new password
+   * 4. We verify token using getUser(), get user ID, and update password via admin API
+   */
+  async resetPassword(accessToken: string, newPassword: string): Promise<void> {
+    const supabaseAdmin = this.getSupabaseAdmin();
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !serviceRoleKey) {
+      throw new Error(
+        "Missing Supabase configuration: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set"
+      );
+    }
+
+    // Verify the access token and get user info
+    // Use admin client's getUser to verify the token
+    const { data: userData, error: getUserError } =
+      await supabaseAdmin.auth.getUser(accessToken);
+
+    if (getUserError || !userData.user) {
+      throw new Error("Invalid or expired reset token");
+    }
+
+    const userId = userData.user.id;
+
+    // Update password using admin API
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
+      userId,
+      {
+        password: newPassword,
+      }
+    );
+
+    if (updateError) {
+      throw new Error(updateError.message || "Failed to reset password");
+    }
+  }
+
+  /**
    * Delete user account (Hybrid Approach: Soft Delete + Anonymization)
    * 
    * 1. Prevents deletion if there are active bookings or pending payments

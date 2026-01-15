@@ -54,12 +54,16 @@ export {
   clientProfileUpdateInputSchema,
   changePasswordInputSchema,
   deleteAccountInputSchema,
+  requestPasswordResetInputSchema,
+  resetPasswordInputSchema,
   type ClientSearchProsInput,
   type PreferredContactMethod,
   type ClientSignupInput,
   type ClientProfileUpdateInput,
   type ChangePasswordInput,
   type DeleteAccountInput,
+  type RequestPasswordResetInput,
+  type ResetPasswordInput,
 } from "./schemas/client.schema";
 
 // Format utilities

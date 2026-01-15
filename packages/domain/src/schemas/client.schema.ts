@@ -60,3 +60,24 @@ export const deleteAccountInputSchema = z.object({
 });
 
 export type DeleteAccountInput = z.infer<typeof deleteAccountInputSchema>;
+
+/**
+ * Request password reset input schema
+ * Used when user forgets their password
+ */
+export const requestPasswordResetInputSchema = z.object({
+  email: z.string().email("Invalid email address"),
+});
+
+export type RequestPasswordResetInput = z.infer<typeof requestPasswordResetInputSchema>;
+
+/**
+ * Reset password input schema
+ * Used to reset password with token from email
+ */
+export const resetPasswordInputSchema = z.object({
+  token: z.string().min(1, "Reset token is required"),
+  newPassword: z.string().min(8, "New password must be at least 8 characters"),
+});
+
+export type ResetPasswordInput = z.infer<typeof resetPasswordInputSchema>;

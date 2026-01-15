@@ -16,6 +16,7 @@ export function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const passwordChanged = searchParams.get("passwordChanged") === "true";
+  const passwordReset = searchParams.get("passwordReset") === "true";
   const returnUrl = searchParams.get("returnUrl");
 
   // Redirect if already logged in
@@ -72,13 +73,14 @@ export function LoginScreen() {
             Iniciar sesión
           </Text>
         </div>
-        {passwordChanged && (
+        {(passwordChanged || passwordReset) && (
           <Card className="p-4 bg-success/10 border-success/20">
             <div className="flex items-center gap-2">
               <CheckCircle className="w-5 h-5 text-success shrink-0" />
               <Text variant="body" className="text-success">
-                Tu contraseña ha sido cambiada. Por favor, iniciá sesión con tu
-                nueva contraseña.
+                {passwordReset
+                  ? "Tu contraseña ha sido restablecida. Por favor, iniciá sesión con tu nueva contraseña."
+                  : "Tu contraseña ha sido cambiada. Por favor, iniciá sesión con tu nueva contraseña."}
               </Text>
             </div>
           </Card>
@@ -98,6 +100,14 @@ export function LoginScreen() {
             href: returnUrl ? `/signup?returnUrl=${encodeURIComponent(returnUrl)}` : "/signup",
           }}
         />
+        <div className="text-center">
+          <a
+            href={returnUrl ? `/forgot-password?returnUrl=${encodeURIComponent(returnUrl)}` : "/forgot-password"}
+            className="text-sm text-primary hover:underline"
+          >
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
       </div>
     </div>
   );
