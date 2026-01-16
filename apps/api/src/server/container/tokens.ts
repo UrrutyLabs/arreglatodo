@@ -44,6 +44,7 @@ export const TOKENS = {
   AuditService: "AuditService",
   SearchService: "SearchService",
   AvailabilityService: "AvailabilityService",
+  ContactService: "ContactService",
 
   // Infrastructure
   Logger: "Logger",

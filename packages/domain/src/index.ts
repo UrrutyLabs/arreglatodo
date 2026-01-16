@@ -76,6 +76,12 @@ export {
   type ResetPasswordWithOtpInput,
 } from "./schemas/client.schema";
 
+// Contact schemas
+export {
+  contactFormInputSchema,
+  type ContactFormInput,
+} from "./schemas/contact.schema";
+
 // Format utilities
 export { formatCurrency } from "./utils/format";
 

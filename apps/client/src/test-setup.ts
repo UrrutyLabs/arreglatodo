@@ -41,6 +41,7 @@ const mockTrpcReviewByBooking = vi.fn();
 const mockTrpcReviewCreate = vi.fn();
 const mockTrpcPaymentGetByBooking = vi.fn();
 const mockTrpcPaymentCreatePreauthForBooking = vi.fn();
+const mockTrpcContactSubmit = vi.fn();
 
 vi.mock("@/lib/trpc/client", () => {
   return {
@@ -110,6 +111,11 @@ vi.mock("@/lib/trpc/client", () => {
           useMutation: (...args: unknown[]) => mockTrpcPaymentCreatePreauthForBooking(...args),
         },
       },
+      contact: {
+        submit: {
+          useMutation: (...args: unknown[]) => mockTrpcContactSubmit(...args),
+        },
+      },
     },
   };
 });
@@ -133,6 +139,7 @@ export {
   mockTrpcReviewCreate,
   mockTrpcPaymentGetByBooking,
   mockTrpcPaymentCreatePreauthForBooking,
+  mockTrpcContactSubmit,
 };
 
 // Mock logger

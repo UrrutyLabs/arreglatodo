@@ -12,6 +12,7 @@ import { payoutRouter } from "@modules/payout/payout.router";
 import { proPayoutRouter } from "@modules/payout/proPayout.router";
 import { auditRouter } from "@modules/audit/audit.router";
 import { searchRouter } from "@modules/search/search.router";
+import { contactRouter } from "@modules/contact/contact.router";
 
 export const appRouter = router({
   health: router({
@@ -34,6 +35,7 @@ export const appRouter = router({
   payout: payoutRouter,
   proPayout: proPayoutRouter,
   audit: auditRouter,
+  contact: contactRouter,
   client: router({
     searchPros: searchRouter.searchPros,
   }),

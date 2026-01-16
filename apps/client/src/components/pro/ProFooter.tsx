@@ -23,7 +23,7 @@ export function ProFooter() {
             <Link href="#" className="text-muted hover:text-text transition-colors">
               <Text variant="small">Privacidad</Text>
             </Link>
-            <Link href="#" className="text-muted hover:text-text transition-colors">
+            <Link href="/contact" className="text-muted hover:text-text transition-colors">
               <Text variant="small">Contacto</Text>
             </Link>
           </div>
