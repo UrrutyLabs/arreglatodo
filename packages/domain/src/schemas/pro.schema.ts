@@ -23,6 +23,7 @@ export const proSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
   phone: z.string().optional(),
+  bio: z.string().optional(),
   hourlyRate: z.number().positive(),
   categories: z.array(categorySchema),
   serviceArea: z.string().optional(),
@@ -59,6 +60,7 @@ export const proOnboardInputSchema = z.object({
   hourlyRate: z.number().positive(),
   categories: z.array(categorySchema).min(1),
   serviceArea: z.string().optional(),
+  bio: z.string().optional(),
 });
 
 export type ProOnboardInput = z.infer<typeof proOnboardInputSchema>;

@@ -6,7 +6,6 @@ import { useParams, useRouter } from "next/navigation";
 import {
   MapPin,
   Star,
-  DollarSign,
   User,
   FileText,
   Calendar,
@@ -25,6 +24,7 @@ import { useProDetail } from "@/hooks/pro";
 import { useAuth } from "@/hooks/auth";
 import { Category, type Pro } from "@repo/domain";
 import { useTodayDate } from "@/hooks/shared/useTodayDate";
+import { getAvailabilityHint } from "@/utils/proAvailability";
 
 const CATEGORY_LABELS: Record<string, string> = {
   plumbing: "Plomería",
@@ -33,62 +33,6 @@ const CATEGORY_LABELS: Record<string, string> = {
   handyman: "Arreglos generales",
   painting: "Pintura",
 };
-
-/**
- * Determine availability hint based on availability slots
- * Returns "today", "tomorrow", or null
- */
-function getAvailabilityHint(
-  availabilitySlots: Pro["availabilitySlots"],
-  today: string
-): "today" | "tomorrow" | null {
-  if (!availabilitySlots || availabilitySlots.length === 0) {
-    return null;
-  }
-
-  const now = new Date();
-  const todayDate = new Date(today);
-  const todayDayOfWeek = todayDate.getUTCDay();
-  const tomorrowDayOfWeek = (todayDayOfWeek + 1) % 7;
-
-  // Check if pro has availability today
-  const hasTodayAvailability = availabilitySlots.some(
-    (slot) => slot.dayOfWeek === todayDayOfWeek
-  );
-
-  if (hasTodayAvailability) {
-    // Check if there are still available time slots today
-    const todaySlots = availabilitySlots.filter(
-      (slot) => slot.dayOfWeek === todayDayOfWeek
-    );
-
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
-    const currentTimeInMinutes = currentHour * 60 + currentMinute;
-
-    // Check if any slot has a start time after current time (with 1 hour buffer)
-    const hasFutureSlotToday = todaySlots.some((slot) => {
-      const [slotHour, slotMinute] = slot.startTime.split(":").map(Number);
-      const slotStartInMinutes = slotHour * 60 + slotMinute;
-      return slotStartInMinutes > currentTimeInMinutes + 60; // 1 hour buffer
-    });
-
-    if (hasFutureSlotToday) {
-      return "today";
-    }
-  }
-
-  // Check if pro has availability tomorrow
-  const hasTomorrowAvailability = availabilitySlots.some(
-    (slot) => slot.dayOfWeek === tomorrowDayOfWeek
-  );
-
-  if (hasTomorrowAvailability) {
-    return "tomorrow";
-  }
-
-  return null;
-}
 
 export function ProProfileScreen() {
   const params = useParams();
@@ -191,9 +135,9 @@ export function ProProfileScreen() {
                         Nuevo
                       </Badge>
                     )}
-                    {isActive && (
-                      <Badge variant="success" showIcon>
-                        Activo
+                    {pro.isSuspended && (
+                      <Badge variant="danger">
+                        Suspendido
                       </Badge>
                     )}
                     {isActive && (
@@ -235,8 +179,7 @@ export function ProProfileScreen() {
                 </div>
               </div>
               <div className="text-right">
-                <div className="flex items-center justify-end gap-2 mb-1">
-                  <DollarSign className="w-5 h-5 text-primary" />
+                <div className="mb-1">
                   <Text variant="h2" className="text-primary">
                     ${pro.hourlyRate.toFixed(0)}/hora
                   </Text>
@@ -257,15 +200,17 @@ export function ProProfileScreen() {
                 )}
               </div>
             </div>
-            <Button
-              variant="primary"
-              onClick={handleReserveClick}
-              disabled={authLoading}
-              className="w-full md:w-auto flex items-center gap-2"
-            >
-              <Calendar className="w-4 h-4" />
-              Reservar
-            </Button>
+            {isActive && !pro.isSuspended && (
+              <Button
+                variant="primary"
+                onClick={handleReserveClick}
+                disabled={authLoading}
+                className="w-full md:w-auto flex items-center gap-2"
+              >
+                <Calendar className="w-4 h-4" />
+                Reservar
+              </Button>
+            )}
           </Card>
 
           {/* About Section */}
@@ -276,22 +221,30 @@ export function ProProfileScreen() {
                 Acerca de
               </Text>
             </div>
-            {pro.serviceArea ? (
-              <Text variant="body" className="text-muted">
-                Profesional en {pro.serviceArea} con experiencia en{" "}
-                {pro.categories
-                  .map((cat: Category | string) => CATEGORY_LABELS[cat] || cat)
-                  .join(", ")}
-                .
+            {pro.bio ? (
+              <Text variant="body" className="text-text whitespace-pre-line">
+                {pro.bio}
               </Text>
             ) : (
-              <Text variant="body" className="text-muted">
-                Profesional con experiencia en{" "}
-                {pro.categories
-                  .map((cat: Category | string) => CATEGORY_LABELS[cat] || cat)
-                  .join(", ")}
-                .
-              </Text>
+              <>
+                {pro.serviceArea ? (
+                  <Text variant="body" className="text-muted">
+                    Profesional en {pro.serviceArea} con experiencia en{" "}
+                    {pro.categories
+                      .map((cat: Category | string) => CATEGORY_LABELS[cat] || cat)
+                      .join(", ")}
+                    .
+                  </Text>
+                ) : (
+                  <Text variant="body" className="text-muted">
+                    Profesional con experiencia en{" "}
+                    {pro.categories
+                      .map((cat: Category | string) => CATEGORY_LABELS[cat] || cat)
+                      .join(", ")}
+                    .
+                  </Text>
+                )}
+              </>
             )}
           </Card>
 

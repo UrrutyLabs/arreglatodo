@@ -1,11 +1,12 @@
 import { memo, useMemo } from "react";
 import Link from "next/link";
-import { Star, DollarSign, Clock, Calendar } from "lucide-react";
+import { Star, Clock, Calendar } from "lucide-react";
 import { Card } from "@repo/ui";
 import { Text } from "@repo/ui";
 import { Badge } from "@repo/ui";
 import { Category, type Pro } from "@repo/domain";
 import { useTodayDate } from "@/hooks/shared/useTodayDate";
+import { getAvailabilityHint } from "@/utils/proAvailability";
 
 const CATEGORY_LABELS: Record<Category, string> = {
   [Category.PLUMBING]: "Plomería",
@@ -19,65 +20,8 @@ interface ProCardProps {
   pro: Pro;
 }
 
-/**
- * Determine availability hint based on availability slots
- * Returns "today", "tomorrow", or null
- */
-function getAvailabilityHint(
-  availabilitySlots: Pro["availabilitySlots"],
-  today: string
-): "today" | "tomorrow" | null {
-  if (!availabilitySlots || availabilitySlots.length === 0) {
-    return null;
-  }
-
-  const now = new Date();
-  const todayDate = new Date(today);
-  const todayDayOfWeek = todayDate.getUTCDay();
-  const tomorrowDayOfWeek = (todayDayOfWeek + 1) % 7;
-
-  // Check if pro has availability today
-  const hasTodayAvailability = availabilitySlots.some(
-    (slot) => slot.dayOfWeek === todayDayOfWeek
-  );
-
-  if (hasTodayAvailability) {
-    // Check if there are still available time slots today
-    const todaySlots = availabilitySlots.filter(
-      (slot) => slot.dayOfWeek === todayDayOfWeek
-    );
-
-    const currentHour = now.getHours();
-    const currentMinute = now.getMinutes();
-    const currentTimeInMinutes = currentHour * 60 + currentMinute;
-
-    // Check if any slot has a start time after current time (with 1 hour buffer)
-    const hasFutureSlotToday = todaySlots.some((slot) => {
-      const [slotHour, slotMinute] = slot.startTime.split(":").map(Number);
-      const slotStartInMinutes = slotHour * 60 + slotMinute;
-      return slotStartInMinutes > currentTimeInMinutes + 60; // 1 hour buffer
-    });
-
-    if (hasFutureSlotToday) {
-      return "today";
-    }
-  }
-
-  // Check if pro has availability tomorrow
-  const hasTomorrowAvailability = availabilitySlots.some(
-    (slot) => slot.dayOfWeek === tomorrowDayOfWeek
-  );
-
-  if (hasTomorrowAvailability) {
-    return "tomorrow";
-  }
-
-  return null;
-}
-
 export const ProCard = memo(function ProCard({ pro }: ProCardProps) {
   const today = useTodayDate();
-  const isActive = useMemo(() => pro.isApproved && !pro.isSuspended, [pro.isApproved, pro.isSuspended]);
   const isNew = useMemo(() => !pro.rating || pro.reviewCount === 0, [pro.rating, pro.reviewCount]);
   const availabilityHint = useMemo(
     () => getAvailabilityHint(pro.availabilitySlots, today),
@@ -108,11 +52,6 @@ export const ProCard = memo(function ProCard({ pro }: ProCardProps) {
             {isNew && (
               <Badge variant="new">
                 Nuevo
-              </Badge>
-            )}
-            {isActive && (
-              <Badge variant="success" showIcon>
-                Activo
               </Badge>
             )}
           </div>
@@ -154,8 +93,7 @@ export const ProCard = memo(function ProCard({ pro }: ProCardProps) {
         )}
         
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-1">
-            <DollarSign className="w-4 h-4 text-primary" />
+          <div>
             <Text variant="small" className="text-text font-medium">
               ${pro.hourlyRate.toFixed(0)}/hora
             </Text>

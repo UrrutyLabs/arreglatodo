@@ -7,7 +7,6 @@ import {
   Calendar,
   MapPin,
   Hourglass,
-  DollarSign,
   ArrowLeft,
   CheckCircle,
   AlertCircle,
@@ -230,8 +229,7 @@ function CheckoutContent() {
 
           {/* Amount Summary */}
           <Card className="p-6 mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <DollarSign className="w-5 h-5 text-primary" />
+            <div className="mb-4">
               <Text variant="h2" className="text-text">
                 Monto estimado: {formatCurrency(amountEstimated, currency, isAmountInMinorUnits)}
               </Text>

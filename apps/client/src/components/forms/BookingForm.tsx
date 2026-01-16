@@ -4,7 +4,6 @@ import {
   Clock,
   MapPin,
   Hourglass,
-  DollarSign,
 } from "lucide-react";
 import { Button } from "@repo/ui";
 import { Input } from "@repo/ui";
@@ -158,12 +157,9 @@ export function BookingForm({
       {estimatedCost !== undefined && (
         <Card className="p-4 bg-primary/5 border-primary/20">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-primary" />
-              <Text variant="body" className="text-text font-medium">
-                Costo estimado:
-              </Text>
-            </div>
+            <Text variant="body" className="text-text font-medium">
+              Costo estimado:
+            </Text>
             <Text variant="h2" className="text-primary">
               ${estimatedCost.toFixed(0)}
             </Text>

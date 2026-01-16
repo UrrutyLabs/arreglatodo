@@ -289,6 +289,53 @@ describe("ProService", () => {
         availabilitySlots: [],
       });
     });
+
+    it("should allow optional bio during onboarding", async () => {
+      // Arrange
+      const input: ProOnboardInput = {
+        name: "Test Pro",
+        email: "pro@example.com",
+        phone: "+1234567890",
+        hourlyRate: 100,
+        categories: ["plumbing" as Category],
+        serviceArea: "Test Area",
+        bio: "Optional bio text",
+      };
+      const user = createMockUser();
+      const proProfile = createMockProProfile({
+        userId: user.id,
+        displayName: input.name,
+        email: input.email,
+        phone: input.phone,
+        bio: input.bio,
+        hourlyRate: input.hourlyRate,
+        categories: input.categories as string[],
+        serviceArea: input.serviceArea,
+      });
+
+      mockUserRepository.create.mockResolvedValue(user);
+      mockProRepository.create.mockResolvedValue(proProfile);
+      mockReviewRepository.findByProProfileId.mockResolvedValue([]);
+      mockAvailabilityService.getAvailabilitySlots.mockResolvedValue([]);
+
+      // Act
+      const result = await service.onboardPro(input);
+
+      // Assert
+      expect(mockProRepository.create).toHaveBeenCalledWith({
+        userId: user.id,
+        displayName: input.name,
+        email: input.email,
+        phone: input.phone,
+        bio: input.bio,
+        hourlyRate: input.hourlyRate,
+        categories: input.categories as string[],
+        serviceArea: input.serviceArea,
+      });
+      expect(result).toMatchObject({
+        bio: proProfile.bio,
+      });
+    });
   });
 
   describe("convertUserToPro", () => {
@@ -355,7 +402,7 @@ describe("ProService", () => {
         displayName: input.name,
         email: input.email,
         phone: input.phone,
-        bio: undefined,
+        bio: input.bio ?? undefined,
         hourlyRate: input.hourlyRate,
         categories: input.categories as string[],
         serviceArea: input.serviceArea,
@@ -444,6 +491,7 @@ describe("ProService", () => {
       expect(result).toMatchObject({
         id: proProfile.id,
         name: proProfile.displayName,
+        bio: proProfile.bio,
         rating: 4.5,
         reviewCount: 2,
         availabilitySlots: [],
@@ -489,12 +537,16 @@ describe("ProService", () => {
       expect(result).toHaveLength(2);
       expect(result[0]).toMatchObject({
         id: "pro-1",
+        name: proProfiles[0].displayName,
+        bio: proProfiles[0].bio,
         rating: 4,
         reviewCount: 1,
         availabilitySlots: [],
       });
       expect(result[1]).toMatchObject({
         id: "pro-2",
+        name: proProfiles[1].displayName,
+        bio: proProfiles[1].bio,
         rating: 5,
         reviewCount: 1,
         availabilitySlots: [],
@@ -702,6 +754,101 @@ describe("ProService", () => {
         name: updatedPro.displayName,
         hourlyRate: updatedPro.hourlyRate,
         availabilitySlots: [],
+      });
+    });
+
+    it("should update bio field", async () => {
+      // Arrange
+      const userId = "user-1";
+      const input: Partial<ProOnboardInput> = {
+        bio: "Updated bio text",
+      };
+      const existingPro = createMockProProfile({ userId, bio: "Old bio" });
+      const updatedPro = createMockProProfile({
+        ...existingPro,
+        bio: input.bio!,
+      });
+
+      mockProRepository.findByUserId.mockResolvedValue(existingPro);
+      mockProRepository.update.mockResolvedValue(updatedPro);
+      mockReviewRepository.findByProProfileId.mockResolvedValue([]);
+      mockAvailabilityService.getAvailabilitySlots.mockResolvedValue([]);
+
+      // Act
+      const result = await service.updateProfile(userId, input);
+
+      // Assert
+      expect(mockProRepository.update).toHaveBeenCalledWith(existingPro.id, {
+        bio: input.bio,
+      });
+      expect(result).toMatchObject({
+        id: updatedPro.id,
+        bio: updatedPro.bio,
+      });
+    });
+
+    it("should clear bio when set to undefined", async () => {
+      // Arrange
+      const userId = "user-1";
+      const input: Partial<ProOnboardInput> = {
+        bio: undefined,
+      };
+      const existingPro = createMockProProfile({ userId, bio: "Existing bio" });
+      const updatedPro = createMockProProfile({
+        ...existingPro,
+        bio: null,
+      });
+
+      mockProRepository.findByUserId.mockResolvedValue(existingPro);
+      mockProRepository.update.mockResolvedValue(updatedPro);
+      mockReviewRepository.findByProProfileId.mockResolvedValue([]);
+      mockAvailabilityService.getAvailabilitySlots.mockResolvedValue([]);
+
+      // Act
+      const result = await service.updateProfile(userId, input);
+
+      // Assert
+      expect(mockProRepository.update).toHaveBeenCalledWith(existingPro.id, {
+        bio: null,
+      });
+      expect(result.bio).toBeUndefined();
+    });
+
+    it("should update multiple fields including bio", async () => {
+      // Arrange
+      const userId = "user-1";
+      const input: Partial<ProOnboardInput> = {
+        name: "Updated Name",
+        bio: "New bio",
+        hourlyRate: 150,
+      };
+      const existingPro = createMockProProfile({ userId });
+      const updatedPro = createMockProProfile({
+        ...existingPro,
+        displayName: input.name!,
+        bio: input.bio!,
+        hourlyRate: input.hourlyRate!,
+      });
+
+      mockProRepository.findByUserId.mockResolvedValue(existingPro);
+      mockProRepository.update.mockResolvedValue(updatedPro);
+      mockReviewRepository.findByProProfileId.mockResolvedValue([]);
+      mockAvailabilityService.getAvailabilitySlots.mockResolvedValue([]);
+
+      // Act
+      const result = await service.updateProfile(userId, input);
+
+      // Assert
+      expect(mockProRepository.update).toHaveBeenCalledWith(existingPro.id, {
+        displayName: input.name,
+        bio: input.bio,
+        hourlyRate: input.hourlyRate,
+      });
+      expect(result).toMatchObject({
+        id: updatedPro.id,
+        name: updatedPro.displayName,
+        bio: updatedPro.bio,
+        hourlyRate: updatedPro.hourlyRate,
       });
     });
 

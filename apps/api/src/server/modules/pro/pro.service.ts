@@ -64,7 +64,7 @@ export class ProService {
       displayName: input.name,
       email: input.email,
       phone: input.phone,
-      bio: undefined,
+      bio: input.bio,
       hourlyRate: input.hourlyRate,
       categories: input.categories.map((c) => c as string),
       serviceArea: input.serviceArea,
@@ -114,7 +114,7 @@ export class ProService {
       displayName: input.name,
       email: input.email,
       phone: input.phone,
-      bio: undefined,
+      bio: input.bio,
       hourlyRate: input.hourlyRate,
       categories: input.categories.map((c) => c as string),
       serviceArea: input.serviceArea,
@@ -273,6 +273,9 @@ export class ProService {
     }
     if (input.phone !== undefined) {
       updateData.phone = input.phone;
+    }
+    if (input.bio !== undefined) {
+      updateData.bio = input.bio ?? null;
     }
     if (input.hourlyRate !== undefined) {
       updateData.hourlyRate = input.hourlyRate;
@@ -573,6 +576,7 @@ export class ProService {
       name: entity.displayName,
       email: entity.email,
       phone: entity.phone ?? undefined,
+      bio: entity.bio ?? undefined,
       hourlyRate: entity.hourlyRate,
       categories,
       serviceArea: entity.serviceArea ?? undefined,

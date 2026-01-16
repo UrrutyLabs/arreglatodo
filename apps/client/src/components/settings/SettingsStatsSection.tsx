@@ -1,4 +1,4 @@
-import { Calendar, CheckCircle, DollarSign, Tag } from "lucide-react";
+import { Calendar, CheckCircle, Tag } from "lucide-react";
 import { Card } from "@repo/ui";
 import { Text } from "@repo/ui";
 
@@ -56,12 +56,9 @@ export function SettingsStatsSection({
 
         {totalSpent !== undefined && (
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <DollarSign className="w-4 h-4 text-muted" />
-              <Text variant="body" className="text-text">
-                Total gastado
-              </Text>
-            </div>
+            <Text variant="body" className="text-text">
+              Total gastado
+            </Text>
             <Text variant="body" className="text-text font-semibold">
               {formatCurrency(totalSpent)}
             </Text>

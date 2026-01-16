@@ -15,12 +15,12 @@ export function Button({
     "px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer disabled:cursor-not-allowed";
   const variantClasses = {
     primary:
-      "bg-primary text-white hover:opacity-90 focus:ring-primary",
+      "bg-primary text-white hover:opacity-90 focus:ring-primary disabled:hover:opacity-50",
     secondary:
-      "bg-secondary text-white hover:opacity-90 focus:ring-secondary",
+      "bg-secondary text-white hover:opacity-90 focus:ring-secondary disabled:hover:opacity-50",
     ghost:
-      "bg-transparent text-primary border border-border hover:bg-surface focus:ring-primary",
-    danger: "bg-danger text-white hover:opacity-90 focus:ring-danger",
+      "bg-transparent text-primary border border-border hover:bg-surface focus:ring-primary disabled:hover:bg-transparent",
+    danger: "bg-danger text-white hover:opacity-90 focus:ring-danger disabled:hover:opacity-50",
   };
 
   return (

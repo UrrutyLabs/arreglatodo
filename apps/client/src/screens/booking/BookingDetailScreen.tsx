@@ -11,7 +11,6 @@ import {
   MapPin,
   Hourglass,
   FileText,
-  DollarSign,
   X,
   Star,
   RotateCcw,
@@ -131,6 +130,10 @@ export function BookingDetailScreen() {
   const statusVariant = getBookingStatusVariant(booking.status as BookingStatus);
   const categoryLabel = CATEGORY_LABELS[booking.category] || booking.category;
 
+  // Check if pro is active (approved and not suspended)
+  const isProActive = pro ? pro.isApproved && !pro.isSuspended : false;
+  const isProSuspended = pro?.isSuspended ?? false;
+
   // Extract address from description (assuming format "Servicio en {address}")
   const addressMatch = booking.description.match(/Servicio en (.+)/);
   const address = addressMatch ? addressMatch[1] : booking.description;
@@ -172,8 +175,7 @@ export function BookingDetailScreen() {
                     Para continuar con tu reserva, necesitás autorizar el pago.
                   </Text>
                   {payment && (
-                    <div className="flex items-center gap-2 mt-2">
-                      <DollarSign className="w-4 h-4 text-text" />
+                    <div className="mt-2">
                       <Text variant="body" className="text-text font-medium">
                         Monto estimado: {formatCurrency(payment.amountEstimated, payment.currency, true)}
                       </Text>
@@ -208,12 +210,9 @@ export function BookingDetailScreen() {
                   <Text variant="body" className="text-text font-medium mb-1">
                     {pro.name}
                   </Text>
-                  <div className="flex items-center gap-1">
-                    <DollarSign className="w-4 h-4 text-muted" />
-                    <Text variant="small" className="text-muted">
-                      ${pro.hourlyRate.toFixed(0)}/hora
-                    </Text>
-                  </div>
+                  <Text variant="small" className="text-muted">
+                    ${pro.hourlyRate.toFixed(0)}/hora
+                  </Text>
                 </div>
                 <Link href={`/pros/${pro.id}`}>
                   <Button variant="ghost" className="flex items-center gap-2">
@@ -293,8 +292,7 @@ export function BookingDetailScreen() {
 
           {/* Cost Summary */}
           <Card className="p-6 mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <DollarSign className="w-5 h-5 text-primary" />
+            <div className="mb-4">
               <Text variant="h2" className="text-text">
                 Resumen de costo
               </Text>
@@ -369,22 +367,38 @@ export function BookingDetailScreen() {
                 </Card>
               )}
               {booking.proId && (
-                <Card className="p-6 mb-6 bg-primary/5 border-primary/20">
+                <Card className={`p-6 mb-6 ${isProActive ? "bg-primary/5 border-primary/20" : "bg-muted/10 border-muted/20"}`}>
                   <div className="flex items-center gap-2 mb-3">
-                    <RotateCcw className="w-5 h-5 text-primary" />
+                    <RotateCcw className={`w-5 h-5 ${isProActive ? "text-primary" : "text-muted"}`} />
                     <Text variant="h2" className="text-text">
                       ¿Querés que vuelva este profesional?
                     </Text>
                   </div>
-                  <Text variant="body" className="text-muted mb-4">
-                    Creá una nueva solicitud para el mismo profesional.
-                  </Text>
-                  <Link href={`/book?rebookFrom=${bookingId}`}>
-                    <Button variant="primary" className="flex items-center gap-2">
-                      <RotateCcw className="w-4 h-4" />
-                      Volver a contratar
-                    </Button>
-                  </Link>
+                  {isProActive ? (
+                    <>
+                      <Text variant="body" className="text-muted mb-4">
+                        Creá una nueva solicitud para el mismo profesional.
+                      </Text>
+                      <Link href={`/book?rebookFrom=${bookingId}`}>
+                        <Button variant="primary" className="flex items-center gap-2">
+                          <RotateCcw className="w-4 h-4" />
+                          Volver a contratar
+                        </Button>
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Text variant="body" className="text-muted mb-4">
+                        {isProSuspended
+                          ? "Este profesional está suspendido y no está disponible para nuevas reservas en este momento."
+                          : "Este profesional no está disponible para nuevas reservas en este momento."}
+                      </Text>
+                      <Button variant="primary" disabled className="flex items-center gap-2 opacity-50">
+                        <RotateCcw className="w-4 h-4" />
+                        Volver a contratar
+                      </Button>
+                    </>
+                  )}
                 </Card>
               )}
               <Card className="p-6">

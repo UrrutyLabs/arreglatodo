@@ -3,6 +3,7 @@
 import { useState, useMemo, useRef, useEffect, startTransition, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { AlertCircle } from "lucide-react";
 import { Text } from "@repo/ui";
 import { Card } from "@repo/ui";
 import { Button } from "@repo/ui";
@@ -236,6 +237,9 @@ function BookingCreateContent() {
     !profile.phone &&
     profile.preferredContactMethod === "WHATSAPP";
 
+  // Check if pro is suspended when rebooking
+  const isRebookingSuspended = rebookFrom && pro && (pro.isSuspended || !pro.isApproved);
+
   return (
     <div className="min-h-screen bg-bg">
       <Navigation showLogin={false} showProfile={true} />
@@ -251,36 +255,63 @@ function BookingCreateContent() {
           {/* WhatsApp prompt */}
           {shouldShowPrompt && <WhatsAppPromptCard />}
 
-          {/* Rebook info banner */}
-          {rebookFrom && rebookTemplate && (
-            <Card className="p-4 mb-6 bg-primary/5 border-primary/20">
-              <Text variant="body" className="text-text">
-                Esta es una nueva solicitud. El profesional debe aceptarla.
-              </Text>
+          {/* Suspended pro message (rebook) */}
+          {isRebookingSuspended ? (
+            <Card className="p-6 mb-6 bg-danger/10 border-danger/20">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-danger shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <Text variant="h2" className="text-danger mb-2">
+                    Profesional suspendido
+                  </Text>
+                  <Text variant="body" className="text-text">
+                    Este profesional está suspendido y no está disponible para nuevas reservas en este momento.
+                  </Text>
+                </div>
+              </div>
+              <div className="flex gap-2 mt-4">
+                <Link href="/search">
+                  <Button variant="primary">Buscar otros profesionales</Button>
+                </Link>
+                <Link href="/my-bookings">
+                  <Button variant="ghost">Volver a mis reservas</Button>
+                </Link>
+              </div>
             </Card>
-          )}
+          ) : (
+            <>
+              {/* Rebook info banner */}
+              {rebookFrom && rebookTemplate && (
+                <Card className="p-4 mb-6 bg-primary/5 border-primary/20">
+                  <Text variant="body" className="text-text">
+                    Esta es una nueva solicitud. El profesional debe aceptarla.
+                  </Text>
+                </Card>
+              )}
 
-          <Card className="p-6">
-            <BookingForm
-              date={date}
-              time={time}
-              address={address}
-              hours={hours}
-              category={category}
-              onDateChange={handleDateChange}
-              onTimeChange={setTime}
-              onAddressChange={setAddress}
-              onHoursChange={setHours}
-              onCategoryChange={setCategory}
-              onSubmit={handleSubmit}
-              loading={isPending}
-              error={createError?.message}
-              estimatedCost={estimatedCost}
-              availableCategories={pro.categories}
-              minDate={today}
-              availableTimes={availableTimes}
-            />
-          </Card>
+              <Card className="p-6">
+                <BookingForm
+                  date={date}
+                  time={time}
+                  address={address}
+                  hours={hours}
+                  category={category}
+                  onDateChange={handleDateChange}
+                  onTimeChange={setTime}
+                  onAddressChange={setAddress}
+                  onHoursChange={setHours}
+                  onCategoryChange={setCategory}
+                  onSubmit={handleSubmit}
+                  loading={isPending}
+                  error={createError?.message}
+                  estimatedCost={estimatedCost}
+                  availableCategories={pro.categories}
+                  minDate={today}
+                  availableTimes={availableTimes}
+                />
+              </Card>
+            </>
+          )}
         </div>
       </div>
     </div>
