@@ -30,10 +30,16 @@ export {
   proSignupInputSchema,
   proOnboardInputSchema,
   proSetAvailabilityInputSchema,
+  availabilitySlotSchema,
+  availabilitySlotInputSchema,
+  updateAvailabilitySlotsInputSchema,
   type Pro,
   type ProSignupInput,
   type ProOnboardInput,
   type ProSetAvailabilityInput,
+  type AvailabilitySlot,
+  type AvailabilitySlotInput,
+  type UpdateAvailabilitySlotsInput,
 } from "./schemas/pro.schema";
 
 // Review schemas
@@ -49,6 +55,7 @@ export {
 // Client schemas
 export {
   clientSearchProsInputSchema,
+  timeWindowSchema,
   preferredContactMethodSchema,
   clientSignupInputSchema,
   clientProfileUpdateInputSchema,
@@ -58,6 +65,7 @@ export {
   resetPasswordInputSchema,
   resetPasswordWithOtpInputSchema,
   type ClientSearchProsInput,
+  type TimeWindow,
   type PreferredContactMethod,
   type ClientSignupInput,
   type ClientProfileUpdateInput,

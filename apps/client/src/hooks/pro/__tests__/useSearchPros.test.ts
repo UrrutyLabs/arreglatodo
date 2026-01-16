@@ -40,7 +40,7 @@ describe("useSearchPros", () => {
         {
           category: Category.PLUMBING,
           date: undefined,
-          time: undefined,
+          timeWindow: undefined,
         },
         {
           refetchOnWindowFocus: false,
@@ -74,7 +74,7 @@ describe("useSearchPros", () => {
         {
           category: undefined,
           date: new Date(date),
-          time: undefined,
+          timeWindow: undefined,
         },
         {
           refetchOnWindowFocus: false,
@@ -84,7 +84,7 @@ describe("useSearchPros", () => {
       expect(result.current.pros).toEqual(mockPros);
     });
 
-    it("should fetch pros with time filter", () => {
+    it("should fetch pros with timeWindow filter", () => {
       const mockPros = [
         {
           id: "pro-1",
@@ -99,14 +99,14 @@ describe("useSearchPros", () => {
         error: null,
       });
 
-      const time = "14:00";
-      const { result } = renderHook(() => useSearchPros({ time }));
+      const timeWindow = "12:00-15:00";
+      const { result } = renderHook(() => useSearchPros({ timeWindow }));
 
       expect(mockTrpcClientSearchPros).toHaveBeenCalledWith(
         {
           category: undefined,
           date: undefined,
-          time: "14:00",
+          timeWindow: "12:00-15:00",
         },
         {
           refetchOnWindowFocus: false,
@@ -133,12 +133,12 @@ describe("useSearchPros", () => {
       });
 
       const date = "2024-01-15";
-      const time = "14:00";
+      const timeWindow = "12:00-15:00";
       const { result } = renderHook(() =>
         useSearchPros({
           category: Category.PLUMBING,
           date,
-          time,
+          timeWindow,
         })
       );
 
@@ -146,7 +146,7 @@ describe("useSearchPros", () => {
         {
           category: Category.PLUMBING,
           date: new Date(date),
-          time: "14:00",
+          timeWindow: "12:00-15:00",
         },
         {
           refetchOnWindowFocus: false,
@@ -179,7 +179,7 @@ describe("useSearchPros", () => {
         {
           category: undefined,
           date: undefined,
-          time: undefined,
+          timeWindow: undefined,
         },
         {
           refetchOnWindowFocus: false,

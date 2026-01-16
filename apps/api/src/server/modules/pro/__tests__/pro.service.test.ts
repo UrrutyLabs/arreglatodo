@@ -7,6 +7,7 @@ import type { BookingRepository } from "@modules/booking/booking.repo";
 import type { ProPayoutProfileRepository, ProPayoutProfileEntity } from "@modules/payout/proPayoutProfile.repo";
 import type { AuditService } from "@modules/audit/audit.service";
 import type { AvailabilityRepository } from "../availability.repo";
+import type { AvailabilityService } from "../availability.service";
 import { AuditEventType } from "@modules/audit/audit.repo";
 import type { ProOnboardInput, ProSetAvailabilityInput, Category } from "@repo/domain";
 import { Role, BookingStatus } from "@repo/domain";
@@ -20,6 +21,7 @@ describe("ProService", () => {
   let mockBookingRepository: ReturnType<typeof createMockBookingRepository>;
   let mockProPayoutProfileRepository: ReturnType<typeof createMockProPayoutProfileRepository>;
   let mockAvailabilityRepository: ReturnType<typeof createMockAvailabilityRepository>;
+  let mockAvailabilityService: ReturnType<typeof createMockAvailabilityService>;
   let mockAuditService: ReturnType<typeof createMockAuditService>;
 
   function createMockProRepository(): {
@@ -87,6 +89,22 @@ describe("ProService", () => {
       findByProProfileId: vi.fn(),
       create: vi.fn(),
       deleteByProProfileId: vi.fn(),
+    };
+  }
+
+  function createMockAvailabilityService(): {
+    setDefaultAvailability: ReturnType<typeof vi.fn>;
+    clearAvailability: ReturnType<typeof vi.fn>;
+    getAvailabilitySlots: ReturnType<typeof vi.fn>;
+    updateAvailabilitySlots: ReturnType<typeof vi.fn>;
+    hasAvailabilitySlots: ReturnType<typeof vi.fn>;
+  } {
+    return {
+      setDefaultAvailability: vi.fn().mockResolvedValue(undefined),
+      clearAvailability: vi.fn().mockResolvedValue(undefined),
+      getAvailabilitySlots: vi.fn().mockResolvedValue([]),
+      updateAvailabilitySlots: vi.fn().mockResolvedValue([]),
+      hasAvailabilitySlots: vi.fn().mockResolvedValue(false),
     };
   }
 
@@ -190,6 +208,7 @@ describe("ProService", () => {
     mockBookingRepository = createMockBookingRepository();
     mockProPayoutProfileRepository = createMockProPayoutProfileRepository();
     mockAvailabilityRepository = createMockAvailabilityRepository();
+    mockAvailabilityService = createMockAvailabilityService();
     mockAuditService = createMockAuditService();
     
     // Set default return values for availability repository
@@ -202,12 +221,15 @@ describe("ProService", () => {
       mockBookingRepository as unknown as BookingRepository,
       mockProPayoutProfileRepository as unknown as ProPayoutProfileRepository,
       mockAvailabilityRepository as unknown as AvailabilityRepository,
+      mockAvailabilityService as unknown as AvailabilityService,
       mockAuditService as unknown as AuditService
     );
     vi.clearAllMocks();
     
     // Re-set default after clearAllMocks
     mockAvailabilityRepository.findByProProfileId.mockResolvedValue([]);
+    mockAvailabilityService.hasAvailabilitySlots.mockResolvedValue(false);
+    mockAvailabilityService.getAvailabilitySlots.mockResolvedValue([]);
   });
 
   describe("onboardPro", () => {
@@ -235,6 +257,7 @@ describe("ProService", () => {
       mockUserRepository.create.mockResolvedValue(user);
       mockProRepository.create.mockResolvedValue(proProfile);
       mockReviewRepository.findByProProfileId.mockResolvedValue([]);
+      mockAvailabilityService.getAvailabilitySlots.mockResolvedValue([]);
 
       // Act
       const result = await service.onboardPro(input);
@@ -263,6 +286,7 @@ describe("ProService", () => {
         reviewCount: 0,
         isApproved: true,
         isSuspended: false,
+        availabilitySlots: [],
       });
     });
   });
@@ -283,6 +307,7 @@ describe("ProService", () => {
 
       mockProRepository.findByUserId.mockResolvedValue(existingPro);
       mockReviewRepository.findByProProfileId.mockResolvedValue([]);
+      mockAvailabilityService.getAvailabilitySlots.mockResolvedValue([]);
 
       // Act
       const result = await service.convertUserToPro(userId, input);
@@ -294,6 +319,7 @@ describe("ProService", () => {
       expect(result).toMatchObject({
         id: existingPro.id,
         name: existingPro.displayName,
+        availabilitySlots: [],
       });
     });
 
@@ -315,6 +341,7 @@ describe("ProService", () => {
       mockUserRepository.findById.mockResolvedValue(user);
       mockProRepository.create.mockResolvedValue(proProfile);
       mockReviewRepository.findByProProfileId.mockResolvedValue([]);
+      mockAvailabilityService.getAvailabilitySlots.mockResolvedValue([]);
 
       // Act
       const result = await service.convertUserToPro(userId, input);
@@ -336,6 +363,7 @@ describe("ProService", () => {
       expect(result).toMatchObject({
         id: proProfile.id,
         name: proProfile.displayName,
+        availabilitySlots: [],
       });
     });
 
@@ -359,6 +387,7 @@ describe("ProService", () => {
       mockUserRepository.updateRole.mockResolvedValue(updatedUser);
       mockProRepository.create.mockResolvedValue(proProfile);
       mockReviewRepository.findByProProfileId.mockResolvedValue([]);
+      mockAvailabilityService.getAvailabilitySlots.mockResolvedValue([]);
 
       // Act
       const result = await service.convertUserToPro(userId, input);
@@ -367,6 +396,7 @@ describe("ProService", () => {
       expect(mockUserRepository.updateRole).toHaveBeenCalledWith(userId, Role.PRO);
       expect(result).toMatchObject({
         id: proProfile.id,
+        availabilitySlots: [],
       });
     });
 
@@ -403,17 +433,20 @@ describe("ProService", () => {
 
       mockProRepository.findById.mockResolvedValue(proProfile);
       mockReviewRepository.findByProProfileId.mockResolvedValue(reviews);
+      mockAvailabilityService.getAvailabilitySlots.mockResolvedValue([]);
 
       // Act
       const result = await service.getProById(proId);
 
       // Assert
       expect(mockProRepository.findById).toHaveBeenCalledWith(proId);
+      expect(mockAvailabilityService.getAvailabilitySlots).toHaveBeenCalledWith(proId);
       expect(result).toMatchObject({
         id: proProfile.id,
         name: proProfile.displayName,
         rating: 4.5,
         reviewCount: 2,
+        availabilitySlots: [],
       });
     });
 
@@ -444,6 +477,9 @@ describe("ProService", () => {
       mockReviewRepository.findByProProfileId
         .mockResolvedValueOnce(reviews1)
         .mockResolvedValueOnce(reviews2);
+      mockAvailabilityService.getAvailabilitySlots
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([]);
 
       // Act
       const result = await service.getAllPros();
@@ -455,11 +491,13 @@ describe("ProService", () => {
         id: "pro-1",
         rating: 4,
         reviewCount: 1,
+        availabilitySlots: [],
       });
       expect(result[1]).toMatchObject({
         id: "pro-2",
         rating: 5,
         reviewCount: 1,
+        availabilitySlots: [],
       });
     });
   });
@@ -471,6 +509,7 @@ describe("ProService", () => {
       const proProfile = createMockProProfile({ userId });
       mockProRepository.findByUserId.mockResolvedValue(proProfile);
       mockReviewRepository.findByProProfileId.mockResolvedValue([]);
+      mockAvailabilityService.getAvailabilitySlots.mockResolvedValue([]);
 
       // Act
       const result = await service.getProByUserId(userId);
@@ -480,6 +519,7 @@ describe("ProService", () => {
       expect(result).toMatchObject({
         id: proProfile.id,
         name: proProfile.displayName,
+        availabilitySlots: [],
       });
     });
 
@@ -497,7 +537,7 @@ describe("ProService", () => {
   });
 
   describe("setAvailability", () => {
-    it("should return pro when found", async () => {
+    it("should return pro when found and set default availability", async () => {
       // Arrange
       const proId = "pro-1";
       const input: ProSetAvailabilityInput = {
@@ -506,14 +546,41 @@ describe("ProService", () => {
       const proProfile = createMockProProfile({ id: proId });
       mockProRepository.findById.mockResolvedValue(proProfile);
       mockReviewRepository.findByProProfileId.mockResolvedValue([]);
+      mockAvailabilityService.hasAvailabilitySlots.mockResolvedValue(true);
+      mockAvailabilityService.getAvailabilitySlots.mockResolvedValue([]);
 
       // Act
       const result = await service.setAvailability(proId, input);
 
       // Assert
       expect(mockProRepository.findById).toHaveBeenCalledWith(proId);
+      expect(mockAvailabilityService.setDefaultAvailability).toHaveBeenCalledWith(proId);
       expect(result).toMatchObject({
         id: proProfile.id,
+        availabilitySlots: [],
+      });
+    });
+
+    it("should clear availability when isAvailable is false", async () => {
+      // Arrange
+      const proId = "pro-1";
+      const input: ProSetAvailabilityInput = {
+        isAvailable: false,
+      };
+      const proProfile = createMockProProfile({ id: proId });
+      mockProRepository.findById.mockResolvedValue(proProfile);
+      mockReviewRepository.findByProProfileId.mockResolvedValue([]);
+      mockAvailabilityService.hasAvailabilitySlots.mockResolvedValue(false);
+      mockAvailabilityService.getAvailabilitySlots.mockResolvedValue([]);
+
+      // Act
+      const result = await service.setAvailability(proId, input);
+
+      // Assert
+      expect(mockAvailabilityService.clearAvailability).toHaveBeenCalledWith(proId);
+      expect(result).toMatchObject({
+        id: proProfile.id,
+        availabilitySlots: [],
       });
     });
 
@@ -527,6 +594,77 @@ describe("ProService", () => {
 
       // Act & Assert
       await expect(service.setAvailability(proId, input)).rejects.toThrow("Pro not found");
+    });
+  });
+
+  describe("getAvailabilitySlots", () => {
+    it("should delegate to AvailabilityService", async () => {
+      // Arrange
+      const proId = "pro-1";
+      const mockSlots = [
+        {
+          id: "slot-1",
+          dayOfWeek: 1,
+          startTime: "09:00",
+          endTime: "17:00",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+      mockAvailabilityService.getAvailabilitySlots.mockResolvedValue(mockSlots);
+
+      // Act
+      const result = await service.getAvailabilitySlots(proId);
+
+      // Assert
+      expect(mockAvailabilityService.getAvailabilitySlots).toHaveBeenCalledWith(proId);
+      expect(result).toEqual(mockSlots);
+    });
+  });
+
+  describe("updateAvailabilitySlots", () => {
+    it("should update availability slots when pro exists", async () => {
+      // Arrange
+      const proId = "pro-1";
+      const input = {
+        slots: [
+          { dayOfWeek: 1, startTime: "09:00", endTime: "12:00" },
+          { dayOfWeek: 2, startTime: "09:00", endTime: "12:00" },
+        ],
+      };
+      const proProfile = createMockProProfile({ id: proId });
+      const mockSlots = [
+        {
+          id: "slot-1",
+          dayOfWeek: 1,
+          startTime: "09:00",
+          endTime: "12:00",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+      mockProRepository.findById.mockResolvedValue(proProfile);
+      mockAvailabilityService.updateAvailabilitySlots.mockResolvedValue(mockSlots);
+
+      // Act
+      const result = await service.updateAvailabilitySlots(proId, input);
+
+      // Assert
+      expect(mockProRepository.findById).toHaveBeenCalledWith(proId);
+      expect(mockAvailabilityService.updateAvailabilitySlots).toHaveBeenCalledWith(proId, input);
+      expect(result).toEqual(mockSlots);
+    });
+
+    it("should throw error when pro not found", async () => {
+      // Arrange
+      const proId = "non-existent";
+      const input = {
+        slots: [{ dayOfWeek: 1, startTime: "09:00", endTime: "12:00" }],
+      };
+      mockProRepository.findById.mockResolvedValue(null);
+
+      // Act & Assert
+      await expect(service.updateAvailabilitySlots(proId, input)).rejects.toThrow("Pro not found");
     });
   });
 
@@ -548,6 +686,7 @@ describe("ProService", () => {
       mockProRepository.findByUserId.mockResolvedValue(existingPro);
       mockProRepository.update.mockResolvedValue(updatedPro);
       mockReviewRepository.findByProProfileId.mockResolvedValue([]);
+      mockAvailabilityService.getAvailabilitySlots.mockResolvedValue([]);
 
       // Act
       const result = await service.updateProfile(userId, input);
@@ -562,6 +701,7 @@ describe("ProService", () => {
         id: updatedPro.id,
         name: updatedPro.displayName,
         hourlyRate: updatedPro.hourlyRate,
+        availabilitySlots: [],
       });
     });
 

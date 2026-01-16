@@ -10,7 +10,9 @@ import { ProCard } from "@/components/presentational/ProCard";
 import { EmptyState } from "@/components/presentational/EmptyState";
 import { SearchSkeleton } from "@/components/presentational/SearchSkeleton";
 import { useSearchPros } from "@/hooks/pro";
-import { Category, type Pro } from "@repo/domain";
+import { useTodayDate } from "@/hooks/shared";
+import { useAvailableTimeWindows } from "@/hooks/search";
+import { Category, type Pro, type TimeWindow } from "@repo/domain";
 
 const CATEGORY_OPTIONS: { value: Category | ""; label: string }[] = [
   { value: "", label: "Todas las categorías" },
@@ -24,16 +26,32 @@ const CATEGORY_OPTIONS: { value: Category | ""; label: string }[] = [
 export function SearchScreen() {
   const [category, setCategory] = useState<Category | "">("");
   const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
+  const [timeWindow, setTimeWindow] = useState<TimeWindow | "">("");
+
+  // Get today's date in YYYY-MM-DD format for min date attribute
+  const today = useTodayDate();
+
+  // Filter available time windows based on selected date
+  const { availableTimeWindows, handleDateChange: handleTimeWindowDateChange } =
+    useAvailableTimeWindows(date, today, timeWindow, setTimeWindow);
+
+  // Handle date change with time window validation
+  const handleDateChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setDate(e.target.value);
+      handleTimeWindowDateChange(e);
+    },
+    [handleTimeWindowDateChange]
+  );
 
   // Memoize filters to prevent unnecessary re-renders
   const filters = useMemo(
     () => ({
       category: category || undefined,
       date: date || undefined,
-      time: time || undefined,
+      timeWindow: (timeWindow || undefined) as TimeWindow | undefined,
     }),
-    [category, date, time]
+    [category, date, timeWindow]
   );
 
   const { pros, isLoading } = useSearchPros(filters);
@@ -43,12 +61,8 @@ export function SearchScreen() {
     setCategory(e.target.value as Category | "");
   }, []);
 
-  const handleDateChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setDate(e.target.value);
-  }, []);
-
-  const handleTimeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setTime(e.target.value);
+  const handleTimeWindowChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setTimeWindow(e.target.value as TimeWindow | "");
   }, []);
 
   return (
@@ -93,18 +107,25 @@ export function SearchScreen() {
                     type="date"
                     value={date}
                     onChange={handleDateChange}
+                    min={today}
                   />
                 </div>
                 <div>
                   <label className="flex items-center gap-2 text-sm font-medium text-text mb-2">
                     <Clock className="w-4 h-4 text-primary" />
-                    Hora
+                    Horario
                   </label>
-                  <Input
-                    type="time"
-                    value={time}
-                    onChange={handleTimeChange}
-                  />
+                  <select
+                    value={timeWindow}
+                    onChange={handleTimeWindowChange}
+                    className="w-full px-3 py-2 border border-border rounded-md bg-surface text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  >
+                    {availableTimeWindows.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>

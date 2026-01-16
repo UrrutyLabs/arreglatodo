@@ -42,6 +42,8 @@ export const TOKENS = {
   PayoutService: "PayoutService",
   ProPayoutProfileService: "ProPayoutProfileService",
   AuditService: "AuditService",
+  SearchService: "SearchService",
+  AvailabilityService: "AvailabilityService",
 
   // Infrastructure
   Logger: "Logger",

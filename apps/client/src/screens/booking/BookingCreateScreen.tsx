@@ -14,6 +14,8 @@ import { useProDetail } from "@/hooks/pro";
 import { useCreateBooking } from "@/hooks/booking";
 import { useClientProfile } from "@/hooks/client";
 import { useRebookTemplate } from "@/hooks/booking";
+import { useTodayDate } from "@/hooks/shared";
+import { useAvailableBookingTimes } from "@/hooks/booking/useAvailableBookingTimes";
 import { Category } from "@repo/domain";
 import { logger } from "@/lib/logger";
 
@@ -52,11 +54,29 @@ function BookingCreateContent() {
   // Track previous rebookValues to update state only when template first loads
   const prevRebookValuesRef = useRef(rebookValues);
 
+  // Get today's date in YYYY-MM-DD format for min date attribute
+  const today = useTodayDate();
+
   // Determine proId: from rebook template or query param
   const effectiveProId = rebookTemplate?.proProfileId || proId;
 
-  // Fetch pro details to get hourly rate
+  // Fetch pro details to get hourly rate and availability slots
   const { pro, isLoading: isLoadingPro } = useProDetail(effectiveProId || undefined);
+
+  // Generate available booking times with validation
+  const { availableTimes, handleDateChange: handleDateChangeWithValidation } =
+    useAvailableBookingTimes(date, today, time, setTime, {
+      minBufferMinutes: 60, // 1 hour minimum buffer
+      startHour: 9,
+      endHour: 18,
+      availabilitySlots: pro?.availabilitySlots, // Filter times by pro's availability
+    });
+
+  // Wrap handleDateChange to also update the date state
+  const handleDateChange = (newDate: string) => {
+    setDate(newDate);
+    handleDateChangeWithValidation(newDate);
+  };
 
   // Booking creation hook
   const { createBooking, isPending, error: createError } = useCreateBooking();
@@ -95,6 +115,7 @@ function BookingCreateContent() {
     if (!effectiveProId || !category || !date || !time || !address || !hours) {
       return;
     }
+
 
     // Combine date and time into scheduledAt
     const scheduledAt = new Date(`${date}T${time}`);
@@ -246,7 +267,7 @@ function BookingCreateContent() {
               address={address}
               hours={hours}
               category={category}
-              onDateChange={setDate}
+              onDateChange={handleDateChange}
               onTimeChange={setTime}
               onAddressChange={setAddress}
               onHoursChange={setHours}
@@ -256,6 +277,8 @@ function BookingCreateContent() {
               error={createError?.message}
               estimatedCost={estimatedCost}
               availableCategories={pro.categories}
+              minDate={today}
+              availableTimes={availableTimes}
             />
           </Card>
         </div>

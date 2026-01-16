@@ -2,12 +2,24 @@ import { z } from "zod";
 import { categorySchema } from "../enums";
 
 /**
+ * Time window enum for search filters
+ * 3-hour windows from 9:00 to 18:00
+ */
+export const timeWindowSchema = z.enum([
+  "09:00-12:00", // Morning window
+  "12:00-15:00", // Afternoon window
+  "15:00-18:00", // Evening window
+]);
+
+export type TimeWindow = z.infer<typeof timeWindowSchema>;
+
+/**
  * Client search pros input schema
  */
 export const clientSearchProsInputSchema = z.object({
   category: categorySchema.optional(),
   date: z.date().optional(),
-  time: z.string().optional(), // "HH:MM" format
+  timeWindow: timeWindowSchema.optional(), // 3-hour time window
 });
 
 export type ClientSearchProsInput = z.infer<typeof clientSearchProsInputSchema>;

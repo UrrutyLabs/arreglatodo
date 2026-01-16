@@ -9,6 +9,7 @@ import {
   AvailabilityRepositoryImpl,
 } from "@modules/pro/availability.repo";
 import { ProService } from "@modules/pro/pro.service";
+import { AvailabilityService } from "@modules/pro/availability.service";
 
 /**
  * Register Pro module dependencies
@@ -24,7 +25,11 @@ export function registerProModule(container: DependencyContainer): void {
     useClass: AvailabilityRepositoryImpl,
   });
 
-  // Register service (auto-resolves dependencies)
+  // Register services (auto-resolves dependencies)
+  container.register<AvailabilityService>(TOKENS.AvailabilityService, {
+    useClass: AvailabilityService,
+  });
+
   container.register<ProService>(TOKENS.ProService, {
     useClass: ProService,
   });

@@ -1,10 +1,10 @@
 import { trpc } from "@/lib/trpc/client";
-import { Category } from "@repo/domain";
+import { Category, type TimeWindow } from "@repo/domain";
 
 interface SearchFilters {
   category?: Category;
   date?: string;
-  time?: string;
+  timeWindow?: TimeWindow;
 }
 
 export function useSearchPros(filters: SearchFilters) {
@@ -12,7 +12,7 @@ export function useSearchPros(filters: SearchFilters) {
     {
       category: filters.category,
       date: filters.date ? new Date(filters.date) : undefined,
-      time: filters.time,
+      timeWindow: filters.timeWindow,
     },
     {
       refetchOnWindowFocus: false,

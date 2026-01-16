@@ -11,12 +11,7 @@ import { earningRouter } from "@modules/payout/earning.router";
 import { payoutRouter } from "@modules/payout/payout.router";
 import { proPayoutRouter } from "@modules/payout/proPayout.router";
 import { auditRouter } from "@modules/audit/audit.router";
-import { container, TOKENS } from "@/server/container";
-import { ProService } from "@modules/pro/pro.service";
-import { clientSearchProsInputSchema } from "@repo/domain";
-
-// Resolve service from container
-const proService = container.resolve<ProService>(TOKENS.ProService);
+import { searchRouter } from "@modules/search/search.router";
 
 export const appRouter = router({
   health: router({
@@ -40,26 +35,7 @@ export const appRouter = router({
   proPayout: proPayoutRouter,
   audit: auditRouter,
   client: router({
-    searchPros: publicProcedure
-      .input(clientSearchProsInputSchema)
-      .query(async ({ input }) => {
-        // Get all pros and filter
-        const allPros = await proService.getAllPros();
-        
-        // Filter by category if provideda
-        const filtered = allPros.filter((pro) => {
-          if (!pro.isApproved || pro.isSuspended) return false;
-          if (input.category && !pro.categories.includes(input.category)) {
-            return false;
-          }
-          return true;
-        });
-
-        // TODO: Filter by date/time when availability system is ready
-        // For now, return all matching pros
-        
-        return filtered;
-      }),
+    searchPros: searchRouter.searchPros,
   }),
 });
 

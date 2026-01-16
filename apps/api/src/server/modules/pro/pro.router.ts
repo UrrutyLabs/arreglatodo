@@ -11,6 +11,7 @@ import { ProService } from "./pro.service";
 import {
   proOnboardInputSchema,
   proSetAvailabilityInputSchema,
+  updateAvailabilitySlotsInputSchema,
 } from "@repo/domain";
 import { TRPCError } from "@trpc/server";
 
@@ -108,6 +109,56 @@ export const proRouter = router({
             error instanceof Error
               ? error.message
               : "Failed to update availability",
+        });
+      }
+    }),
+
+  getAvailabilitySlots: proProcedure.query(async ({ ctx }) => {
+    try {
+      const proProfile = await proService.getProByUserId(ctx.actor.id);
+      if (!proProfile) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Pro profile not found",
+        });
+      }
+      return await proService.getAvailabilitySlots(proProfile.id);
+    } catch (error) {
+      if (error instanceof TRPCError) {
+        throw error;
+      }
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to get availability slots",
+      });
+    }
+  }),
+
+  updateAvailabilitySlots: proProcedure
+    .input(updateAvailabilitySlotsInputSchema)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const proProfile = await proService.getProByUserId(ctx.actor.id);
+        if (!proProfile) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Pro profile not found",
+          });
+        }
+        return await proService.updateAvailabilitySlots(proProfile.id, input);
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to update availability slots",
         });
       }
     }),

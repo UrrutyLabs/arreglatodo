@@ -10,12 +10,15 @@ import type { BookingRepository } from "@modules/booking/booking.repo";
 import type { ProPayoutProfileRepository } from "@modules/payout/proPayoutProfile.repo";
 import type { AuditService } from "@modules/audit/audit.service";
 import type { AvailabilityRepository } from "./availability.repo";
+import type { AvailabilityService } from "./availability.service";
 import { AuditEventType } from "@modules/audit/audit.repo";
 import type {
   Pro,
   ProOnboardInput,
   ProSetAvailabilityInput,
   Category,
+  AvailabilitySlot,
+  UpdateAvailabilitySlotsInput,
 } from "@repo/domain";
 import { Role, BookingStatus } from "@repo/domain";
 import { TOKENS } from "@/server/container/tokens";
@@ -41,6 +44,8 @@ export class ProService {
     private readonly proPayoutProfileRepository: ProPayoutProfileRepository,
     @inject(TOKENS.AvailabilityRepository)
     private readonly availabilityRepository: AvailabilityRepository,
+    @inject(TOKENS.AvailabilityService)
+    private readonly availabilityService: AvailabilityService,
     @inject(TOKENS.AuditService)
     private readonly auditService: AuditService
   ) {}
@@ -137,6 +142,34 @@ export class ProService {
   }
 
   /**
+   * Check if a pro is available at a specific date and time
+   * Delegates to AvailabilityService
+   */
+  async isProAvailableAtDateTime(
+    proId: string,
+    date: Date,
+    time: string
+  ): Promise<boolean> {
+    return this.availabilityService.isProAvailableAtDateTime(proId, date, time);
+  }
+
+  /**
+   * Check if a pro is available on a specific day of week
+   * Delegates to AvailabilityService
+   */
+  async isProAvailableOnDay(proId: string, date: Date): Promise<boolean> {
+    return this.availabilityService.isProAvailableOnDay(proId, date);
+  }
+
+  /**
+   * Check if a pro has availability slots that include a specific time
+   * Delegates to AvailabilityService
+   */
+  async isProAvailableAtTime(proId: string, time: string): Promise<boolean> {
+    return this.availabilityService.isProAvailableAtTime(proId, time);
+  }
+
+  /**
    * Get pro by user ID (for authenticated pro)
    */
   async getProByUserId(userId: string): Promise<Pro | null> {
@@ -172,27 +205,10 @@ export class ProService {
     if (input.isAvailable !== undefined) {
       if (input.isAvailable) {
         // Create default availability slots: Monday-Friday, 9:00-17:00
-        // First, delete existing slots to avoid duplicates
-        await this.availabilityRepository.deleteByProProfileId(proId);
-        
-        // Create slots for Monday (1) through Friday (5)
-        const defaultSlots = [
-          { dayOfWeek: 1, startTime: "09:00", endTime: "17:00" }, // Monday
-          { dayOfWeek: 2, startTime: "09:00", endTime: "17:00" }, // Tuesday
-          { dayOfWeek: 3, startTime: "09:00", endTime: "17:00" }, // Wednesday
-          { dayOfWeek: 4, startTime: "09:00", endTime: "17:00" }, // Thursday
-          { dayOfWeek: 5, startTime: "09:00", endTime: "17:00" }, // Friday
-        ];
-
-        for (const slot of defaultSlots) {
-          await this.availabilityRepository.create({
-            proProfileId: proId,
-            ...slot,
-          });
-        }
+        await this.availabilityService.setDefaultAvailability(proId);
       } else {
         // Delete all availability slots
-        await this.availabilityRepository.deleteByProProfileId(proId);
+        await this.availabilityService.clearAvailability(proId);
       }
     }
 
@@ -203,6 +219,32 @@ export class ProService {
     }
 
     return this.mapToDomain(updated);
+  }
+
+  /**
+   * Get availability slots for a pro
+   * Delegates to AvailabilityService
+   */
+  async getAvailabilitySlots(proId: string): Promise<AvailabilitySlot[]> {
+    return this.availabilityService.getAvailabilitySlots(proId);
+  }
+
+  /**
+   * Update availability slots for a pro
+   * Business rules:
+   * - Pro must exist
+   * - Replaces all existing slots with new ones
+   */
+  async updateAvailabilitySlots(
+    proId: string,
+    input: UpdateAvailabilitySlotsInput
+  ): Promise<AvailabilitySlot[]> {
+    const pro = await this.proRepository.findById(proId);
+    if (!pro) {
+      throw new Error("Pro not found");
+    }
+
+    return this.availabilityService.updateAvailabilitySlots(proId, input);
   }
 
   /**
@@ -516,8 +558,10 @@ export class ProService {
 
     // Calculate isAvailable from availability slots array
     // Pro is available if they have at least one availability slot
-    const availabilitySlots = await this.availabilityRepository.findByProProfileId(entity.id);
-    const isAvailable = availabilitySlots.length > 0;
+    const isAvailable = await this.availabilityService.hasAvailabilitySlots(entity.id);
+
+    // Get availability slots for this pro
+    const availabilitySlots = await this.availabilityService.getAvailabilitySlots(entity.id);
 
     // Map categories from string[] to Category[]
     const categories = entity.categories.map(
@@ -537,6 +581,7 @@ export class ProService {
       isApproved,
       isSuspended,
       isAvailable,
+      availabilitySlots,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
     };

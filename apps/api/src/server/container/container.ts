@@ -10,6 +10,7 @@ import { registerNotificationModule } from "./modules/notification.module";
 import { registerPushModule } from "./modules/push.module";
 import { registerPayoutModule } from "./modules/payout.module";
 import { registerAuditModule } from "./modules/audit.module";
+import { registerSearchModule } from "./modules/search.module";
 
 /**
  * Setup and configure the dependency injection container
@@ -36,6 +37,7 @@ export function setupContainer(): DependencyContainer {
   registerPaymentModule(tsyringeContainer);
   registerPushModule(tsyringeContainer);
   registerAuditModule(tsyringeContainer); // Register audit module (can be used by any service)
+  registerSearchModule(tsyringeContainer); // Register search module (depends on ProService)
 
   return tsyringeContainer;
 }

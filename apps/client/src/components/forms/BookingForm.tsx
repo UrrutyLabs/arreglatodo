@@ -28,6 +28,8 @@ interface BookingFormProps {
   error?: string | null;
   estimatedCost?: number;
   availableCategories?: Category[];
+  minDate?: string;
+  availableTimes?: { value: string; label: string }[];
 }
 
 const ALL_CATEGORY_OPTIONS: { value: Category; label: string }[] = [
@@ -54,6 +56,8 @@ export function BookingForm({
   error,
   estimatedCost,
   availableCategories,
+  minDate,
+  availableTimes = [],
 }: BookingFormProps) {
   // Filter category options based on available categories
   // If availableCategories is provided, only show those categories
@@ -96,6 +100,7 @@ export function BookingForm({
             type="date"
             value={date}
             onChange={(e) => onDateChange(e.target.value)}
+            min={minDate}
             required
           />
         </div>
@@ -104,12 +109,19 @@ export function BookingForm({
             <Clock className="w-4 h-4 text-muted" />
             Hora
           </label>
-          <Input
-            type="time"
+          <select
             value={time}
             onChange={(e) => onTimeChange(e.target.value)}
             required
-          />
+            className="w-full px-3 py-2 border border-border rounded-md bg-surface text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          >
+            <option value="">Seleccionar hora</option>
+            {availableTimes.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
