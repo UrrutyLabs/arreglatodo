@@ -164,6 +164,21 @@ export function ProfileScreen() {
       </Card>
 
       <Card style={styles.card}>
+        <TouchableOpacity
+          onPress={() => router.push("/settings/help")}
+          style={styles.linkRow}
+        >
+          <View style={styles.linkLeft}>
+            <Feather name="help-circle" size={20} color={theme.colors.text} />
+            <Text variant="body" style={styles.linkText}>
+              Ayuda
+            </Text>
+          </View>
+          <Feather name="chevron-right" size={20} color={theme.colors.muted} />
+        </TouchableOpacity>
+      </Card>
+
+      <Card style={styles.card}>
         <Button
           variant="danger"
           onPress={handleSignOut}

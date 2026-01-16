@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Wrench } from "lucide-react";
 import { Text } from "@repo/ui";
 
-export function LandingFooter() {
+export function ProFooter() {
   return (
     <footer className="px-4 py-8 border-t border-border bg-surface">
       <div className="max-w-6xl mx-auto">
@@ -17,7 +17,7 @@ export function LandingFooter() {
             <Link href="#" className="text-muted hover:text-text transition-colors">
               <Text variant="small">Términos</Text>
             </Link>
-            <Link href="/faqs" className="text-muted hover:text-text transition-colors">
+            <Link href="/pro/faqs" className="text-muted hover:text-text transition-colors">
               <Text variant="small">Preguntas frecuentes</Text>
             </Link>
             <Link href="#" className="text-muted hover:text-text transition-colors">

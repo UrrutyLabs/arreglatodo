@@ -72,6 +72,13 @@ export default function RootLayout() {
               headerBackTitle: "Atrás",
             }} 
           />
+          <Stack.Screen 
+            name="settings/help" 
+            options={{ 
+              title: "Ayuda",
+              headerBackTitle: "Atrás",
+            }} 
+          />
         </Stack>
       </TRPCProvider>
     </ErrorBoundary>

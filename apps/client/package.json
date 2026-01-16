@@ -12,6 +12,7 @@
     "test:coverage": "vitest --coverage"
   },
   "dependencies": {
+    "@repo/content": "workspace:*",
     "@repo/domain": "workspace:*",
     "@repo/monitoring": "workspace:*",
     "@repo/react-query": "workspace:*",

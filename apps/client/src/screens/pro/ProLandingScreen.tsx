@@ -5,6 +5,7 @@ import { Briefcase, CheckCircle, DollarSign, Clock, Users, ArrowRight } from "lu
 import { Button } from "@repo/ui";
 import { Text, Card } from "@repo/ui";
 import { ProHeader } from "@/components/pro/ProHeader";
+import { ProFooter } from "@/components/pro/ProFooter";
 
 export function ProLandingScreen() {
   return (
@@ -175,6 +176,7 @@ export function ProLandingScreen() {
           </Link>
         </div>
       </section>
+      <ProFooter />
     </div>
   );
 }

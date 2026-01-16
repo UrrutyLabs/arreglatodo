@@ -1,0 +1,1 @@
+export { esTranslations } from "./es";
