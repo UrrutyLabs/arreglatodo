@@ -5,7 +5,7 @@ import { Card } from "../ui/Card";
 import { Text } from "../ui/Text";
 import { Badge } from "../ui/Badge";
 import type { Booking } from "@repo/domain";
-import { Category, getBookingStatusLabel, getBookingStatusVariant } from "@repo/domain";
+import { Category, BookingStatus, getBookingStatusLabel, getBookingStatusVariant } from "@repo/domain";
 import { theme } from "../../theme";
 
 interface BookingCardProps {
@@ -65,7 +65,7 @@ function BookingCardComponent({ booking, onPress }: BookingCardProps) {
             </Text>
           </View>
           <View style={styles.badgesContainer}>
-            {booking.isFirstBooking && (
+            {booking.isFirstBooking && booking.status !== BookingStatus.COMPLETED && (
               <Badge variant="new">
                 Nuevo Cliente
               </Badge>
