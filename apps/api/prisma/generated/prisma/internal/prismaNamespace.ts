@@ -1632,6 +1632,7 @@ export const BookingScalarFieldEnum = {
   scheduledAt: 'scheduledAt',
   hoursEstimate: 'hoursEstimate',
   addressText: 'addressText',
+  isFirstBooking: 'isFirstBooking',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1985,6 +1986,13 @@ export type ListEnumBookingStatusFieldRefInput<$PrismaModel> = FieldRefInputType
 
 
 /**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
  * Reference to a field of type 'PaymentProvider'
  */
 export type EnumPaymentProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PaymentProvider'>
@@ -2093,13 +2101,6 @@ export type EnumDevicePlatformFieldRefInput<$PrismaModel> = FieldRefInputType<$P
  * Reference to a field of type 'DevicePlatform[]'
  */
 export type ListEnumDevicePlatformFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DevicePlatform[]'>
-    
-
-
-/**
- * Reference to a field of type 'Boolean'
- */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 

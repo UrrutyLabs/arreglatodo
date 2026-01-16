@@ -150,10 +150,17 @@ export function BookingDetailScreen() {
 
       <Card style={styles.card}>
         <View style={styles.sectionHeader}>
-          <Feather name="file-text" size={20} color={theme.colors.primary} />
-          <Text variant="h2" style={styles.sectionTitle}>
-            Resumen
-          </Text>
+          <View style={styles.sectionHeaderLeft}>
+            <Feather name="file-text" size={20} color={theme.colors.primary} />
+            <Text variant="h2" style={styles.sectionTitle}>
+              Resumen
+            </Text>
+          </View>
+          {booking.isFirstBooking && (
+            <Badge variant="new">
+              Nuevo Cliente
+            </Badge>
+          )}
         </View>
         <View style={styles.row}>
           <View style={styles.labelRow}>
@@ -221,10 +228,12 @@ export function BookingDetailScreen() {
       {!isReadOnly && (
         <Card style={styles.actionsCard}>
           <View style={styles.sectionHeader}>
-            <Feather name="zap" size={20} color={theme.colors.primary} />
-            <Text variant="h2" style={styles.sectionTitle}>
-              Acciones
-            </Text>
+            <View style={styles.sectionHeaderLeft}>
+              <Feather name="zap" size={20} color={theme.colors.primary} />
+              <Text variant="h2" style={styles.sectionTitle}>
+                Acciones
+              </Text>
+            </View>
           </View>
 
           {canAccept && (
@@ -327,13 +336,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: theme.spacing[4],
   },
+  leftSection: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing[2],
+    flexWrap: "wrap",
+  },
   card: {
     marginBottom: theme.spacing[4],
   },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: theme.spacing[3],
+  },
+  sectionHeaderLeft: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   sectionTitle: {
     marginLeft: theme.spacing[2],

@@ -79,6 +79,7 @@ export function mapBookingEntityToDomain(
     hourlyRate,
     estimatedHours: entity.hoursEstimate,
     totalAmount: hourlyRate * entity.hoursEstimate,
+    isFirstBooking: entity.isFirstBooking,
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,
   };
@@ -105,6 +106,7 @@ export function adaptToDomain(
     hourlyRate,
     estimatedHours: entity.hoursEstimate,
     totalAmount: hourlyRate * entity.hoursEstimate,
+    isFirstBooking: entity.isFirstBooking,
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,
   };

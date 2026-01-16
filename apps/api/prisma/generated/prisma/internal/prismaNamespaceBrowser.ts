@@ -149,6 +149,7 @@ export const BookingScalarFieldEnum = {
   scheduledAt: 'scheduledAt',
   hoursEstimate: 'hoursEstimate',
   addressText: 'addressText',
+  isFirstBooking: 'isFirstBooking',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

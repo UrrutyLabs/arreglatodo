@@ -89,6 +89,10 @@ export class BookingCreationService {
       throw new Error("Pro is suspended");
     }
 
+    // Check if this is the client's first booking
+    const existingBookings = await this.bookingRepository.findByClientUserId(actor.id);
+    const isFirstBooking = existingBookings.length === 0;
+
     // Create booking via repository
     const booking = await this.bookingRepository.create({
       clientUserId: actor.id,
@@ -97,6 +101,7 @@ export class BookingCreationService {
       scheduledAt: input.scheduledAt,
       hoursEstimate: input.estimatedHours,
       addressText: input.description,
+      isFirstBooking,
     });
 
     // Send notification to client

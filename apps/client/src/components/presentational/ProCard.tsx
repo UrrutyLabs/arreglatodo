@@ -22,7 +22,6 @@ interface ProCardProps {
 
 export const ProCard = memo(function ProCard({ pro }: ProCardProps) {
   const today = useTodayDate();
-  const isNew = useMemo(() => !pro.rating || pro.reviewCount === 0, [pro.rating, pro.reviewCount]);
   const availabilityHint = useMemo(
     () => getAvailabilityHint(pro.availabilitySlots, today),
     [pro.availabilitySlots, today]
@@ -47,13 +46,6 @@ export const ProCard = memo(function ProCard({ pro }: ProCardProps) {
             <Text variant="h2" className="text-text">
               {pro.name}
             </Text>
-          </div>
-          <div className="flex gap-1 shrink-0 ml-2">
-            {isNew && (
-              <Badge variant="new">
-                Nuevo
-              </Badge>
-            )}
           </div>
         </div>
 
@@ -106,11 +98,9 @@ export const ProCard = memo(function ProCard({ pro }: ProCardProps) {
               </Text>
             </div>
           ) : (
-            isNew && (
-              <Text variant="small" className="text-muted">
-                Sin reseñas aún
-              </Text>
-            )
+            <Text variant="small" className="text-muted">
+              Sin reseñas aún
+            </Text>
           )}
         </div>
       </Card>

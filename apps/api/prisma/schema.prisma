@@ -211,6 +211,7 @@ model Booking {
   scheduledAt    DateTime
   hoursEstimate  Float
   addressText    String
+  isFirstBooking    Boolean       @default(false)
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 

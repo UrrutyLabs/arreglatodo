@@ -17,6 +17,7 @@ export const bookingSchema = z.object({
   hourlyRate: z.number().positive(),
   estimatedHours: z.number().positive(),
   totalAmount: z.number().positive(),
+  isFirstBooking: z.boolean().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });

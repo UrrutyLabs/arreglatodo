@@ -4,7 +4,7 @@ import { theme } from "../../theme";
 
 interface BadgeProps extends ViewProps {
   children: string;
-  variant?: "success" | "warning" | "danger" | "info";
+  variant?: "success" | "warning" | "danger" | "info" | "new";
   showIcon?: boolean;
 }
 
@@ -13,6 +13,7 @@ const variantIcons = {
   warning: "alert-circle",
   danger: "x-circle",
   info: "info",
+  new: "star",
 } as const;
 
 export function Badge({
@@ -42,6 +43,11 @@ export function Badge({
       backgroundColor: `${theme.colors.info}1A`,
       borderColor: `${theme.colors.info}33`,
       color: theme.colors.info,
+    },
+    new: {
+      backgroundColor: `${theme.colors.accent}1A`,
+      borderColor: `${theme.colors.accent}33`,
+      color: theme.colors.accent,
     },
   };
 

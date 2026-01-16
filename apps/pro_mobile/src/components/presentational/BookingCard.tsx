@@ -59,12 +59,21 @@ function BookingCardComponent({ booking, onPress }: BookingCardProps) {
     <TouchableOpacity onPress={onPress}>
       <Card style={styles.card}>
         <View style={styles.header}>
-          <Text variant="h2" style={styles.category}>
-            {categoryLabel}
-          </Text>
-          <Badge variant={statusVariant} showIcon>
-            {statusLabel}
-          </Badge>
+          <View style={styles.leftSection}>
+            <Text variant="h2" style={styles.category}>
+              {categoryLabel}
+            </Text>
+          </View>
+          <View style={styles.badgesContainer}>
+            {booking.isFirstBooking && (
+              <Badge variant="new">
+                Nuevo Cliente
+              </Badge>
+            )}
+            <Badge variant={statusVariant} showIcon>
+              {statusLabel}
+            </Badge>
+          </View>
         </View>
         <Text variant="body" style={styles.description} numberOfLines={2}>
           {descriptionLines}
@@ -96,8 +105,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: theme.spacing[2],
   },
-  category: {
+  leftSection: {
     flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing[2],
+    flexWrap: "wrap",
+  },
+  category: {
+    flexShrink: 1,
+  },
+  badgesContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing[1],
   },
   description: {
     marginBottom: theme.spacing[2],
@@ -130,6 +151,7 @@ export const BookingCard = React.memo(BookingCardComponent, (prevProps, nextProp
   return (
     prevProps.booking.id === nextProps.booking.id &&
     prevProps.booking.status === nextProps.booking.status &&
+    prevProps.booking.isFirstBooking === nextProps.booking.isFirstBooking &&
     prevProps.onPress === nextProps.onPress
   );
 });

@@ -43,6 +43,7 @@ export type BookingMinAggregateOutputType = {
   scheduledAt: Date | null
   hoursEstimate: number | null
   addressText: string | null
+  isFirstBooking: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -56,6 +57,7 @@ export type BookingMaxAggregateOutputType = {
   scheduledAt: Date | null
   hoursEstimate: number | null
   addressText: string | null
+  isFirstBooking: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -69,6 +71,7 @@ export type BookingCountAggregateOutputType = {
   scheduledAt: number
   hoursEstimate: number
   addressText: number
+  isFirstBooking: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -92,6 +95,7 @@ export type BookingMinAggregateInputType = {
   scheduledAt?: true
   hoursEstimate?: true
   addressText?: true
+  isFirstBooking?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -105,6 +109,7 @@ export type BookingMaxAggregateInputType = {
   scheduledAt?: true
   hoursEstimate?: true
   addressText?: true
+  isFirstBooking?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -118,6 +123,7 @@ export type BookingCountAggregateInputType = {
   scheduledAt?: true
   hoursEstimate?: true
   addressText?: true
+  isFirstBooking?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -218,6 +224,7 @@ export type BookingGroupByOutputType = {
   scheduledAt: Date
   hoursEstimate: number
   addressText: string
+  isFirstBooking: boolean
   createdAt: Date
   updatedAt: Date
   _count: BookingCountAggregateOutputType | null
@@ -254,6 +261,7 @@ export type BookingWhereInput = {
   scheduledAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   hoursEstimate?: Prisma.FloatFilter<"Booking"> | number
   addressText?: Prisma.StringFilter<"Booking"> | string
+  isFirstBooking?: Prisma.BoolFilter<"Booking"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   client?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -272,6 +280,7 @@ export type BookingOrderByWithRelationInput = {
   scheduledAt?: Prisma.SortOrder
   hoursEstimate?: Prisma.SortOrder
   addressText?: Prisma.SortOrder
+  isFirstBooking?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   client?: Prisma.UserOrderByWithRelationInput
@@ -293,6 +302,7 @@ export type BookingWhereUniqueInput = Prisma.AtLeast<{
   scheduledAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   hoursEstimate?: Prisma.FloatFilter<"Booking"> | number
   addressText?: Prisma.StringFilter<"Booking"> | string
+  isFirstBooking?: Prisma.BoolFilter<"Booking"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   client?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -311,6 +321,7 @@ export type BookingOrderByWithAggregationInput = {
   scheduledAt?: Prisma.SortOrder
   hoursEstimate?: Prisma.SortOrder
   addressText?: Prisma.SortOrder
+  isFirstBooking?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.BookingCountOrderByAggregateInput
@@ -332,6 +343,7 @@ export type BookingScalarWhereWithAggregatesInput = {
   scheduledAt?: Prisma.DateTimeWithAggregatesFilter<"Booking"> | Date | string
   hoursEstimate?: Prisma.FloatWithAggregatesFilter<"Booking"> | number
   addressText?: Prisma.StringWithAggregatesFilter<"Booking"> | string
+  isFirstBooking?: Prisma.BoolWithAggregatesFilter<"Booking"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Booking"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Booking"> | Date | string
 }
@@ -343,6 +355,7 @@ export type BookingCreateInput = {
   scheduledAt: Date | string
   hoursEstimate: number
   addressText: string
+  isFirstBooking?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   client: Prisma.UserCreateNestedOneWithoutBookingsAsClientInput
@@ -361,6 +374,7 @@ export type BookingUncheckedCreateInput = {
   scheduledAt: Date | string
   hoursEstimate: number
   addressText: string
+  isFirstBooking?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   review?: Prisma.ReviewUncheckedCreateNestedOneWithoutBookingInput
@@ -375,6 +389,7 @@ export type BookingUpdateInput = {
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hoursEstimate?: Prisma.FloatFieldUpdateOperationsInput | number
   addressText?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstBooking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   client?: Prisma.UserUpdateOneRequiredWithoutBookingsAsClientNestedInput
@@ -393,6 +408,7 @@ export type BookingUncheckedUpdateInput = {
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hoursEstimate?: Prisma.FloatFieldUpdateOperationsInput | number
   addressText?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstBooking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   review?: Prisma.ReviewUncheckedUpdateOneWithoutBookingNestedInput
@@ -409,6 +425,7 @@ export type BookingCreateManyInput = {
   scheduledAt: Date | string
   hoursEstimate: number
   addressText: string
+  isFirstBooking?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -420,6 +437,7 @@ export type BookingUpdateManyMutationInput = {
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hoursEstimate?: Prisma.FloatFieldUpdateOperationsInput | number
   addressText?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstBooking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -433,6 +451,7 @@ export type BookingUncheckedUpdateManyInput = {
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hoursEstimate?: Prisma.FloatFieldUpdateOperationsInput | number
   addressText?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstBooking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -456,6 +475,7 @@ export type BookingCountOrderByAggregateInput = {
   scheduledAt?: Prisma.SortOrder
   hoursEstimate?: Prisma.SortOrder
   addressText?: Prisma.SortOrder
+  isFirstBooking?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -473,6 +493,7 @@ export type BookingMaxOrderByAggregateInput = {
   scheduledAt?: Prisma.SortOrder
   hoursEstimate?: Prisma.SortOrder
   addressText?: Prisma.SortOrder
+  isFirstBooking?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -486,6 +507,7 @@ export type BookingMinOrderByAggregateInput = {
   scheduledAt?: Prisma.SortOrder
   hoursEstimate?: Prisma.SortOrder
   addressText?: Prisma.SortOrder
+  isFirstBooking?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -591,6 +613,10 @@ export type EnumBookingStatusFieldUpdateOperationsInput = {
   set?: $Enums.BookingStatus
 }
 
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
 export type BookingCreateNestedOneWithoutReviewInput = {
   create?: Prisma.XOR<Prisma.BookingCreateWithoutReviewInput, Prisma.BookingUncheckedCreateWithoutReviewInput>
   connectOrCreate?: Prisma.BookingCreateOrConnectWithoutReviewInput
@@ -640,6 +666,7 @@ export type BookingCreateWithoutClientInput = {
   scheduledAt: Date | string
   hoursEstimate: number
   addressText: string
+  isFirstBooking?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   proProfile?: Prisma.ProProfileCreateNestedOneWithoutBookingsInput
@@ -656,6 +683,7 @@ export type BookingUncheckedCreateWithoutClientInput = {
   scheduledAt: Date | string
   hoursEstimate: number
   addressText: string
+  isFirstBooking?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   review?: Prisma.ReviewUncheckedCreateNestedOneWithoutBookingInput
@@ -701,6 +729,7 @@ export type BookingScalarWhereInput = {
   scheduledAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   hoursEstimate?: Prisma.FloatFilter<"Booking"> | number
   addressText?: Prisma.StringFilter<"Booking"> | string
+  isFirstBooking?: Prisma.BoolFilter<"Booking"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Booking"> | Date | string
 }
@@ -712,6 +741,7 @@ export type BookingCreateWithoutProProfileInput = {
   scheduledAt: Date | string
   hoursEstimate: number
   addressText: string
+  isFirstBooking?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   client: Prisma.UserCreateNestedOneWithoutBookingsAsClientInput
@@ -728,6 +758,7 @@ export type BookingUncheckedCreateWithoutProProfileInput = {
   scheduledAt: Date | string
   hoursEstimate: number
   addressText: string
+  isFirstBooking?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   review?: Prisma.ReviewUncheckedCreateNestedOneWithoutBookingInput
@@ -768,6 +799,7 @@ export type BookingCreateWithoutReviewInput = {
   scheduledAt: Date | string
   hoursEstimate: number
   addressText: string
+  isFirstBooking?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   client: Prisma.UserCreateNestedOneWithoutBookingsAsClientInput
@@ -785,6 +817,7 @@ export type BookingUncheckedCreateWithoutReviewInput = {
   scheduledAt: Date | string
   hoursEstimate: number
   addressText: string
+  isFirstBooking?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   payment?: Prisma.PaymentUncheckedCreateNestedOneWithoutBookingInput
@@ -814,6 +847,7 @@ export type BookingUpdateWithoutReviewInput = {
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hoursEstimate?: Prisma.FloatFieldUpdateOperationsInput | number
   addressText?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstBooking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   client?: Prisma.UserUpdateOneRequiredWithoutBookingsAsClientNestedInput
@@ -831,6 +865,7 @@ export type BookingUncheckedUpdateWithoutReviewInput = {
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hoursEstimate?: Prisma.FloatFieldUpdateOperationsInput | number
   addressText?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstBooking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   payment?: Prisma.PaymentUncheckedUpdateOneWithoutBookingNestedInput
@@ -844,6 +879,7 @@ export type BookingCreateWithoutPaymentInput = {
   scheduledAt: Date | string
   hoursEstimate: number
   addressText: string
+  isFirstBooking?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   client: Prisma.UserCreateNestedOneWithoutBookingsAsClientInput
@@ -861,6 +897,7 @@ export type BookingUncheckedCreateWithoutPaymentInput = {
   scheduledAt: Date | string
   hoursEstimate: number
   addressText: string
+  isFirstBooking?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   review?: Prisma.ReviewUncheckedCreateNestedOneWithoutBookingInput
@@ -890,6 +927,7 @@ export type BookingUpdateWithoutPaymentInput = {
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hoursEstimate?: Prisma.FloatFieldUpdateOperationsInput | number
   addressText?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstBooking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   client?: Prisma.UserUpdateOneRequiredWithoutBookingsAsClientNestedInput
@@ -907,6 +945,7 @@ export type BookingUncheckedUpdateWithoutPaymentInput = {
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hoursEstimate?: Prisma.FloatFieldUpdateOperationsInput | number
   addressText?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstBooking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   review?: Prisma.ReviewUncheckedUpdateOneWithoutBookingNestedInput
@@ -920,6 +959,7 @@ export type BookingCreateWithoutEarningInput = {
   scheduledAt: Date | string
   hoursEstimate: number
   addressText: string
+  isFirstBooking?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   client: Prisma.UserCreateNestedOneWithoutBookingsAsClientInput
@@ -937,6 +977,7 @@ export type BookingUncheckedCreateWithoutEarningInput = {
   scheduledAt: Date | string
   hoursEstimate: number
   addressText: string
+  isFirstBooking?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   review?: Prisma.ReviewUncheckedCreateNestedOneWithoutBookingInput
@@ -966,6 +1007,7 @@ export type BookingUpdateWithoutEarningInput = {
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hoursEstimate?: Prisma.FloatFieldUpdateOperationsInput | number
   addressText?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstBooking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   client?: Prisma.UserUpdateOneRequiredWithoutBookingsAsClientNestedInput
@@ -983,6 +1025,7 @@ export type BookingUncheckedUpdateWithoutEarningInput = {
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hoursEstimate?: Prisma.FloatFieldUpdateOperationsInput | number
   addressText?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstBooking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   review?: Prisma.ReviewUncheckedUpdateOneWithoutBookingNestedInput
@@ -997,6 +1040,7 @@ export type BookingCreateManyClientInput = {
   scheduledAt: Date | string
   hoursEstimate: number
   addressText: string
+  isFirstBooking?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1008,6 +1052,7 @@ export type BookingUpdateWithoutClientInput = {
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hoursEstimate?: Prisma.FloatFieldUpdateOperationsInput | number
   addressText?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstBooking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   proProfile?: Prisma.ProProfileUpdateOneWithoutBookingsNestedInput
@@ -1024,6 +1069,7 @@ export type BookingUncheckedUpdateWithoutClientInput = {
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hoursEstimate?: Prisma.FloatFieldUpdateOperationsInput | number
   addressText?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstBooking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   review?: Prisma.ReviewUncheckedUpdateOneWithoutBookingNestedInput
@@ -1039,6 +1085,7 @@ export type BookingUncheckedUpdateManyWithoutClientInput = {
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hoursEstimate?: Prisma.FloatFieldUpdateOperationsInput | number
   addressText?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstBooking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1051,6 +1098,7 @@ export type BookingCreateManyProProfileInput = {
   scheduledAt: Date | string
   hoursEstimate: number
   addressText: string
+  isFirstBooking?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1062,6 +1110,7 @@ export type BookingUpdateWithoutProProfileInput = {
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hoursEstimate?: Prisma.FloatFieldUpdateOperationsInput | number
   addressText?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstBooking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   client?: Prisma.UserUpdateOneRequiredWithoutBookingsAsClientNestedInput
@@ -1078,6 +1127,7 @@ export type BookingUncheckedUpdateWithoutProProfileInput = {
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hoursEstimate?: Prisma.FloatFieldUpdateOperationsInput | number
   addressText?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstBooking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   review?: Prisma.ReviewUncheckedUpdateOneWithoutBookingNestedInput
@@ -1093,6 +1143,7 @@ export type BookingUncheckedUpdateManyWithoutProProfileInput = {
   scheduledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   hoursEstimate?: Prisma.FloatFieldUpdateOperationsInput | number
   addressText?: Prisma.StringFieldUpdateOperationsInput | string
+  isFirstBooking?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1108,6 +1159,7 @@ export type BookingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   scheduledAt?: boolean
   hoursEstimate?: boolean
   addressText?: boolean
+  isFirstBooking?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   client?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1126,6 +1178,7 @@ export type BookingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   scheduledAt?: boolean
   hoursEstimate?: boolean
   addressText?: boolean
+  isFirstBooking?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   client?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1141,6 +1194,7 @@ export type BookingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   scheduledAt?: boolean
   hoursEstimate?: boolean
   addressText?: boolean
+  isFirstBooking?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   client?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1156,11 +1210,12 @@ export type BookingSelectScalar = {
   scheduledAt?: boolean
   hoursEstimate?: boolean
   addressText?: boolean
+  isFirstBooking?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clientUserId" | "proProfileId" | "category" | "status" | "scheduledAt" | "hoursEstimate" | "addressText" | "createdAt" | "updatedAt", ExtArgs["result"]["booking"]>
+export type BookingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clientUserId" | "proProfileId" | "category" | "status" | "scheduledAt" | "hoursEstimate" | "addressText" | "isFirstBooking" | "createdAt" | "updatedAt", ExtArgs["result"]["booking"]>
 export type BookingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   client?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   proProfile?: boolean | Prisma.Booking$proProfileArgs<ExtArgs>
@@ -1195,6 +1250,7 @@ export type $BookingPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     scheduledAt: Date
     hoursEstimate: number
     addressText: string
+    isFirstBooking: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["booking"]>
@@ -1633,6 +1689,7 @@ export interface BookingFieldRefs {
   readonly scheduledAt: Prisma.FieldRef<"Booking", 'DateTime'>
   readonly hoursEstimate: Prisma.FieldRef<"Booking", 'Float'>
   readonly addressText: Prisma.FieldRef<"Booking", 'String'>
+  readonly isFirstBooking: Prisma.FieldRef<"Booking", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Booking", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Booking", 'DateTime'>
 }

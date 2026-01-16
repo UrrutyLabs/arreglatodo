@@ -49,10 +49,6 @@ export function ProProfileScreen() {
     () => pro?.isApproved && !pro?.isSuspended,
     [pro?.isApproved, pro?.isSuspended]
   );
-  const isNew = useMemo(
-    () => !pro?.rating || pro?.reviewCount === 0,
-    [pro?.rating, pro?.reviewCount]
-  );
   const availabilityHint = useMemo(
     () => (pro ? getAvailabilityHint(pro.availabilitySlots, today) : null),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,11 +126,6 @@ export function ProProfileScreen() {
                     {pro.name}
                   </Text>
                   <div className="flex gap-1 flex-wrap">
-                    {isNew && (
-                      <Badge variant="new">
-                        Nuevo
-                      </Badge>
-                    )}
                     {pro.isSuspended && (
                       <Badge variant="danger">
                         Suspendido
@@ -192,11 +183,9 @@ export function ProProfileScreen() {
                     </Text>
                   </div>
                 ) : (
-                  isNew && (
-                    <Text variant="body" className="text-muted">
-                      Sin reseñas aún
-                    </Text>
-                  )
+                  <Text variant="body" className="text-muted">
+                    Sin reseñas aún
+                  </Text>
                 )}
               </div>
             </div>

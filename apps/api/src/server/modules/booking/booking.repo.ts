@@ -15,6 +15,7 @@ export interface BookingEntity {
   scheduledAt: Date;
   hoursEstimate: number;
   addressText: string;
+  isFirstBooking: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -29,6 +30,7 @@ export interface BookingCreateInput {
   scheduledAt: Date;
   hoursEstimate: number;
   addressText: string;
+  isFirstBooking?: boolean;
 }
 
 /**
@@ -73,6 +75,7 @@ export class BookingRepositoryImpl implements BookingRepository {
         scheduledAt: input.scheduledAt,
         hoursEstimate: input.hoursEstimate,
         addressText: input.addressText,
+        isFirstBooking: input.isFirstBooking ?? false,
         status: BookingStatus.PENDING_PAYMENT  as $Enums.BookingStatus,
       },
     });
@@ -207,6 +210,7 @@ export class BookingRepositoryImpl implements BookingRepository {
     scheduledAt: Date;
     hoursEstimate: number;
     addressText: string;
+    isFirstBooking: boolean;
     createdAt: Date;
     updatedAt: Date;
   }): BookingEntity {
@@ -219,6 +223,7 @@ export class BookingRepositoryImpl implements BookingRepository {
       scheduledAt: prismaBooking.scheduledAt,
       hoursEstimate: prismaBooking.hoursEstimate,
       addressText: prismaBooking.addressText,
+      isFirstBooking: prismaBooking.isFirstBooking,
       createdAt: prismaBooking.createdAt,
       updatedAt: prismaBooking.updatedAt,
     };
