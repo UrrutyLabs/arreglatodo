@@ -43,22 +43,21 @@ jobs:
           
           echo "✅ .env descargado exitosamente"
           
-          # Leer variables del .env línea por línea
+          # Copiar .env a apps/api/.env.local para que Next.js lo lea durante el build
+          cp .env.tmp apps/api/.env.local
+          echo "✅ .env.local creado en apps/api/"
+          
+          # También cargar variables a GITHUB_ENV para pasos posteriores
           while IFS= read -r line || [ -n "$line" ]; do
             # Saltar comentarios y líneas vacías
             if [[ "$line" =~ ^[[:space:]]*# ]] || [[ -z "${line// }" ]]; then
               continue
             fi
-            # Exportar variable (manejar errores silenciosamente)
-            export "$line" 2>/dev/null || true
+            # Escribir variable a GITHUB_ENV (formato KEY=VALUE)
+            printf '%s\n' "$line" >> $GITHUB_ENV
           done < .env.tmp
           
-          # Exportar variables específicas necesarias para el build
-          echo "DATABASE_URL=${DATABASE_URL:-}" >> $GITHUB_ENV
-          echo "SUPABASE_URL=${SUPABASE_URL:-}" >> $GITHUB_ENV
-          echo "SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-}" >> $GITHUB_ENV
-          echo "UPSTASH_REDIS_REST_URL=${UPSTASH_REDIS_REST_URL:-}" >> $GITHUB_ENV
-          echo "UPSTASH_REDIS_REST_TOKEN=${UPSTASH_REDIS_REST_TOKEN:-}" >> $GITHUB_ENV
+          echo "✅ Variables de entorno cargadas"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
