@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import type { User, Session, AuthError } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase/client";
-import { setUserContext, clearUserContext, logger } from "@/lib/crash-reporting";
+import { setUserContext, clearUserContext } from "@/lib/crash-reporting";
 
 interface UseAuthReturn {
   user: User | null;
