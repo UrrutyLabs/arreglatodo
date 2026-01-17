@@ -19,6 +19,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
+
+      - name: Download .env from S3
+        run: |
+          # Descargar .env desde S3
+          aws s3 cp s3://${{ secrets.S3_DEPLOYMENT_BUCKET }}/.env .env.tmp
+          
+          # Leer variables del .env y exportarlas para el build
+          # Esto carga todas las variables del .env al entorno
+          export $(grep -v '^#' .env.tmp | xargs)
+          
+          # Exportar variables específicas necesarias para el build
+          echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV || true
+          echo "SUPABASE_URL=$SUPABASE_URL" >> $GITHUB_ENV || true
+          echo "SUPABASE_SERVICE_ROLE_KEY=$SUPABASE_SERVICE_ROLE_KEY" >> $GITHUB_ENV || true
+          echo "UPSTASH_REDIS_REST_URL=${UPSTASH_REDIS_REST_URL:-}" >> $GITHUB_ENV || true
+          echo "UPSTASH_REDIS_REST_TOKEN=${UPSTASH_REDIS_REST_TOKEN:-}" >> $GITHUB_ENV || true
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -34,19 +57,15 @@ jobs:
 
       - name: Build API
         env:
-          # Database (necesario para build, pero no se conecta realmente)
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          # Supabase (necesario para build)
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          # Node environment
+          DATABASE_URL: ${{ env.DATABASE_URL }}
+          SUPABASE_URL: ${{ env.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ env.SUPABASE_SERVICE_ROLE_KEY }}
           NODE_ENV: production
-          # Upstash Redis (opcional, pero evita warnings)
-          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          UPSTASH_REDIS_REST_URL: ${{ env.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ env.UPSTASH_REDIS_REST_TOKEN }}
         run: pnpm build --filter api
 
-      - name: Deploy to EC2
+      - name: Deploy code to EC2
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -57,7 +76,17 @@ jobs:
           target: "/home/${{ secrets.EC2_USER }}/arreglatodo"
           strip_components: 0
 
-      - name: Run deployment commands on EC2
+      - name: Deploy .env to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          source: ".env.tmp"
+          target: "/home/${{ secrets.EC2_USER }}/arreglatodo/apps/api/.env"
+
+      - name: Run deployment on EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -68,5 +97,4 @@ jobs:
             pnpm install --frozen-lockfile
             cd apps/api
             pnpm db:generate
-            # Las variables de entorno ya están configuradas en EC2 (ver API_DEPLOYMENT.md)
             pm2 restart api || pm2 start pnpm --name "api" -- start
