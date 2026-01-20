@@ -20,16 +20,18 @@ NC='\033[0m' # No Color
 echo -e "${GREEN}🔒 Configurando Nginx y SSL con Let's Encrypt...${NC}"
 
 # Variables (ajustar según tu configuración)
-DOMAIN="api.urrutylabs.com"  # Ejemplo: api.arreglatodo.com
-EMAIL="nicolas@urrutylabs.com"   # Tu email para notificaciones de Let's Encrypt
-API_PORT=3000  # Puerto donde corre tu API Next.js
+# Pueden ser sobrescritas por variables de entorno
+DOMAIN="${NGINX_DOMAIN:-api.urrutylabs.com}"  # Ejemplo: api.arreglatodo.com
+EMAIL="${NGINX_EMAIL:-nicolas@urrutylabs.com}"   # Tu email para notificaciones de Let's Encrypt
+API_PORT="${NGINX_API_PORT:-3000}"  # Puerto donde corre tu API Next.js
 
 # Verificar que las variables estén configuradas
 if [ -z "$DOMAIN" ] || [ -z "$EMAIL" ]; then
-    echo -e "${RED}❌ Error: Configura DOMAIN y EMAIL en el script${NC}"
-    echo -e "${YELLOW}Ejemplo:${NC}"
-    echo -e "  DOMAIN=\"api.arreglatodo.com\""
-    echo -e "  EMAIL=\"tu-email@example.com\""
+    echo -e "${RED}❌ Error: DOMAIN y EMAIL deben estar configurados${NC}"
+    echo -e "${YELLOW}Configura las variables en el script o como variables de entorno:${NC}"
+    echo -e "  NGINX_DOMAIN=\"api.arreglatodo.com\""
+    echo -e "  NGINX_EMAIL=\"tu-email@example.com\""
+    echo -e "  NGINX_API_PORT=\"3000\" (opcional)"
     exit 1
 fi
 

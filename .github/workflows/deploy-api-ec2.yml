@@ -90,6 +90,16 @@ jobs:
           source: ".env.tmp"
           target: "/home/${{ secrets.EC2_USER }}/arreglatodo/apps/api/.env"
 
+      - name: Deploy Nginx setup script to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          source: "scripts/setup-nginx-ssl.sh"
+          target: "/home/${{ secrets.EC2_USER }}/arreglatodo/scripts/setup-nginx-ssl.sh"
+
       - name: Run deployment on EC2
         uses: appleboy/ssh-action@master
         with:
@@ -129,15 +139,38 @@ jobs:
             pnpm db:generate
             pm2 restart api || pm2 start pnpm --name "api" -- start
             
-            # Verificar que Nginx está corriendo (no reiniciar - solo verificar)
+            # Verificar y configurar Nginx si no está habilitado
             if command -v nginx &> /dev/null; then
-              if sudo systemctl is-active --quiet nginx; then
-                echo "✅ Nginx está corriendo"
+              # Verificar si Nginx está habilitado (enabled) para iniciar al arrancar
+              if sudo systemctl is-enabled --quiet nginx; then
+                echo "✅ Nginx está habilitado y configurado"
+                # Asegurar que esté corriendo
+                if ! sudo systemctl is-active --quiet nginx; then
+                  echo "⚠️  Nginx no está corriendo - iniciando..."
+                  sudo systemctl start nginx
+                fi
               else
-                echo "⚠️  Nginx no está corriendo - iniciando..."
-                sudo systemctl start nginx
-                sudo systemctl enable nginx
+                echo "⚠️  Nginx no está habilitado - ejecutando script de configuración..."
+                # Ejecutar script de setup de Nginx y SSL
+                if [ -f ~/arreglatodo/scripts/setup-nginx-ssl.sh ]; then
+                  chmod +x ~/arreglatodo/scripts/setup-nginx-ssl.sh
+                  # El script requiere sudo y configura todo automáticamente
+                  sudo ~/arreglatodo/scripts/setup-nginx-ssl.sh
+                  echo "✅ Nginx configurado y habilitado exitosamente"
+                else
+                  echo "❌ Error: Script setup-nginx-ssl.sh no encontrado"
+                  echo "⚠️  Nginx no está configurado. Configúralo manualmente o verifica que el script se subió correctamente."
+                fi
               fi
             else
-              echo "ℹ️  Nginx no está instalado (opcional para reverse proxy)"
+              echo "ℹ️  Nginx no está instalado - ejecutando script de configuración..."
+              # Ejecutar script de setup que instalará Nginx
+              if [ -f ~/arreglatodo/scripts/setup-nginx-ssl.sh ]; then
+                chmod +x ~/arreglatodo/scripts/setup-nginx-ssl.sh
+                sudo ~/arreglatodo/scripts/setup-nginx-ssl.sh
+                echo "✅ Nginx instalado, configurado y habilitado exitosamente"
+              else
+                echo "❌ Error: Script setup-nginx-ssl.sh no encontrado"
+                echo "⚠️  Nginx no está instalado. Instálalo manualmente o verifica que el script se subió correctamente."
+              fi
             fi         
