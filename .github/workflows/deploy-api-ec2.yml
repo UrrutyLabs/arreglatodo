@@ -68,7 +68,25 @@ jobs:
           NODE_ENV: production
           UPSTASH_REDIS_REST_URL: ${{ env.UPSTASH_REDIS_REST_URL }}
           UPSTASH_REDIS_REST_TOKEN: ${{ env.UPSTASH_REDIS_REST_TOKEN }}
-        run: pnpm build --filter api
+        run: |
+          echo "🏗️  Building API with standalone output..."
+          pnpm build --filter api
+          
+          # Verify standalone build was created
+          echo "🔍 Verifying standalone build..."
+          if [ ! -d "apps/api/.next/standalone" ]; then
+            echo "❌ Error: Standalone build not found!"
+            echo "Contents of apps/api/.next:"
+            ls -la apps/api/.next/ 2>/dev/null || echo "  .next directory does not exist"
+            echo ""
+            echo "Checking if .next exists:"
+            ls -la apps/api/ | grep -E "\.next|next" || echo "  No .next found"
+            exit 1
+          fi
+          
+          echo "✅ Standalone build verified at apps/api/.next/standalone"
+          echo "Standalone structure:"
+          ls -la apps/api/.next/standalone/ | head -10
 
       - name: Deploy code to EC2
         uses: appleboy/scp-action@master
@@ -77,6 +95,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
+          # Copy standalone build output - strip_components: 1 removes 'apps/api' prefix
           source: "apps/api/.next/standalone,apps/api/.next/static,apps/api/.next/server,apps/api/package.json,apps/api/prisma"
           target: "/home/${{ secrets.EC2_USER }}/arreglatodo/apps/api"
           strip_components: 1
@@ -159,10 +178,24 @@ jobs:
             
             # Verify standalone structure exists
             echo "🔍 Verifying standalone build structure..."
+            echo "Current directory: $(pwd)"
+            echo "Contents of current directory:"
+            ls -la | head -20
+            
             if [ ! -d ".next/standalone" ]; then
               echo "❌ Error: .next/standalone directory not found!"
-              echo "Available directories in .next:"
-              ls -la .next/ 2>/dev/null || echo "  .next directory does not exist"
+              echo "Checking if .next exists:"
+              if [ -d ".next" ]; then
+                echo "Available directories in .next:"
+                ls -la .next/ 2>/dev/null || echo "  .next directory exists but is empty"
+                echo ""
+                echo "Checking for standalone in parent directories..."
+                if [ -d "../.next/standalone" ]; then
+                  echo "Found standalone in parent directory!"
+                fi
+              else
+                echo "  .next directory does not exist"
+              fi
               exit 1
             fi
             
