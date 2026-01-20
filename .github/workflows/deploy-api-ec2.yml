@@ -57,19 +57,6 @@ jobs:
         with:
           version: 9
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build API
-        env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
-          SUPABASE_URL: ${{ env.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ env.SUPABASE_SERVICE_ROLE_KEY }}
-          NODE_ENV: production
-          UPSTASH_REDIS_REST_URL: ${{ env.UPSTASH_REDIS_REST_URL }}
-          UPSTASH_REDIS_REST_TOKEN: ${{ env.UPSTASH_REDIS_REST_TOKEN }}
-        run: pnpm build --filter api
-
       - name: Deploy code to EC2
         uses: appleboy/scp-action@master
         with:
@@ -77,8 +64,8 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
-          # Copy .next build output and necessary files
-          source: "apps/api/.next,apps/api/package.json,apps/api/prisma,packages,pnpm-workspace.yaml,package.json,pnpm-lock.yaml"
+          # Copy source code for building on EC2 (same environment as runtime)
+          source: "apps/api/src,apps/api/public,apps/api/package.json,apps/api/next.config.ts,apps/api/tsconfig.json,apps/api/postcss.config.mjs,apps/api/eslint.config.mjs,apps/api/vitest.config.ts,apps/api/prisma,packages,pnpm-workspace.yaml,package.json,pnpm-lock.yaml,turbo.json"
           target: "/home/${{ secrets.EC2_USER }}/arreglatodo"
           strip_components: 0
 
@@ -137,23 +124,29 @@ jobs:
             # Run deployment
             cd ~/arreglatodo
             
-            # Install dependencies (needed for runtime)
+            # Install dependencies
             echo "📦 Installing dependencies..."
-            pnpm install --frozen-lockfile --prod=false
-            
-            # Build on EC2 (same environment as runtime)
-            cd apps/api
+            pnpm install --frozen-lockfile
             
             # Load environment variables from .env if it exists
-            if [ -f .env ]; then
+            if [ -f apps/api/.env ]; then
               set -a
-              source .env
+              source apps/api/.env
               set +a
             fi
             
-            # Generate Prisma Client (needed for runtime)
+            # Generate Prisma Client (needed before build)
             echo "🔨 Generating Prisma Client..."
+            cd apps/api
             pnpm db:generate
+            cd ~/arreglatodo
+            
+            # Build from monorepo root using Turborepo
+            # This ensures packages are built first (due to ^build dependency in turbo.json)
+            # then builds the API with correct package references
+            echo "🏗️  Building application with Turborepo from monorepo root..."
+            echo "Turborepo will build packages first, then the API"
+            NODE_ENV=production pnpm build --filter api
             
             echo "🚀 Starting application with PM2..."
             # Stop and delete existing PM2 process to ensure clean start
