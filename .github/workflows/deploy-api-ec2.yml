@@ -79,7 +79,7 @@ jobs:
           port: 22
           source: "apps/api/.next/standalone,apps/api/.next/static,apps/api/.next/server,apps/api/package.json,apps/api/prisma"
           target: "/home/${{ secrets.EC2_USER }}/arreglatodo/apps/api"
-          strip_components: 0
+          strip_components: 1
 
       - name: Deploy .env to EC2
         uses: appleboy/scp-action@master
@@ -155,21 +155,45 @@ jobs:
             fi
             
             echo "🚀 Starting application with PM2 using standalone server..."
-            # Use standalone server - it's located at .next/standalone/apps/api/server.js
-            # The standalone build includes all necessary node_modules
-            # The server needs to run from .next/standalone directory for correct path resolution
             cd ~/arreglatodo/apps/api
             
-            # Check if PM2 process exists, restart or start accordingly
-            if pm2 list | grep -q "api"; then
-              echo "🔄 Restarting existing PM2 process..."
-              pm2 restart api --update-env
-            else
-              echo "🚀 Starting new PM2 process..."
-              # Run from apps/api directory, execute the standalone server
-              # The server.js path is relative to apps/api directory
-              pm2 start .next/standalone/apps/api/server.js --name "api" --cwd "$(pwd)"
+            # Verify standalone structure exists
+            echo "🔍 Verifying standalone build structure..."
+            if [ ! -d ".next/standalone" ]; then
+              echo "❌ Error: .next/standalone directory not found!"
+              echo "Available directories in .next:"
+              ls -la .next/ 2>/dev/null || echo "  .next directory does not exist"
+              exit 1
             fi
+            
+            # Find the server.js file in standalone
+            SERVER_PATH=""
+            if [ -f ".next/standalone/apps/api/server.js" ]; then
+              SERVER_PATH=".next/standalone/apps/api/server.js"
+            elif [ -f ".next/standalone/server.js" ]; then
+              SERVER_PATH=".next/standalone/server.js"
+            else
+              echo "❌ Error: server.js not found in standalone build!"
+              echo "Searching for server.js..."
+              find .next/standalone -name "server.js" 2>/dev/null || echo "  No server.js found"
+              exit 1
+            fi
+            
+            echo "✅ Found server at: $SERVER_PATH"
+            
+            # Stop and delete existing PM2 process if it exists
+            if pm2 list | grep -q "api"; then
+              echo "🛑 Stopping existing PM2 process..."
+              pm2 delete api || true
+            fi
+            
+            # Start new PM2 process with standalone server
+            echo "🚀 Starting PM2 process with standalone server..."
+            # Run from apps/api directory so paths resolve correctly
+            pm2 start "$SERVER_PATH" --name "api" --cwd "$(pwd)"
+            
+            # Save PM2 configuration
+            pm2 save
             
             # Verify and configure Nginx if not enabled
             if command -v nginx &> /dev/null; then
