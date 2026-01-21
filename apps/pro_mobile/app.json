@@ -38,11 +38,24 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "organization": "${SENTRY_ORG}",
+          "project": "${SENTRY_PROJECT}"
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ccb417f7-83dc-4312-b994-dccc8990101e"
+      }
     }
   }
 }

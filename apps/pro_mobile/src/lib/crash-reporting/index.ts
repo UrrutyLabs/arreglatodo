@@ -2,30 +2,61 @@
  * Crash reporting setup and utilities
  * Uses Sentry for error tracking and crash reporting
  * Uses shared monitoring package for utilities
+ * 
+ * Note: Sentry is disabled when running in Expo Go (no custom native modules supported)
  */
 
-import * as Sentry from "@sentry/react-native";
+import Constants from "expo-constants";
 import { logger } from "../logger";
-import {
-  createReactNativeAdapter,
-  setUserContext as setUserContextShared,
-  clearUserContext as clearUserContextShared,
-  captureException as captureExceptionShared,
-  captureMessage as captureMessageShared,
-  addBreadcrumb as addBreadcrumbShared,
-} from "@repo/monitoring/sentry";
 
-const adapter = createReactNativeAdapter(Sentry);
+// Check if running in Expo Go
+const isExpoGo = Constants.executionEnvironment === "storeClient";
+
+// Conditionally import Sentry only if not in Expo Go
+let Sentry: typeof import("@sentry/react-native") | null = null;
+let adapter: ReturnType<typeof import("@repo/monitoring/sentry").createReactNativeAdapter> | null = null;
+
+if (!isExpoGo) {
+  try {
+    Sentry = require("@sentry/react-native");
+    const {
+      createReactNativeAdapter,
+    } = require("@repo/monitoring/sentry");
+    adapter = createReactNativeAdapter(Sentry);
+  } catch (error) {
+    logger.warn("Sentry not available (may be running in Expo Go)", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
 
 let isInitialized = false;
 
 /**
  * Initialize Sentry crash reporting
  * Call this early in the app lifecycle (in _layout.tsx or index.tsx)
+ * 
+ * Note: Automatically disabled when running in Expo Go
  */
 export function initCrashReporting() {
   if (isInitialized) {
     logger.warn("Crash reporting already initialized");
+    return;
+  }
+
+  // Skip Sentry initialization in Expo Go (custom native modules not supported)
+  if (isExpoGo) {
+    logger.info("Running in Expo Go - Sentry disabled (custom native modules not supported)");
+    isInitialized = true; // Mark as initialized to prevent retries
+    return;
+  }
+
+  // Check if Sentry is available
+  if (!Sentry || !adapter) {
+    logger.warn("Sentry not available. Crash reporting disabled.", {
+      hint: "Sentry requires a development build or production build (not Expo Go)",
+    });
+    isInitialized = true;
     return;
   }
 
@@ -67,8 +98,13 @@ export function initCrashReporting() {
     });
 
     // Configure logger to use Sentry
+    const {
+      captureException: captureExceptionShared,
+    } = require("@repo/monitoring/sentry");
     logger.setCrashReporter((error, context) => {
-      captureExceptionShared(adapter, error, context);
+      if (adapter) {
+        captureExceptionShared(adapter, error, context);
+      }
     });
 
     isInitialized = true;
@@ -80,40 +116,79 @@ export function initCrashReporting() {
 
 /**
  * Set user context for crash reports
+ * No-op when running in Expo Go
  */
 export function setUserContext(userId: string, email?: string) {
+  if (!adapter || isExpoGo) {
+    logger.debug("User context set (Sentry disabled)", { userId, hasEmail: !!email });
+    return;
+  }
+  const {
+    setUserContext: setUserContextShared,
+  } = require("@repo/monitoring/sentry");
   setUserContextShared(adapter, userId, email);
   logger.debug("User context set for crash reporting", { userId, hasEmail: !!email });
 }
 
 /**
  * Clear user context (e.g., on logout)
+ * No-op when running in Expo Go
  */
 export function clearUserContext() {
+  if (!adapter || isExpoGo) {
+    logger.debug("User context cleared (Sentry disabled)");
+    return;
+  }
+  const {
+    clearUserContext: clearUserContextShared,
+  } = require("@repo/monitoring/sentry");
   clearUserContextShared(adapter);
   logger.debug("User context cleared");
 }
 
 /**
  * Capture a manual error/exception
+ * No-op when running in Expo Go
  */
 export function captureException(error: Error, context?: Record<string, unknown>) {
+  if (!adapter || isExpoGo) {
+    logger.error("Exception captured (Sentry disabled)", error, context);
+    return;
+  }
+  const {
+    captureException: captureExceptionShared,
+  } = require("@repo/monitoring/sentry");
   captureExceptionShared(adapter, error, context);
   logger.error("Exception captured", error, context);
 }
 
 /**
  * Capture a message (non-error)
+ * No-op when running in Expo Go
  */
 export function captureMessage(message: string, level: "info" | "warning" | "error" = "info") {
+  if (!adapter || isExpoGo) {
+    logger.info(`Message captured (Sentry disabled): ${message}`, { level });
+    return;
+  }
+  const {
+    captureMessage: captureMessageShared,
+  } = require("@repo/monitoring/sentry");
   captureMessageShared(adapter, message, level);
   logger.info(`Message captured: ${message}`, { level });
 }
 
 /**
  * Add breadcrumb for debugging
+ * No-op when running in Expo Go
  */
 export function addBreadcrumb(message: string, category: string, data?: Record<string, unknown>) {
+  if (!adapter || isExpoGo) {
+    return;
+  }
+  const {
+    addBreadcrumb: addBreadcrumbShared,
+  } = require("@repo/monitoring/sentry");
   addBreadcrumbShared(adapter, message, category, data);
 }
 
