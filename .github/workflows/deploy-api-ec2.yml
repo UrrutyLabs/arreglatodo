@@ -57,17 +57,32 @@ jobs:
         with:
           version: 9
 
-      - name: Deploy code to EC2
+      - name: Install dependencies
+        run: |
+          pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: |
+          cd apps/api
+          pnpm db:generate
+
+      - name: Build API
+        run: |
+          echo "🏗️  Building API with standalone output..."
+          NODE_ENV=production pnpm build --filter api
+          echo "✅ Build completed"
+
+      - name: Deploy standalone build to EC2
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
-          # Copy source code for building on EC2 (same environment as runtime)
-          source: "apps/api/src,apps/api/public,apps/api/package.json,apps/api/next.config.ts,apps/api/tsconfig.json,apps/api/postcss.config.mjs,apps/api/eslint.config.mjs,apps/api/vitest.config.ts,apps/api/prisma,packages,pnpm-workspace.yaml,package.json,pnpm-lock.yaml,turbo.json"
-          target: "/home/${{ secrets.EC2_USER }}/arreglatodo"
-          strip_components: 0
+          # Copy standalone build + static files + server files + packages
+          source: "apps/api/.next/standalone,apps/api/.next/static,apps/api/.next/server,apps/api/public,packages"
+          target: "/home/${{ secrets.EC2_USER }}/arreglatodo/apps/api"
+          strip_components: 2
 
       - name: Deploy .env to EC2
         uses: appleboy/scp-action@master
@@ -122,42 +137,42 @@ jobs:
             echo "  - PM2: $(pm2 --version)"
             
             # Run deployment
-            cd ~/arreglatodo
-            
-            # Install dependencies
-            echo "📦 Installing dependencies..."
-            pnpm install --frozen-lockfile
+            cd ~/arreglatodo/apps/api
             
             # Load environment variables from .env if it exists
-            if [ -f apps/api/.env ]; then
+            # This exports all variables to the shell environment
+            if [ -f .env ]; then
               set -a
-              source apps/api/.env
+              source .env
               set +a
+              echo "✅ Environment variables loaded from .env"
             fi
             
-            # Generate Prisma Client (needed before build)
-            echo "🔨 Generating Prisma Client..."
-            cd apps/api
-            pnpm db:generate
-            cd ~/arreglatodo
+            # Verify standalone build exists
+            if [ ! -d ".next/standalone" ]; then
+              echo "❌ Error: Standalone build not found at .next/standalone"
+              echo "Verify that the build was completed successfully in CI"
+              exit 1
+            fi
             
-            # Build from monorepo root using Turborepo
-            # This ensures packages are built first (due to ^build dependency in turbo.json)
-            # then builds the API with correct package references
-            echo "🏗️  Building application with Turborepo from monorepo root..."
-            echo "Turborepo will build packages first, then the API"
-            NODE_ENV=production pnpm build --filter api
+            echo "✅ Standalone build verified"
             
-            echo "🚀 Starting application with PM2..."
+            echo "🚀 Starting standalone server with PM2..."
             # Stop and delete existing PM2 process to ensure clean start
             if pm2 list | grep -q "api"; then
               echo "🛑 Stopping and deleting existing PM2 process..."
               pm2 delete api || true
             fi
             
-            # Start new PM2 process with pnpm start
-            echo "🚀 Starting new PM2 process..."
-            pm2 start pnpm --name "api" -- start
+            # Start standalone server
+            # The standalone build includes a server.js file in .next/standalone
+            # We need to run it from the standalone directory
+            # PORT is set explicitly, and other env vars are inherited from the shell
+            echo "🚀 Starting new PM2 process with standalone server..."
+            cd .next/standalone
+            # PM2 will inherit environment variables from the shell
+            PORT=3000 pm2 start server.js --name "api" --update-env
+            cd ~/arreglatodo/apps/api
             
             # Save PM2 configuration
             pm2 save
