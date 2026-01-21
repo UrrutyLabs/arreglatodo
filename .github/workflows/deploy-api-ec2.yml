@@ -100,9 +100,6 @@ jobs:
               rm -rf ~/arreglatodo/apps/api/.env
             fi
             
-            # Also remove env.tmp if it exists
-            rm -f ~/arreglatodo/apps/api/env.tmp
-            
       - name: Deploy .env to EC2
         uses: appleboy/scp-action@master
         with:
@@ -111,34 +108,18 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           source: ".env.tmp"
-          target: "/home/${{ secrets.EC2_USER }}/arreglatodo/apps/api"
+          target: "/home/${{ secrets.EC2_USER }}/arreglatodo/apps/api/.env"
           
-      - name: Rename .env file on EC2
+      - name: Verify .env file
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Verify env.tmp exists and is a file
-            if [ ! -f ~/arreglatodo/apps/api/env.tmp ]; then
-              echo "❌ Error: env.tmp file not found"
-              ls -la ~/arreglatodo/apps/api/ | grep env
-              exit 1
-            fi
-            
-            # Remove .env if it exists (should have been removed in previous step, but double-check)
-            if [ -e ~/arreglatodo/apps/api/.env ]; then
-              echo "⚠️  Removing existing .env..."
-              rm -rf ~/arreglatodo/apps/api/.env
-            fi
-            
-            # Rename env.tmp to .env using mv
-            mv ~/arreglatodo/apps/api/env.tmp ~/arreglatodo/apps/api/.env
-            
-            # Verify .env is now a file, not a directory
+            # Verify .env is a file, not a directory
             if [ -d ~/arreglatodo/apps/api/.env ]; then
-              echo "❌ Error: .env is still a directory after rename"
+              echo "❌ Error: .env is a directory"
               echo "Contents of apps/api:"
               ls -la ~/arreglatodo/apps/api/
               exit 1
