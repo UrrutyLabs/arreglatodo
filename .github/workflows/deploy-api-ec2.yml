@@ -103,6 +103,7 @@ jobs:
           port: 22
           source: "scripts/setup-nginx-ssl.sh"
           target: "/home/${{ secrets.EC2_USER }}/arreglatodo/scripts/setup-nginx-ssl.sh"
+          
 
       - name: Run deployment on EC2
         uses: appleboy/ssh-action@master
@@ -165,11 +166,11 @@ jobs:
             fi
             
             # Start standalone server
-            # The standalone build includes a server.js file in .next/standalone
-            # We need to run it from the standalone directory
+            # In monorepo, standalone build structure is: .next/standalone/apps/api/server.js
+            # We need to run it from the standalone/apps/api directory
             # PORT is set explicitly, and other env vars are inherited from the shell
             echo "🚀 Starting new PM2 process with standalone server..."
-            cd .next/standalone
+            cd .next/standalone/apps/api
             # PM2 will inherit environment variables from the shell
             PORT=3000 pm2 start server.js --name "api" --update-env
             cd ~/arreglatodo/apps/api
