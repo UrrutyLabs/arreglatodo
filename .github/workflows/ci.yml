@@ -35,6 +35,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -50,7 +52,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run linter
-        run: pnpm lint
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+            pnpm turbo run lint --filter="[origin/${BASE_BRANCH}...]"
+          else
+            pnpm turbo run lint --filter='[HEAD^1]'
+          fi
 
   type-check:
     name: Type Check
@@ -58,6 +66,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -73,7 +83,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Type check
-        run: pnpm check-types
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+            pnpm turbo run check-types --filter="[origin/${BASE_BRANCH}...]"
+          else
+            pnpm turbo run check-types --filter='[HEAD^1]'
+          fi
 
   test:
     name: Test
@@ -81,6 +97,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -95,8 +113,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate Prisma Client
+        run: |
+          cd apps/api
+          pnpm db:generate
+
       - name: Run tests
-        run: pnpm test
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+            pnpm turbo run test --filter="[origin/${BASE_BRANCH}...]"
+          else
+            pnpm turbo run test --filter='[HEAD^1]'
+          fi
 
       - name: Upload coverage
         if: always()
