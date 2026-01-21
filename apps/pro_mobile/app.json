@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "StickerSmash",
-    "slug": "StickerSmash",
+    "name": "ArreglatodoPros",
+    "slug": "arreglatodo-pros",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "stickersmash",
+    "scheme": "arreglatodopros",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

@@ -275,7 +275,7 @@ export class ProService {
       updateData.phone = input.phone;
     }
     if (input.bio !== undefined) {
-      updateData.bio = input.bio ?? null;
+      updateData.bio = input.bio;
     }
     if (input.hourlyRate !== undefined) {
       updateData.hourlyRate = input.hourlyRate;

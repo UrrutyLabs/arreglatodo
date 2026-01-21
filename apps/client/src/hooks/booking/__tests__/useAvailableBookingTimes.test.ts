@@ -90,6 +90,10 @@ describe("useAvailableBookingTimes", () => {
 
   describe("filtering by availability slots", () => {
     it("should filter times based on pro availability slots", () => {
+      vi.useFakeTimers();
+      const now = new Date(2024, 0, 15, 8, 0, 0); // Local time: Jan 15, 2024 08:00 (before slot starts)
+      vi.setSystemTime(now);
+
       const availabilitySlots: AvailabilitySlot[] = [
         {
           id: "slot-1",
@@ -148,6 +152,10 @@ describe("useAvailableBookingTimes", () => {
     });
 
     it("should include times that match slot boundaries", () => {
+      vi.useFakeTimers();
+      const now = new Date(2024, 0, 15, 8, 0, 0); // Local time: Jan 15, 2024 08:00 (before slot starts)
+      vi.setSystemTime(now);
+
       const availabilitySlots: AvailabilitySlot[] = [
         {
           id: "slot-1",
@@ -176,6 +184,10 @@ describe("useAvailableBookingTimes", () => {
     });
 
     it("should handle multiple availability slots for same day", () => {
+      vi.useFakeTimers();
+      const now = new Date(2024, 0, 15, 8, 0, 0); // Local time: Jan 15, 2024 08:00 (before slots start)
+      vi.setSystemTime(now);
+
       const availabilitySlots: AvailabilitySlot[] = [
         {
           id: "slot-1",

@@ -27,8 +27,8 @@ export interface ProProfileCreateInput {
   userId: string;
   displayName: string;
   email: string;
-  phone?: string;
-  bio?: string;
+  phone?: string | null;
+  bio?: string | null;
   hourlyRate: number;
   categories: string[]; // Category enum values
   serviceArea?: string;

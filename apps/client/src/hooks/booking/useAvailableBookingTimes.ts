@@ -59,8 +59,8 @@ export function useAvailableBookingTimes(
     // Filter by pro's availability slots if provided
     let filteredTimes = times;
     if (availabilitySlots.length > 0 && date) {
-      const selectedDate = new Date(date);
-      const dayOfWeek = selectedDate.getUTCDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+      const selectedDate = new Date(date + "T00:00:00"); // Parse as local date to get correct day
+      const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
       // Get availability slots for the selected day
       const daySlots = availabilitySlots.filter(

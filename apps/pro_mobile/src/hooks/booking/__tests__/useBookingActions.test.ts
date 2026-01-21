@@ -342,6 +342,7 @@ describe("useBookingActions", () => {
     it("should cancel queries and update booking status optimistically", async () => {
       const mockBooking: Booking = {
         id: "booking-1",
+        displayId: "A1",
         clientId: "client-1",
         proId: "pro-1",
         category: "plumbing" as any,
@@ -395,6 +396,7 @@ describe("useBookingActions", () => {
     it("should provide context for rollback on error", async () => {
       const mockBooking: Booking = {
         id: "booking-1",
+        displayId: "A1",
         clientId: "client-1",
         proId: "pro-1",
         category: "plumbing" as any,

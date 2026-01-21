@@ -787,16 +787,16 @@ describe("ProService", () => {
       });
     });
 
-    it("should clear bio when set to undefined", async () => {
+    it("should not update bio when bio is omitted from input", async () => {
       // Arrange
       const userId = "user-1";
       const input: Partial<ProOnboardInput> = {
-        bio: undefined,
+        // bio is intentionally omitted
       };
       const existingPro = createMockProProfile({ userId, bio: "Existing bio" });
       const updatedPro = createMockProProfile({
         ...existingPro,
-        bio: null,
+        // bio remains unchanged
       });
 
       mockProRepository.findByUserId.mockResolvedValue(existingPro);
@@ -808,10 +808,9 @@ describe("ProService", () => {
       const result = await service.updateProfile(userId, input);
 
       // Assert
-      expect(mockProRepository.update).toHaveBeenCalledWith(existingPro.id, {
-        bio: null,
-      });
-      expect(result.bio).toBeUndefined();
+      // When bio is omitted, it should not be included in the update
+      expect(mockProRepository.update).toHaveBeenCalledWith(existingPro.id, {});
+      expect(result.bio).toBe("Existing bio");
     });
 
     it("should update multiple fields including bio", async () => {
