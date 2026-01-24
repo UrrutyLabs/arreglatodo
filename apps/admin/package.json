@@ -4,8 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3001",
+    "dev:prod": "pnpm build:prod && pnpm start:prod",
     "build": "next build",
+    "build:prod": "NODE_ENV=production VERCEL_ENV=production pnpm build",
     "start": "next start",
+    "start:prod": "NODE_ENV=production VERCEL_ENV=production next start --port 3001",
     "lint": "eslint",
     "test": "vitest",
     "test:watch": "vitest --watch",

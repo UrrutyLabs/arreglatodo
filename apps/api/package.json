@@ -4,8 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3002",
+    "dev:prod": "pnpm build:prod && pnpm start:prod",
     "build": "next build",
+    "build:prod": "NODE_ENV=production pnpm db:generate && NODE_ENV=production pnpm build",
     "start": "next start",
+    "start:prod": "NODE_ENV=production next start --port 3002",
     "lint": "eslint",
     "pretest": "pnpm db:generate",
     "test": "vitest",

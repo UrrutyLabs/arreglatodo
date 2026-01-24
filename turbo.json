@@ -12,6 +12,18 @@
         "SENTRY_AUTH_TOKEN"
       ]
     },
+    "build:prod": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": [
+        "NODE_ENV",
+        "VERCEL_ENV",
+        "SENTRY_ORG",
+        "SENTRY_PROJECT",
+        "SENTRY_AUTH_TOKEN"
+      ]
+    },
     "lint": {
       "dependsOn": ["^lint"],
       "env": ["NODE_ENV"]
@@ -24,6 +36,14 @@
       "outputs": ["coverage/**"]
     },
     "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "dev:prod": {
+      "cache": false,
+      "persistent": true
+    },
+    "start:prod": {
       "cache": false,
       "persistent": true
     },
