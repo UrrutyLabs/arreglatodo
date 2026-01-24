@@ -1,4 +1,4 @@
-name: Mobile Build and Deploy
+name: Pro Mobile Build and Deploy
 
 on:
   # Production builds on main - disabled for now
@@ -48,7 +48,7 @@ on:
 
 jobs:
   build:
-    name: Build Mobile App
+    name: Build Pro Mobile App
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -141,5 +141,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '✅ Mobile build completed successfully!'
+              body: '✅ Pro Mobile build completed successfully!'
             })
