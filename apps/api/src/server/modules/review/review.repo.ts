@@ -94,19 +94,10 @@ export class ReviewRepositoryImpl implements ReviewRepository {
   }
 
   async findByProProfileId(proProfileId: string): Promise<ReviewEntity[]> {
-    // Get all bookings for this pro, then get their reviews
-    const bookings = await prisma.booking.findMany({
-      where: { proProfileId },
-      select: { id: true },
-    });
-
-    const bookingIds = bookings.map((booking) => booking.id);
-
+    // Query reviews directly by proProfileId (indexed field)
     const reviews = await prisma.review.findMany({
       where: {
-        bookingId: {
-          in: bookingIds,
-        },
+        proProfileId,
       },
       orderBy: { createdAt: "desc" },
     });

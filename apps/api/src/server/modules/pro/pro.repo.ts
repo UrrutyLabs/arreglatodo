@@ -1,6 +1,15 @@
 import { injectable } from "tsyringe";
 import { prisma } from "@infra/db/prisma";
 import { Category } from "@repo/domain";
+import { calculateProfileCompleted } from "./pro.calculations";
+
+// Type representing what Prisma returns for ProProfile queries
+// Union of all possible return types from Prisma queries
+type PrismaProProfile =
+  | NonNullable<Awaited<ReturnType<typeof prisma.proProfile.findUnique>>>
+  | NonNullable<Awaited<ReturnType<typeof prisma.proProfile.create>>>
+  | NonNullable<Awaited<ReturnType<typeof prisma.proProfile.update>>>
+  | NonNullable<Awaited<ReturnType<typeof prisma.proProfile.findMany>>[0]>;
 
 /**
  * ProProfile entity (plain object)
@@ -12,10 +21,15 @@ export interface ProProfileEntity {
   email: string;
   phone: string | null;
   bio: string | null;
+  avatarUrl: string | null;
   hourlyRate: number;
   categories: string[]; // Category enum values
   serviceArea: string | null;
   status: "pending" | "active" | "suspended";
+  profileCompleted: boolean;
+  completedJobsCount: number;
+  isTopPro: boolean;
+  responseTimeMinutes: number | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -29,9 +43,29 @@ export interface ProProfileCreateInput {
   email: string;
   phone?: string | null;
   bio?: string | null;
+  avatarUrl?: string | null;
   hourlyRate: number;
   categories: string[]; // Category enum values
   serviceArea?: string;
+}
+
+/**
+ * ProProfile update input
+ * Allows updating regular fields and calculated fields (for internal use)
+ */
+export interface ProProfileUpdateInput {
+  displayName?: string;
+  email?: string;
+  phone?: string | null;
+  bio?: string | null;
+  avatarUrl?: string | null;
+  hourlyRate?: number;
+  categories?: string[]; // Category enum values
+  serviceArea?: string | null;
+  profileCompleted?: boolean;
+  completedJobsCount?: number;
+  isTopPro?: boolean;
+  responseTimeMinutes?: number | null;
 }
 
 /**
@@ -49,13 +83,17 @@ export interface ProRepository {
     limit?: number;
     cursor?: string;
   }): Promise<ProProfileEntity[]>;
+  searchPros(filters: {
+    category?: Category;
+    profileCompleted?: boolean;
+  }): Promise<ProProfileEntity[]>;
   updateStatus(
     id: string,
     status: "pending" | "active" | "suspended"
   ): Promise<ProProfileEntity | null>;
   update(
     id: string,
-    data: Partial<ProProfileCreateInput>
+    data: ProProfileUpdateInput
   ): Promise<ProProfileEntity | null>;
 }
 
@@ -71,11 +109,14 @@ export class ProRepositoryImpl implements ProRepository {
         displayName: input.displayName,
         email: input.email,
         phone: input.phone ?? null,
-        bio: input.bio,
+        bio: input.bio ?? null,
+        avatarUrl: input.avatarUrl ?? null,
         hourlyRate: input.hourlyRate,
         categories: input.categories as Category[], // Prisma expects Category[] enum, but we pass string[]
         serviceArea: input.serviceArea ?? null,
         status: "pending",
+        // profileCompleted will be calculated based on avatarUrl and bio presence
+        profileCompleted: calculateProfileCompleted(input.avatarUrl, input.bio),
       },
     });
 
@@ -95,15 +136,20 @@ export class ProRepositoryImpl implements ProRepository {
       where: { userId },
     });
 
-    return proProfile ? this.mapPrismaToDomain(proProfile) : null;
+    if (!proProfile) return null;
+    return this.mapPrismaToDomain(proProfile);
   }
 
   async findAll(): Promise<ProProfileEntity[]> {
+    // Only return pros with completed profiles for public visibility
     const proProfiles = await prisma.proProfile.findMany({
+      where: {
+        profileCompleted: true,
+      },
       orderBy: { createdAt: "desc" },
     });
 
-    return proProfiles.map(this.mapPrismaToDomain);
+    return proProfiles.map((p) => this.mapPrismaToDomain(p));
   }
 
   async findAllWithFilters(filters?: {
@@ -139,7 +185,40 @@ export class ProRepositoryImpl implements ProRepository {
       orderBy: { createdAt: "desc" },
     });
 
-    return proProfiles.map(this.mapPrismaToDomain);
+    return proProfiles.map((p) => this.mapPrismaToDomain(p));
+  }
+
+  async searchPros(filters: {
+    category?: Category;
+    profileCompleted?: boolean;
+  }): Promise<ProProfileEntity[]> {
+    const where: {
+      status: "active"; // Only approved pros (isApproved = true, isSuspended = false)
+      profileCompleted?: boolean;
+      categories?: { has: Category };
+    } = {
+      status: "active", // Only return active (approved and not suspended) pros
+    };
+
+    // Filter by profileCompleted (defaults to true for public search)
+    if (filters.profileCompleted !== undefined) {
+      where.profileCompleted = filters.profileCompleted;
+    } else {
+      // Default to only completed profiles for public search
+      where.profileCompleted = true;
+    }
+
+    // Filter by category if provided
+    if (filters.category) {
+      where.categories = { has: filters.category as Category };
+    }
+
+    const proProfiles = await prisma.proProfile.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+    });
+
+    return proProfiles.map((p) => this.mapPrismaToDomain(p));
   }
 
   async updateStatus(
@@ -156,17 +235,32 @@ export class ProRepositoryImpl implements ProRepository {
 
   async update(
     id: string,
-    data: Partial<ProProfileCreateInput>
+    data: ProProfileUpdateInput
   ): Promise<ProProfileEntity | null> {
+    // Fetch current profile to get existing values for profileCompleted calculation
+    const currentProfile = await prisma.proProfile.findUnique({
+      where: { id },
+      select: { avatarUrl: true, bio: true },
+    });
+
+    if (!currentProfile) {
+      return null;
+    }
+
     // Build update data object, only including provided fields
     const updateData: {
       displayName?: string;
       email?: string;
       phone?: string | null;
       bio?: string | null;
+      avatarUrl?: string | null;
       hourlyRate?: number;
       categories?: Category[];
       serviceArea?: string | null;
+      profileCompleted?: boolean;
+      completedJobsCount?: number;
+      isTopPro?: boolean;
+      responseTimeMinutes?: number | null;
     } = {};
 
     if (data.displayName !== undefined) {
@@ -181,6 +275,9 @@ export class ProRepositoryImpl implements ProRepository {
     if (data.bio !== undefined) {
       updateData.bio = data.bio ?? null;
     }
+    if (data.avatarUrl !== undefined) {
+      updateData.avatarUrl = data.avatarUrl ?? null;
+    }
     if (data.hourlyRate !== undefined) {
       updateData.hourlyRate = data.hourlyRate;
     }
@@ -189,6 +286,31 @@ export class ProRepositoryImpl implements ProRepository {
     }
     if (data.serviceArea !== undefined) {
       updateData.serviceArea = data.serviceArea ?? null;
+    }
+    if (data.completedJobsCount !== undefined) {
+      updateData.completedJobsCount = data.completedJobsCount;
+    }
+    if (data.isTopPro !== undefined) {
+      updateData.isTopPro = data.isTopPro;
+    }
+    if (data.responseTimeMinutes !== undefined) {
+      updateData.responseTimeMinutes = data.responseTimeMinutes ?? null;
+    }
+
+    // Recalculate profileCompleted if avatarUrl or bio is being updated
+    if (data.avatarUrl !== undefined || data.bio !== undefined) {
+      const finalAvatarUrl =
+        data.avatarUrl !== undefined
+          ? data.avatarUrl
+          : currentProfile.avatarUrl;
+      const finalBio = data.bio !== undefined ? data.bio : currentProfile.bio;
+      updateData.profileCompleted = calculateProfileCompleted(
+        finalAvatarUrl,
+        finalBio
+      );
+    } else if (data.profileCompleted !== undefined) {
+      // Only allow manual override if avatarUrl/bio are not being updated
+      updateData.profileCompleted = data.profileCompleted;
     }
 
     const proProfile = await prisma.proProfile.update({
@@ -199,33 +321,33 @@ export class ProRepositoryImpl implements ProRepository {
     return this.mapPrismaToDomain(proProfile);
   }
 
-  private mapPrismaToDomain(prismaProProfile: {
-    id: string;
-    userId: string;
-    displayName: string;
-    email: string;
-    phone: string | null;
-    bio: string | null;
-    hourlyRate: number;
-    categories: string[] | Category[]; // Prisma returns Category[] enum, but we convert to string[]
-    serviceArea: string | null;
-    status: string; // Prisma returns ProStatus enum (pending | active | suspended)
-    createdAt: Date;
-    updatedAt: Date;
-  }): ProProfileEntity {
+  private mapPrismaToDomain(
+    prismaProProfile: NonNullable<PrismaProProfile>
+  ): ProProfileEntity {
+    const p = prismaProProfile;
+    // Prisma returns Category[] enum, but we need to convert to string[] for domain
+    const categories = Array.isArray(p.categories)
+      ? (p.categories as unknown as Category[]).map((c) => String(c))
+      : [];
+
     return {
-      id: prismaProProfile.id,
-      userId: prismaProProfile.userId,
-      displayName: prismaProProfile.displayName,
-      email: prismaProProfile.email ?? "",
-      phone: prismaProProfile.phone ?? null,
-      bio: prismaProProfile.bio ?? null,
-      hourlyRate: prismaProProfile.hourlyRate,
-      categories: (prismaProProfile.categories ?? []) as string[],
-      serviceArea: prismaProProfile.serviceArea ?? null,
-      status: prismaProProfile.status as "pending" | "active" | "suspended",
-      createdAt: prismaProProfile.createdAt,
-      updatedAt: prismaProProfile.updatedAt,
+      id: p.id,
+      userId: p.userId,
+      displayName: p.displayName,
+      email: p.email ?? "",
+      phone: p.phone ?? null,
+      bio: p.bio ?? null,
+      avatarUrl: p.avatarUrl ?? null,
+      hourlyRate: p.hourlyRate,
+      categories,
+      serviceArea: p.serviceArea ?? null,
+      status: p.status as "pending" | "active" | "suspended",
+      profileCompleted: p.profileCompleted,
+      completedJobsCount: p.completedJobsCount,
+      isTopPro: p.isTopPro,
+      responseTimeMinutes: p.responseTimeMinutes ?? null,
+      createdAt: p.createdAt,
+      updatedAt: p.updatedAt,
     };
   }
 }

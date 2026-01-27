@@ -103,10 +103,15 @@ export const ProProfileScalarFieldEnum = {
   email: 'email',
   phone: 'phone',
   bio: 'bio',
+  avatarUrl: 'avatarUrl',
   hourlyRate: 'hourlyRate',
   categories: 'categories',
   serviceArea: 'serviceArea',
   status: 'status',
+  profileCompleted: 'profileCompleted',
+  completedJobsCount: 'completedJobsCount',
+  isTopPro: 'isTopPro',
+  responseTimeMinutes: 'responseTimeMinutes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

@@ -659,10 +659,6 @@ export type EnumBookingStatusFieldUpdateOperationsInput = {
   set?: $Enums.BookingStatus
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type BookingCreateNestedOneWithoutReviewInput = {
   create?: Prisma.XOR<Prisma.BookingCreateWithoutReviewInput, Prisma.BookingUncheckedCreateWithoutReviewInput>
   connectOrCreate?: Prisma.BookingCreateOrConnectWithoutReviewInput

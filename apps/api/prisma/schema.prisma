@@ -146,10 +146,15 @@ model ProProfile {
   email       String
   phone       String?
   bio         String?
+  avatarUrl   String?
   hourlyRate  Float
   categories  Category[]
   serviceArea String?
   status      ProStatus  @default(pending)
+  profileCompleted Boolean @default(false)
+  completedJobsCount Int   @default(0)
+  isTopPro    Boolean    @default(false)
+  responseTimeMinutes Int?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
@@ -165,6 +170,9 @@ model ProProfile {
 
   @@index([userId])
   @@index([status])
+  @@index([profileCompleted])
+  @@index([isTopPro])
+  @@index([status, profileCompleted])
   @@map("pro_profiles")
 }
 

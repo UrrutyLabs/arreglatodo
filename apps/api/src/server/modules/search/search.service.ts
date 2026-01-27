@@ -33,17 +33,9 @@ export class SearchService {
     date?: Date;
     timeWindow?: string; // Format: "HH:MM-HH:MM" (e.g., "09:00-12:00")
   }): Promise<Pro[]> {
-    // Get all pros
-    const allPros = await this.proService.getAllPros();
-
-    // Step 1: Filter by basic criteria (approved, not suspended, category)
-    const basicFiltered = allPros.filter((pro) => {
-      // Basic filters
-      if (!pro.isApproved || pro.isSuspended) return false;
-      if (filters.category && !pro.categories.includes(filters.category)) {
-        return false;
-      }
-      return true;
+    // Get pros filtered by database (approved, not suspended, profileCompleted, category)
+    const basicFiltered = await this.proService.searchPros({
+      category: filters.category,
     });
 
     // Step 2: Filter by availability based on what's provided

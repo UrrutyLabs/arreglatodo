@@ -28,10 +28,14 @@ export type AggregateProProfile = {
 
 export type ProProfileAvgAggregateOutputType = {
   hourlyRate: number | null
+  completedJobsCount: number | null
+  responseTimeMinutes: number | null
 }
 
 export type ProProfileSumAggregateOutputType = {
   hourlyRate: number | null
+  completedJobsCount: number | null
+  responseTimeMinutes: number | null
 }
 
 export type ProProfileMinAggregateOutputType = {
@@ -41,9 +45,14 @@ export type ProProfileMinAggregateOutputType = {
   email: string | null
   phone: string | null
   bio: string | null
+  avatarUrl: string | null
   hourlyRate: number | null
   serviceArea: string | null
   status: $Enums.ProStatus | null
+  profileCompleted: boolean | null
+  completedJobsCount: number | null
+  isTopPro: boolean | null
+  responseTimeMinutes: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -55,9 +64,14 @@ export type ProProfileMaxAggregateOutputType = {
   email: string | null
   phone: string | null
   bio: string | null
+  avatarUrl: string | null
   hourlyRate: number | null
   serviceArea: string | null
   status: $Enums.ProStatus | null
+  profileCompleted: boolean | null
+  completedJobsCount: number | null
+  isTopPro: boolean | null
+  responseTimeMinutes: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -69,10 +83,15 @@ export type ProProfileCountAggregateOutputType = {
   email: number
   phone: number
   bio: number
+  avatarUrl: number
   hourlyRate: number
   categories: number
   serviceArea: number
   status: number
+  profileCompleted: number
+  completedJobsCount: number
+  isTopPro: number
+  responseTimeMinutes: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -81,10 +100,14 @@ export type ProProfileCountAggregateOutputType = {
 
 export type ProProfileAvgAggregateInputType = {
   hourlyRate?: true
+  completedJobsCount?: true
+  responseTimeMinutes?: true
 }
 
 export type ProProfileSumAggregateInputType = {
   hourlyRate?: true
+  completedJobsCount?: true
+  responseTimeMinutes?: true
 }
 
 export type ProProfileMinAggregateInputType = {
@@ -94,9 +117,14 @@ export type ProProfileMinAggregateInputType = {
   email?: true
   phone?: true
   bio?: true
+  avatarUrl?: true
   hourlyRate?: true
   serviceArea?: true
   status?: true
+  profileCompleted?: true
+  completedJobsCount?: true
+  isTopPro?: true
+  responseTimeMinutes?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -108,9 +136,14 @@ export type ProProfileMaxAggregateInputType = {
   email?: true
   phone?: true
   bio?: true
+  avatarUrl?: true
   hourlyRate?: true
   serviceArea?: true
   status?: true
+  profileCompleted?: true
+  completedJobsCount?: true
+  isTopPro?: true
+  responseTimeMinutes?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -122,10 +155,15 @@ export type ProProfileCountAggregateInputType = {
   email?: true
   phone?: true
   bio?: true
+  avatarUrl?: true
   hourlyRate?: true
   categories?: true
   serviceArea?: true
   status?: true
+  profileCompleted?: true
+  completedJobsCount?: true
+  isTopPro?: true
+  responseTimeMinutes?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -224,10 +262,15 @@ export type ProProfileGroupByOutputType = {
   email: string
   phone: string | null
   bio: string | null
+  avatarUrl: string | null
   hourlyRate: number
   categories: $Enums.Category[]
   serviceArea: string | null
   status: $Enums.ProStatus
+  profileCompleted: boolean
+  completedJobsCount: number
+  isTopPro: boolean
+  responseTimeMinutes: number | null
   createdAt: Date
   updatedAt: Date
   _count: ProProfileCountAggregateOutputType | null
@@ -262,10 +305,15 @@ export type ProProfileWhereInput = {
   email?: Prisma.StringFilter<"ProProfile"> | string
   phone?: Prisma.StringNullableFilter<"ProProfile"> | string | null
   bio?: Prisma.StringNullableFilter<"ProProfile"> | string | null
+  avatarUrl?: Prisma.StringNullableFilter<"ProProfile"> | string | null
   hourlyRate?: Prisma.FloatFilter<"ProProfile"> | number
   categories?: Prisma.EnumCategoryNullableListFilter<"ProProfile">
   serviceArea?: Prisma.StringNullableFilter<"ProProfile"> | string | null
   status?: Prisma.EnumProStatusFilter<"ProProfile"> | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFilter<"ProProfile"> | boolean
+  completedJobsCount?: Prisma.IntFilter<"ProProfile"> | number
+  isTopPro?: Prisma.BoolFilter<"ProProfile"> | boolean
+  responseTimeMinutes?: Prisma.IntNullableFilter<"ProProfile"> | number | null
   createdAt?: Prisma.DateTimeFilter<"ProProfile"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProProfile"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -285,10 +333,15 @@ export type ProProfileOrderByWithRelationInput = {
   email?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
+  avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   hourlyRate?: Prisma.SortOrder
   categories?: Prisma.SortOrder
   serviceArea?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  profileCompleted?: Prisma.SortOrder
+  completedJobsCount?: Prisma.SortOrder
+  isTopPro?: Prisma.SortOrder
+  responseTimeMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -311,10 +364,15 @@ export type ProProfileWhereUniqueInput = Prisma.AtLeast<{
   email?: Prisma.StringFilter<"ProProfile"> | string
   phone?: Prisma.StringNullableFilter<"ProProfile"> | string | null
   bio?: Prisma.StringNullableFilter<"ProProfile"> | string | null
+  avatarUrl?: Prisma.StringNullableFilter<"ProProfile"> | string | null
   hourlyRate?: Prisma.FloatFilter<"ProProfile"> | number
   categories?: Prisma.EnumCategoryNullableListFilter<"ProProfile">
   serviceArea?: Prisma.StringNullableFilter<"ProProfile"> | string | null
   status?: Prisma.EnumProStatusFilter<"ProProfile"> | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFilter<"ProProfile"> | boolean
+  completedJobsCount?: Prisma.IntFilter<"ProProfile"> | number
+  isTopPro?: Prisma.BoolFilter<"ProProfile"> | boolean
+  responseTimeMinutes?: Prisma.IntNullableFilter<"ProProfile"> | number | null
   createdAt?: Prisma.DateTimeFilter<"ProProfile"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ProProfile"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -334,10 +392,15 @@ export type ProProfileOrderByWithAggregationInput = {
   email?: Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   bio?: Prisma.SortOrderInput | Prisma.SortOrder
+  avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   hourlyRate?: Prisma.SortOrder
   categories?: Prisma.SortOrder
   serviceArea?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
+  profileCompleted?: Prisma.SortOrder
+  completedJobsCount?: Prisma.SortOrder
+  isTopPro?: Prisma.SortOrder
+  responseTimeMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ProProfileCountOrderByAggregateInput
@@ -357,10 +420,15 @@ export type ProProfileScalarWhereWithAggregatesInput = {
   email?: Prisma.StringWithAggregatesFilter<"ProProfile"> | string
   phone?: Prisma.StringNullableWithAggregatesFilter<"ProProfile"> | string | null
   bio?: Prisma.StringNullableWithAggregatesFilter<"ProProfile"> | string | null
+  avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"ProProfile"> | string | null
   hourlyRate?: Prisma.FloatWithAggregatesFilter<"ProProfile"> | number
   categories?: Prisma.EnumCategoryNullableListFilter<"ProProfile">
   serviceArea?: Prisma.StringNullableWithAggregatesFilter<"ProProfile"> | string | null
   status?: Prisma.EnumProStatusWithAggregatesFilter<"ProProfile"> | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolWithAggregatesFilter<"ProProfile"> | boolean
+  completedJobsCount?: Prisma.IntWithAggregatesFilter<"ProProfile"> | number
+  isTopPro?: Prisma.BoolWithAggregatesFilter<"ProProfile"> | boolean
+  responseTimeMinutes?: Prisma.IntNullableWithAggregatesFilter<"ProProfile"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProProfile"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ProProfile"> | Date | string
 }
@@ -371,10 +439,15 @@ export type ProProfileCreateInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutProProfileInput
@@ -394,10 +467,15 @@ export type ProProfileUncheckedCreateInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutProProfileInput
@@ -415,10 +493,15 @@ export type ProProfileUpdateInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutProProfileNestedInput
@@ -438,10 +521,15 @@ export type ProProfileUncheckedUpdateInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutProProfileNestedInput
@@ -460,10 +548,15 @@ export type ProProfileCreateManyInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -474,10 +567,15 @@ export type ProProfileUpdateManyMutationInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -489,10 +587,15 @@ export type ProProfileUncheckedUpdateManyInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -517,16 +620,23 @@ export type ProProfileCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   bio?: Prisma.SortOrder
+  avatarUrl?: Prisma.SortOrder
   hourlyRate?: Prisma.SortOrder
   categories?: Prisma.SortOrder
   serviceArea?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  profileCompleted?: Prisma.SortOrder
+  completedJobsCount?: Prisma.SortOrder
+  isTopPro?: Prisma.SortOrder
+  responseTimeMinutes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type ProProfileAvgOrderByAggregateInput = {
   hourlyRate?: Prisma.SortOrder
+  completedJobsCount?: Prisma.SortOrder
+  responseTimeMinutes?: Prisma.SortOrder
 }
 
 export type ProProfileMaxOrderByAggregateInput = {
@@ -536,9 +646,14 @@ export type ProProfileMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   bio?: Prisma.SortOrder
+  avatarUrl?: Prisma.SortOrder
   hourlyRate?: Prisma.SortOrder
   serviceArea?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  profileCompleted?: Prisma.SortOrder
+  completedJobsCount?: Prisma.SortOrder
+  isTopPro?: Prisma.SortOrder
+  responseTimeMinutes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -550,15 +665,22 @@ export type ProProfileMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   phone?: Prisma.SortOrder
   bio?: Prisma.SortOrder
+  avatarUrl?: Prisma.SortOrder
   hourlyRate?: Prisma.SortOrder
   serviceArea?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  profileCompleted?: Prisma.SortOrder
+  completedJobsCount?: Prisma.SortOrder
+  isTopPro?: Prisma.SortOrder
+  responseTimeMinutes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type ProProfileSumOrderByAggregateInput = {
   hourlyRate?: Prisma.SortOrder
+  completedJobsCount?: Prisma.SortOrder
+  responseTimeMinutes?: Prisma.SortOrder
 }
 
 export type ProProfileScalarRelationFilter = {
@@ -621,6 +743,26 @@ export type ProProfileUpdatecategoriesInput = {
 
 export type EnumProStatusFieldUpdateOperationsInput = {
   set?: $Enums.ProStatus
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type ProProfileCreateNestedOneWithoutAvailabilityInput = {
@@ -731,10 +873,15 @@ export type ProProfileCreateWithoutUserInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   availability?: Prisma.AvailabilityCreateNestedManyWithoutProProfileInput
@@ -752,10 +899,15 @@ export type ProProfileUncheckedCreateWithoutUserInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutProProfileInput
@@ -789,10 +941,15 @@ export type ProProfileUpdateWithoutUserInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availability?: Prisma.AvailabilityUpdateManyWithoutProProfileNestedInput
@@ -810,10 +967,15 @@ export type ProProfileUncheckedUpdateWithoutUserInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutProProfileNestedInput
@@ -831,10 +993,15 @@ export type ProProfileCreateWithoutAvailabilityInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutProProfileInput
@@ -853,10 +1020,15 @@ export type ProProfileUncheckedCreateWithoutAvailabilityInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutProProfileInput
@@ -889,10 +1061,15 @@ export type ProProfileUpdateWithoutAvailabilityInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutProProfileNestedInput
@@ -911,10 +1088,15 @@ export type ProProfileUncheckedUpdateWithoutAvailabilityInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   bookings?: Prisma.BookingUncheckedUpdateManyWithoutProProfileNestedInput
@@ -931,10 +1113,15 @@ export type ProProfileCreateWithoutBookingsInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutProProfileInput
@@ -953,10 +1140,15 @@ export type ProProfileUncheckedCreateWithoutBookingsInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutProProfileInput
@@ -989,10 +1181,15 @@ export type ProProfileUpdateWithoutBookingsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutProProfileNestedInput
@@ -1011,10 +1208,15 @@ export type ProProfileUncheckedUpdateWithoutBookingsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutProProfileNestedInput
@@ -1031,10 +1233,15 @@ export type ProProfileCreateWithoutReviewsInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutProProfileInput
@@ -1053,10 +1260,15 @@ export type ProProfileUncheckedCreateWithoutReviewsInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutProProfileInput
@@ -1089,10 +1301,15 @@ export type ProProfileUpdateWithoutReviewsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutProProfileNestedInput
@@ -1111,10 +1328,15 @@ export type ProProfileUncheckedUpdateWithoutReviewsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutProProfileNestedInput
@@ -1131,10 +1353,15 @@ export type ProProfileCreateWithoutPaymentsInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutProProfileInput
@@ -1153,10 +1380,15 @@ export type ProProfileUncheckedCreateWithoutPaymentsInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutProProfileInput
@@ -1189,10 +1421,15 @@ export type ProProfileUpdateWithoutPaymentsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutProProfileNestedInput
@@ -1211,10 +1448,15 @@ export type ProProfileUncheckedUpdateWithoutPaymentsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutProProfileNestedInput
@@ -1231,10 +1473,15 @@ export type ProProfileCreateWithoutPayoutProfileInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutProProfileInput
@@ -1253,10 +1500,15 @@ export type ProProfileUncheckedCreateWithoutPayoutProfileInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutProProfileInput
@@ -1289,10 +1541,15 @@ export type ProProfileUpdateWithoutPayoutProfileInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutProProfileNestedInput
@@ -1311,10 +1568,15 @@ export type ProProfileUncheckedUpdateWithoutPayoutProfileInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutProProfileNestedInput
@@ -1331,10 +1593,15 @@ export type ProProfileCreateWithoutEarningsInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutProProfileInput
@@ -1353,10 +1620,15 @@ export type ProProfileUncheckedCreateWithoutEarningsInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutProProfileInput
@@ -1389,10 +1661,15 @@ export type ProProfileUpdateWithoutEarningsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutProProfileNestedInput
@@ -1411,10 +1688,15 @@ export type ProProfileUncheckedUpdateWithoutEarningsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutProProfileNestedInput
@@ -1431,10 +1713,15 @@ export type ProProfileCreateWithoutPayoutsInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutProProfileInput
@@ -1453,10 +1740,15 @@ export type ProProfileUncheckedCreateWithoutPayoutsInput = {
   email: string
   phone?: string | null
   bio?: string | null
+  avatarUrl?: string | null
   hourlyRate: number
   categories?: Prisma.ProProfileCreatecategoriesInput | $Enums.Category[]
   serviceArea?: string | null
   status?: $Enums.ProStatus
+  profileCompleted?: boolean
+  completedJobsCount?: number
+  isTopPro?: boolean
+  responseTimeMinutes?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   availability?: Prisma.AvailabilityUncheckedCreateNestedManyWithoutProProfileInput
@@ -1489,10 +1781,15 @@ export type ProProfileUpdateWithoutPayoutsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutProProfileNestedInput
@@ -1511,10 +1808,15 @@ export type ProProfileUncheckedUpdateWithoutPayoutsInput = {
   email?: Prisma.StringFieldUpdateOperationsInput | string
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hourlyRate?: Prisma.FloatFieldUpdateOperationsInput | number
   categories?: Prisma.ProProfileUpdatecategoriesInput | $Enums.Category[]
   serviceArea?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProStatusFieldUpdateOperationsInput | $Enums.ProStatus
+  profileCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedJobsCount?: Prisma.IntFieldUpdateOperationsInput | number
+  isTopPro?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  responseTimeMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   availability?: Prisma.AvailabilityUncheckedUpdateManyWithoutProProfileNestedInput
@@ -1608,10 +1910,15 @@ export type ProProfileSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   email?: boolean
   phone?: boolean
   bio?: boolean
+  avatarUrl?: boolean
   hourlyRate?: boolean
   categories?: boolean
   serviceArea?: boolean
   status?: boolean
+  profileCompleted?: boolean
+  completedJobsCount?: boolean
+  isTopPro?: boolean
+  responseTimeMinutes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1632,10 +1939,15 @@ export type ProProfileSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   email?: boolean
   phone?: boolean
   bio?: boolean
+  avatarUrl?: boolean
   hourlyRate?: boolean
   categories?: boolean
   serviceArea?: boolean
   status?: boolean
+  profileCompleted?: boolean
+  completedJobsCount?: boolean
+  isTopPro?: boolean
+  responseTimeMinutes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1648,10 +1960,15 @@ export type ProProfileSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   email?: boolean
   phone?: boolean
   bio?: boolean
+  avatarUrl?: boolean
   hourlyRate?: boolean
   categories?: boolean
   serviceArea?: boolean
   status?: boolean
+  profileCompleted?: boolean
+  completedJobsCount?: boolean
+  isTopPro?: boolean
+  responseTimeMinutes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1664,15 +1981,20 @@ export type ProProfileSelectScalar = {
   email?: boolean
   phone?: boolean
   bio?: boolean
+  avatarUrl?: boolean
   hourlyRate?: boolean
   categories?: boolean
   serviceArea?: boolean
   status?: boolean
+  profileCompleted?: boolean
+  completedJobsCount?: boolean
+  isTopPro?: boolean
+  responseTimeMinutes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ProProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "displayName" | "email" | "phone" | "bio" | "hourlyRate" | "categories" | "serviceArea" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["proProfile"]>
+export type ProProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "displayName" | "email" | "phone" | "bio" | "avatarUrl" | "hourlyRate" | "categories" | "serviceArea" | "status" | "profileCompleted" | "completedJobsCount" | "isTopPro" | "responseTimeMinutes" | "createdAt" | "updatedAt", ExtArgs["result"]["proProfile"]>
 export type ProProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   availability?: boolean | Prisma.ProProfile$availabilityArgs<ExtArgs>
@@ -1710,10 +2032,15 @@ export type $ProProfilePayload<ExtArgs extends runtime.Types.Extensions.Internal
     email: string
     phone: string | null
     bio: string | null
+    avatarUrl: string | null
     hourlyRate: number
     categories: $Enums.Category[]
     serviceArea: string | null
     status: $Enums.ProStatus
+    profileCompleted: boolean
+    completedJobsCount: number
+    isTopPro: boolean
+    responseTimeMinutes: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["proProfile"]>
@@ -2153,10 +2480,15 @@ export interface ProProfileFieldRefs {
   readonly email: Prisma.FieldRef<"ProProfile", 'String'>
   readonly phone: Prisma.FieldRef<"ProProfile", 'String'>
   readonly bio: Prisma.FieldRef<"ProProfile", 'String'>
+  readonly avatarUrl: Prisma.FieldRef<"ProProfile", 'String'>
   readonly hourlyRate: Prisma.FieldRef<"ProProfile", 'Float'>
   readonly categories: Prisma.FieldRef<"ProProfile", 'Category[]'>
   readonly serviceArea: Prisma.FieldRef<"ProProfile", 'String'>
   readonly status: Prisma.FieldRef<"ProProfile", 'ProStatus'>
+  readonly profileCompleted: Prisma.FieldRef<"ProProfile", 'Boolean'>
+  readonly completedJobsCount: Prisma.FieldRef<"ProProfile", 'Int'>
+  readonly isTopPro: Prisma.FieldRef<"ProProfile", 'Boolean'>
+  readonly responseTimeMinutes: Prisma.FieldRef<"ProProfile", 'Int'>
   readonly createdAt: Prisma.FieldRef<"ProProfile", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ProProfile", 'DateTime'>
 }

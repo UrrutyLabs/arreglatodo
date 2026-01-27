@@ -44,6 +44,7 @@ export interface BookingRepository {
   findById(id: string): Promise<BookingEntity | null>;
   findByClientUserId(clientUserId: string): Promise<BookingEntity[]>;
   findByProProfileId(proProfileId: string): Promise<BookingEntity[]>;
+  countCompletedBookingsByProProfileId(proProfileId: string): Promise<number>;
   findAll(filters?: {
     status?: BookingStatus;
     dateFrom?: Date;
@@ -113,6 +114,17 @@ export class BookingRepositoryImpl implements BookingRepository {
     });
 
     return bookings.map(this.mapPrismaToDomain);
+  }
+
+  async countCompletedBookingsByProProfileId(
+    proProfileId: string
+  ): Promise<number> {
+    return prisma.booking.count({
+      where: {
+        proProfileId,
+        status: BookingStatus.COMPLETED as $Enums.BookingStatus,
+      },
+    });
   }
 
   async findAll(filters?: {

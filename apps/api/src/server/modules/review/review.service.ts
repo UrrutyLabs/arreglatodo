@@ -2,6 +2,7 @@ import { injectable, inject } from "tsyringe";
 import type { ReviewRepository } from "./review.repo";
 import type { BookingRepository } from "@modules/booking/booking.repo";
 import type { ProRepository } from "@modules/pro/pro.repo";
+import type { ProService } from "@modules/pro/pro.service";
 import type {
   ReviewCreateInput,
   ReviewCreateOutput,
@@ -50,7 +51,9 @@ export class ReviewService {
     @inject(TOKENS.BookingRepository)
     private readonly bookingRepository: BookingRepository,
     @inject(TOKENS.ProRepository)
-    private readonly proRepository: ProRepository
+    private readonly proRepository: ProRepository,
+    @inject(TOKENS.ProService)
+    private readonly proService: ProService
   ) {}
   /**
    * Create a review for a completed booking
@@ -120,6 +123,21 @@ export class ReviewService {
       rating: input.rating,
       comment: input.comment,
     });
+
+    // Hook: Notify ProService that a review was created
+    // Note: Rating is calculated dynamically from reviews, so no stored fields need updating
+    // This hook is here for consistency and potential future use (e.g., caching, analytics)
+    if (booking.proProfileId) {
+      try {
+        await this.proService.onReviewCreated(booking.proProfileId);
+      } catch (error) {
+        // Log but don't fail review creation if hook fails
+        console.error(
+          `Failed to notify pro service about review creation for pro ${booking.proProfileId}:`,
+          error
+        );
+      }
+    }
 
     // Adapt to domain type
     return {

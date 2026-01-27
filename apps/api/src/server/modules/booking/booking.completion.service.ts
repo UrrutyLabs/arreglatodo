@@ -10,6 +10,7 @@ import type { PaymentRepository } from "@modules/payment/payment.repo";
 import type { ClientProfileService } from "@modules/user/clientProfile.service";
 import type { NotificationService } from "@modules/notification/notification.service";
 import type { EarningService } from "@modules/payout/earning.service";
+import type { ProService } from "@modules/pro/pro.service";
 import {
   validateStateTransition,
   authorizeProAction,
@@ -36,7 +37,9 @@ export class BookingCompletionService {
     @inject(TOKENS.NotificationService)
     private readonly notificationService: NotificationService,
     @inject(TOKENS.EarningService)
-    private readonly earningService: EarningService
+    private readonly earningService: EarningService,
+    @inject(TOKENS.ProService)
+    private readonly proService: ProService
   ) {}
 
   /**
@@ -143,6 +146,21 @@ export class BookingCompletionService {
         `Error attempting to capture payment for booking ${bookingId}:`,
         error
       );
+    }
+
+    // Update ProProfile calculated fields (completedJobsCount, isTopPro)
+    if (updated.proProfileId) {
+      try {
+        await this.proService.updateCalculatedFieldsOnBookingCompletion(
+          updated.proProfileId
+        );
+      } catch (error) {
+        // Log but don't fail booking completion if pro update fails
+        console.error(
+          `Failed to update calculated fields for pro ${updated.proProfileId} after booking ${bookingId} completion:`,
+          error
+        );
+      }
     }
 
     // Send notification to client

@@ -1734,10 +1734,15 @@ export const ProProfileScalarFieldEnum = {
   email: 'email',
   phone: 'phone',
   bio: 'bio',
+  avatarUrl: 'avatarUrl',
   hourlyRate: 'hourlyRate',
   categories: 'categories',
   serviceArea: 'serviceArea',
   status: 'status',
+  profileCompleted: 'profileCompleted',
+  completedJobsCount: 'completedJobsCount',
+  isTopPro: 'isTopPro',
+  responseTimeMinutes: 'responseTimeMinutes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2127,16 +2132,9 @@ export type ListEnumProStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
 
 
 /**
- * Reference to a field of type 'PreferredContactMethod'
+ * Reference to a field of type 'Boolean'
  */
-export type EnumPreferredContactMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreferredContactMethod'>
-    
-
-
-/**
- * Reference to a field of type 'PreferredContactMethod[]'
- */
-export type ListEnumPreferredContactMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreferredContactMethod[]'>
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -2155,6 +2153,20 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
+ * Reference to a field of type 'PreferredContactMethod'
+ */
+export type EnumPreferredContactMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreferredContactMethod'>
+    
+
+
+/**
+ * Reference to a field of type 'PreferredContactMethod[]'
+ */
+export type ListEnumPreferredContactMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PreferredContactMethod[]'>
+    
+
+
+/**
  * Reference to a field of type 'BookingStatus'
  */
 export type EnumBookingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BookingStatus'>
@@ -2165,13 +2177,6 @@ export type EnumBookingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
  * Reference to a field of type 'BookingStatus[]'
  */
 export type ListEnumBookingStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BookingStatus[]'>
-    
-
-
-/**
- * Reference to a field of type 'Boolean'
- */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
