@@ -271,7 +271,7 @@ function BookingCreateContent() {
 
           {/* Suspended pro message (rebook) */}
           {isRebookingSuspended ? (
-            <Card className="p-6 mb-6 bg-danger/10 border-danger/20">
+            <Card className="p-4 md:p-6 mb-4 md:mb-6 bg-danger/10 border-danger/20">
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-danger shrink-0 mt-0.5" />
                 <div className="flex-1">
@@ -297,14 +297,14 @@ function BookingCreateContent() {
             <>
               {/* Rebook info banner */}
               {rebookFrom && rebookTemplate && (
-                <Card className="p-4 mb-6 bg-primary/5 border-primary/20">
+                <Card className="p-4 mb-4 md:mb-6 bg-primary/5 border-primary/20">
                   <Text variant="body" className="text-text">
                     Esta es una nueva solicitud. El profesional debe aceptarla.
                   </Text>
                 </Card>
               )}
 
-              <Card className="p-6">
+              <Card className="p-4 md:p-6">
                 <BookingForm
                   date={date}
                   time={time}

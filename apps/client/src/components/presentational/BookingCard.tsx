@@ -95,7 +95,7 @@ export const BookingCard = memo(
 
     return (
       <Card
-        className="hover:shadow-md transition-shadow cursor-pointer"
+        className="hover:shadow-md active:shadow-lg transition-shadow cursor-pointer touch-manipulation"
         onClick={handleCardClick}
       >
         <div className="flex justify-between items-start mb-2">
@@ -123,7 +123,7 @@ export const BookingCard = memo(
             {showPaymentPrompt && (
               <button
                 onClick={handlePayNow}
-                className="flex items-center gap-1 px-3 py-1 bg-primary text-white text-sm font-medium rounded-md hover:opacity-90 transition-opacity"
+                className="min-h-[44px] md:min-h-0 flex items-center gap-1 px-4 py-2 md:px-3 md:py-1 bg-primary text-white text-sm font-medium rounded-lg md:rounded-md hover:opacity-90 active:opacity-75 transition-opacity touch-manipulation"
               >
                 <CreditCard className="w-4 h-4" />
                 Pagar ahora
@@ -135,7 +135,7 @@ export const BookingCard = memo(
                 <Link
                   href={`/my-bookings/${booking.id}/review`}
                   onClick={(e) => e.stopPropagation()}
-                  className="flex items-center gap-1 px-3 py-1 bg-primary text-white text-sm font-medium rounded-md hover:opacity-90 transition-opacity"
+                  className="min-h-[44px] md:min-h-0 flex items-center gap-1 px-4 py-2 md:px-3 md:py-1 bg-primary text-white text-sm font-medium rounded-lg md:rounded-md hover:opacity-90 active:opacity-75 transition-opacity touch-manipulation"
                 >
                   <Star className="w-4 h-4" />
                   Calificar
@@ -143,7 +143,7 @@ export const BookingCard = memo(
                 {showRebookPrompt && (
                   <button
                     onClick={handleRebook}
-                    className="flex items-center gap-1 text-primary hover:underline text-sm font-medium"
+                    className="min-h-[44px] md:min-h-0 flex items-center gap-1 px-4 py-2 md:px-3 md:py-1 text-primary hover:underline text-sm font-medium touch-manipulation"
                   >
                     <RotateCcw className="w-4 h-4" />
                     Volver a contratar
@@ -155,7 +155,7 @@ export const BookingCard = memo(
                 {showRebookPrompt && (
                   <button
                     onClick={handleRebook}
-                    className="flex items-center gap-1 px-3 py-1 bg-primary text-white text-sm font-medium rounded-md hover:opacity-90 transition-opacity"
+                    className="min-h-[44px] md:min-h-0 flex items-center gap-1 px-4 py-2 md:px-3 md:py-1 bg-primary text-white text-sm font-medium rounded-lg md:rounded-md hover:opacity-90 active:opacity-75 transition-opacity touch-manipulation"
                   >
                     <RotateCcw className="w-4 h-4" />
                     Volver a contratar

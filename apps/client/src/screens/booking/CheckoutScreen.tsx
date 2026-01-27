@@ -82,9 +82,9 @@ function CheckoutContent() {
     return (
       <div className="min-h-screen bg-bg">
         <Navigation showLogin={false} showProfile={true} />
-        <div className="px-4 py-8">
+        <div className="px-4 py-4 md:py-8">
           <div className="max-w-4xl mx-auto">
-            <Card className="p-8 text-center">
+            <Card className="p-6 md:p-8 text-center">
               <AlertCircle className="w-12 h-12 text-warning mx-auto mb-4" />
               <Text variant="h2" className="mb-2 text-text">
                 Falta el identificador de la reserva.
@@ -111,7 +111,7 @@ function CheckoutContent() {
     return (
       <div className="min-h-screen bg-bg">
         <Navigation showLogin={false} showProfile={true} />
-        <div className="px-4 py-8">
+        <div className="px-4 py-4 md:py-8">
           <CheckoutSkeleton />
         </div>
       </div>
@@ -128,7 +128,7 @@ function CheckoutContent() {
     return (
       <div className="min-h-screen bg-bg">
         <Navigation showLogin={false} showProfile={true} />
-        <div className="px-4 py-8">
+        <div className="px-4 py-4 md:py-8">
           <div className="max-w-4xl mx-auto">
             <Card className="p-8">
               <div className="flex items-center gap-2 mb-4">
@@ -183,7 +183,7 @@ function CheckoutContent() {
 
           {/* Booking Summary */}
           {booking && (
-            <Card className="p-6 mb-6">
+            <Card className="p-4 md:p-6 mb-4 md:mb-6">
               <div className="flex items-center gap-2 mb-4">
                 <Calendar className="w-5 h-5 text-primary" />
                 <Text variant="h2" className="text-text">
@@ -310,7 +310,7 @@ export function CheckoutScreen() {
       fallback={
         <div className="min-h-screen bg-bg">
           <Navigation showLogin={false} showProfile={true} />
-          <div className="px-4 py-8">
+          <div className="px-4 py-4 md:py-8">
             <CheckoutSkeleton />
           </div>
         </div>

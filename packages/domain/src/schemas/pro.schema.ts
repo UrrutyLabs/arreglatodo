@@ -24,6 +24,7 @@ export const proSchema = z.object({
   email: z.string().email(),
   phone: z.string().optional(),
   bio: z.string().optional(),
+  avatarUrl: z.string().url().optional(),
   hourlyRate: z.number().positive(),
   categories: z.array(categorySchema),
   serviceArea: z.string().optional(),
@@ -32,6 +33,10 @@ export const proSchema = z.object({
   isApproved: z.boolean().default(false),
   isSuspended: z.boolean().default(false),
   isAvailable: z.boolean().default(false),
+  profileCompleted: z.boolean().default(false),
+  completedJobsCount: z.number().int().min(0).default(0),
+  isTopPro: z.boolean().default(false),
+  responseTimeMinutes: z.number().int().positive().optional(),
   availabilitySlots: z.array(availabilitySlotSchema).optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -61,6 +66,7 @@ export const proOnboardInputSchema = z.object({
   categories: z.array(categorySchema).min(1),
   serviceArea: z.string().optional(),
   bio: z.string().optional(),
+  avatarUrl: z.string().url().optional(),
 });
 
 export type ProOnboardInput = z.infer<typeof proOnboardInputSchema>;

@@ -106,7 +106,7 @@ export function BookingDetailScreen() {
     return (
       <div className="min-h-screen bg-bg">
         <Navigation showLogin={false} showProfile={true} />
-        <div className="px-4 py-8">
+        <div className="px-4 py-4 md:py-8">
           <BookingDetailSkeleton />
         </div>
       </div>
@@ -117,9 +117,9 @@ export function BookingDetailScreen() {
     return (
       <div className="min-h-screen bg-bg">
         <Navigation showLogin={false} showProfile={true} />
-        <div className="px-4 py-8">
+        <div className="px-4 py-4 md:py-8">
           <div className="max-w-4xl mx-auto">
-            <Card className="p-8 text-center">
+            <Card className="p-6 md:p-8 text-center">
               <Text variant="h2" className="mb-2 text-text">
                 Reserva no encontrada
               </Text>
@@ -153,9 +153,9 @@ export function BookingDetailScreen() {
   return (
     <div className="min-h-screen bg-bg">
       <Navigation showLogin={false} showProfile={true} />
-      <div className="px-4 py-8">
+      <div className="px-4 py-4 md:py-8">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4 md:mb-6">
             <Link href="/my-bookings">
               <Button variant="ghost" className="flex items-center gap-2">
                 <ArrowLeft className="w-4 h-4" />
@@ -167,14 +167,14 @@ export function BookingDetailScreen() {
             </Badge>
           </div>
 
-          <Text variant="h1" className="mb-6 text-primary">
+          <Text variant="h1" className="mb-4 md:mb-6 text-primary">
             Detalle de reserva
           </Text>
 
           {/* Pro Summary */}
           {/* Payment Banner - Show when payment is pending */}
           {booking.status === BookingStatus.PENDING_PAYMENT && (
-            <Card className="p-6 mb-6 bg-warning/10 border-warning/20">
+            <Card className="p-4 md:p-6 mb-4 md:mb-6 bg-warning/10 border-warning/20">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
@@ -215,7 +215,7 @@ export function BookingDetailScreen() {
           )}
 
           {pro && (
-            <Card className="p-6 mb-6">
+            <Card className="p-4 md:p-6 mb-4 md:mb-6">
               <div className="flex items-center gap-2 mb-4">
                 <User className="w-5 h-5 text-primary" />
                 <Text variant="h2" className="text-text">
@@ -241,7 +241,7 @@ export function BookingDetailScreen() {
           )}
 
           {/* Booking Summary */}
-          <Card className="p-6 mb-6">
+          <Card className="p-4 md:p-6 mb-4 md:mb-6">
             <div className="flex items-center gap-2 mb-4">
               <FileText className="w-5 h-5 text-primary" />
               <Text variant="h2" className="text-text">
@@ -309,7 +309,7 @@ export function BookingDetailScreen() {
           </Card>
 
           {/* Cost Summary */}
-          <Card className="p-6 mb-6">
+          <Card className="p-4 md:p-6 mb-4 md:mb-6">
             <div className="mb-4">
               <Text variant="h2" className="text-text">
                 Resumen de costo
@@ -347,7 +347,7 @@ export function BookingDetailScreen() {
 
           {/* Actions */}
           {canCancel && (
-            <Card className="p-6">
+            <Card className="p-4 md:p-6">
               <Text variant="h2" className="mb-4 text-text">
                 Acciones
               </Text>
@@ -434,7 +434,7 @@ export function BookingDetailScreen() {
                   )}
                 </Card>
               )}
-              <Card className="p-6">
+              <Card className="p-4 md:p-6">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-success" />
                   <Text variant="body" className="text-muted">
@@ -450,7 +450,7 @@ export function BookingDetailScreen() {
           )}
 
           {booking.status === BookingStatus.CANCELLED && (
-            <Card className="p-6">
+            <Card className="p-4 md:p-6">
               <Text variant="body" className="text-muted">
                 Esta reserva fue cancelada el{" "}
                 {booking.cancelledAt

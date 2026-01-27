@@ -50,7 +50,7 @@ export function ReviewCreateScreen() {
     return (
       <div className="min-h-screen bg-bg">
         <Navigation showLogin={false} showProfile={true} />
-        <div className="px-4 py-8">
+        <div className="px-4 py-4 md:py-8">
           <ReviewCreateSkeleton />
         </div>
       </div>
@@ -61,7 +61,7 @@ export function ReviewCreateScreen() {
     return (
       <div className="min-h-screen bg-bg">
         <Navigation showLogin={false} showProfile={true} />
-        <div className="px-4 py-8">
+        <div className="px-4 py-4 md:py-8">
           <div className="max-w-4xl mx-auto">
             <Card className="p-8 text-center">
               <AlertCircle className="w-12 h-12 text-warning mx-auto mb-4" />
@@ -91,7 +91,7 @@ export function ReviewCreateScreen() {
     return (
       <div className="min-h-screen bg-bg">
         <Navigation showLogin={false} showProfile={true} />
-        <div className="px-4 py-8">
+        <div className="px-4 py-4 md:py-8">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-2 mb-6">
               <Star className="w-6 h-6 text-primary" />
@@ -99,7 +99,7 @@ export function ReviewCreateScreen() {
                 Dejar reseña
               </Text>
             </div>
-            <Card className="p-6 text-center">
+            <Card className="p-4 md:p-6 text-center">
               <AlertCircle className="w-12 h-12 text-muted mx-auto mb-3" />
               <Text variant="body" className="text-muted">
                 La reseña está disponible cuando el trabajo esté completado.
@@ -116,7 +116,7 @@ export function ReviewCreateScreen() {
     return (
       <div className="min-h-screen bg-bg">
         <Navigation showLogin={false} showProfile={true} />
-        <div className="px-4 py-8">
+        <div className="px-4 py-4 md:py-8">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-2 mb-6">
               <Star className="w-6 h-6 text-primary" />
@@ -124,7 +124,7 @@ export function ReviewCreateScreen() {
                 Dejar reseña
               </Text>
             </div>
-            <Card className="p-6 text-center">
+            <Card className="p-4 md:p-6 text-center">
               <CheckCircle className="w-12 h-12 text-success mx-auto mb-3" />
               <Text variant="body" className="text-muted">
                 Ya dejaste una reseña para este trabajo.
@@ -148,7 +148,7 @@ export function ReviewCreateScreen() {
             </Text>
           </div>
 
-          <Card className="p-6">
+          <Card className="p-4 md:p-6">
             <ReviewForm
               rating={rating}
               comment={comment}

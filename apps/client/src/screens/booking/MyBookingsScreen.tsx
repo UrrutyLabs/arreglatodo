@@ -53,9 +53,9 @@ export function MyBookingsScreen() {
   return (
     <div className="min-h-screen bg-bg">
       <Navigation showLogin={false} showProfile={true} />
-      <div className="px-4 py-8">
+      <div className="px-4 py-4 md:py-8">
         <div className="max-w-4xl mx-auto">
-          <Text variant="h1" className="mb-8 text-primary">
+          <Text variant="h1" className="mb-6 md:mb-8 text-primary">
             Mis reservas
           </Text>
 
@@ -78,7 +78,7 @@ export function MyBookingsScreen() {
                   </Text>
                 </div>
                 {upcoming.length === 0 ? (
-                  <Card className="p-6">
+                  <Card className="p-4 md:p-6">
                     <Text variant="body" className="text-muted text-center">
                       No tenés reservas próximas
                     </Text>
@@ -101,7 +101,7 @@ export function MyBookingsScreen() {
                   </Text>
                 </div>
                 {past.length === 0 ? (
-                  <Card className="p-6">
+                  <Card className="p-4 md:p-6">
                     <Text variant="body" className="text-muted text-center">
                       No tenés reservas pasadas
                     </Text>

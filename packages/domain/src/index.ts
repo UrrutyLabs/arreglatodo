@@ -82,6 +82,20 @@ export {
   type ContactFormInput,
 } from "./schemas/contact.schema";
 
+// Category schemas
+export {
+  categoryMetadataSchema,
+  categoryMetadataListSchema,
+  type CategoryMetadata,
+} from "./schemas/category.schema";
+
+// Subcategory schemas
+export {
+  subcategorySchema,
+  subcategoryListSchema,
+  type Subcategory,
+} from "./schemas/subcategory.schema";
+
 // Format utilities
 export { formatCurrency } from "./utils/format";
 

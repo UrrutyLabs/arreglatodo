@@ -77,7 +77,7 @@ export function ProProfileScreen() {
     return (
       <div className="min-h-screen bg-bg">
         <Navigation showLogin={false} showProfile={true} />
-        <div className="px-4 py-8">
+        <div className="px-4 py-4 md:py-8">
           <ProProfileSkeleton />
         </div>
       </div>
@@ -117,10 +117,10 @@ export function ProProfileScreen() {
   return (
     <div className="min-h-screen bg-bg">
       <Navigation showLogin={true} showProfile={true} />
-      <div className="px-4 py-8">
+      <div className="px-4 py-4 md:py-8">
         <div className="max-w-4xl mx-auto">
           {/* Pro Header */}
-          <Card className="p-6 mb-6">
+          <Card className="p-4 md:p-6 mb-4 md:mb-6">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -203,7 +203,7 @@ export function ProProfileScreen() {
           </Card>
 
           {/* About Section */}
-          <Card className="p-6 mb-6">
+          <Card className="p-4 md:p-6 mb-4 md:mb-6">
             <div className="flex items-center gap-2 mb-4">
               <FileText className="w-5 h-5 text-primary" />
               <Text variant="h2" className="text-text">
@@ -242,7 +242,7 @@ export function ProProfileScreen() {
           </Card>
 
           {/* Reviews Section */}
-          <Card className="p-6">
+          <Card className="p-4 md:p-6">
             <div className="flex items-center gap-2 mb-4">
               <Star className="w-5 h-5 text-primary" />
               <Text variant="h2" className="text-text">

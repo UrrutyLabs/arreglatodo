@@ -18,6 +18,7 @@ export type TimeWindow = z.infer<typeof timeWindowSchema>;
  */
 export const clientSearchProsInputSchema = z.object({
   category: categorySchema.optional(),
+  subcategory: z.string().optional(), // Subcategory slug
   date: z.date().optional(),
   timeWindow: timeWindowSchema.optional(), // 3-hour time window
 });
