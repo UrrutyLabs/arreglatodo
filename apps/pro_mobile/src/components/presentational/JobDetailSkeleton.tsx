@@ -2,7 +2,7 @@ import { View, StyleSheet, ScrollView } from "react-native";
 import { Card } from "../ui/Card";
 import { theme } from "../../theme";
 
-export function BookingDetailSkeleton() {
+export function JobDetailSkeleton() {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Header */}

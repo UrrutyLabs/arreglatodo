@@ -1,7 +1,7 @@
 import { renderHook } from "@testing-library/react-native";
 import { trpc } from "@lib/trpc/client";
 import { useSmartPolling } from "../../shared/useSmartPolling";
-import { useBookingDetail } from "../useBookingDetail";
+import { useOrderDetail } from "../useOrderDetail";
 
 jest.mock("@lib/trpc/client");
 jest.mock("../../shared/useSmartPolling");
@@ -9,7 +9,7 @@ jest.mock("../../shared/useSmartPolling");
 const mockUseQuery = jest.fn();
 const mockUseSmartPolling = useSmartPolling as jest.Mock;
 
-describe("useBookingDetail", () => {
+describe("useOrderDetail", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseSmartPolling.mockReturnValue({
@@ -18,39 +18,40 @@ describe("useBookingDetail", () => {
       refetchOnMount: true,
     });
 
-    (trpc as any).booking = {
+    (trpc as any).order = {
       getById: {
         useQuery: mockUseQuery,
       },
     };
   });
 
-  it("should return booking data when query succeeds", () => {
-    const mockBooking = {
-      id: "booking-1",
-      clientId: "client-1",
-      proId: "pro-1",
+  it("should return order data when query succeeds", () => {
+    const mockOrder = {
+      id: "order-1",
+      displayId: "ORD-001",
+      clientUserId: "client-1",
+      proProfileId: "pro-1",
       category: "plumbing",
       description: "Fix leak",
-      status: "pending",
-      scheduledAt: new Date(),
-      hourlyRate: 50,
+      status: "pending_pro_confirmation",
+      scheduledWindowStartAt: new Date(),
       estimatedHours: 2,
       totalAmount: 100,
+      isFirstOrder: false,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
     mockUseQuery.mockReturnValue({
-      data: mockBooking,
+      data: mockOrder,
       isLoading: false,
       error: null,
       refetch: jest.fn(),
     });
 
-    const { result } = renderHook(() => useBookingDetail("booking-1"));
+    const { result } = renderHook(() => useOrderDetail("order-1"));
 
-    expect(result.current.booking).toBe(mockBooking);
+    expect(result.current.order).toBe(mockOrder);
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBe(null);
   });
@@ -63,14 +64,14 @@ describe("useBookingDetail", () => {
       refetch: jest.fn(),
     });
 
-    const { result } = renderHook(() => useBookingDetail("booking-1"));
+    const { result } = renderHook(() => useOrderDetail("order-1"));
 
     expect(result.current.isLoading).toBe(true);
-    expect(result.current.booking).toBeUndefined();
+    expect(result.current.order).toBeUndefined();
   });
 
   it("should return error when query fails", () => {
-    const mockError = { message: "Booking not found" };
+    const mockError = { message: "Order not found" };
     mockUseQuery.mockReturnValue({
       data: undefined,
       isLoading: false,
@@ -78,10 +79,10 @@ describe("useBookingDetail", () => {
       refetch: jest.fn(),
     });
 
-    const { result } = renderHook(() => useBookingDetail("booking-1"));
+    const { result } = renderHook(() => useOrderDetail("order-1"));
 
     expect(result.current.error).toBe(mockError);
-    expect(result.current.booking).toBeUndefined();
+    expect(result.current.order).toBeUndefined();
   });
 
   it("should use smart polling options", () => {
@@ -92,7 +93,7 @@ describe("useBookingDetail", () => {
       refetch: jest.fn(),
     });
 
-    renderHook(() => useBookingDetail("booking-1"));
+    renderHook(() => useOrderDetail("order-1"));
 
     expect(mockUseSmartPolling).toHaveBeenCalledWith({
       interval: 5000,
@@ -101,7 +102,7 @@ describe("useBookingDetail", () => {
     });
   });
 
-  it("should disable query when bookingId is undefined", () => {
+  it("should disable query when orderId is undefined", () => {
     mockUseQuery.mockReturnValue({
       data: undefined,
       isLoading: false,
@@ -109,7 +110,7 @@ describe("useBookingDetail", () => {
       refetch: jest.fn(),
     });
 
-    renderHook(() => useBookingDetail(undefined));
+    renderHook(() => useOrderDetail(undefined));
 
     expect(mockUseQuery).toHaveBeenCalledWith(
       { id: "" },
@@ -119,7 +120,7 @@ describe("useBookingDetail", () => {
     );
   });
 
-  it("should enable query when bookingId is provided", () => {
+  it("should enable query when orderId is provided", () => {
     mockUseQuery.mockReturnValue({
       data: undefined,
       isLoading: false,
@@ -127,17 +128,17 @@ describe("useBookingDetail", () => {
       refetch: jest.fn(),
     });
 
-    renderHook(() => useBookingDetail("booking-1"));
+    renderHook(() => useOrderDetail("order-1"));
 
     expect(mockUseQuery).toHaveBeenCalledWith(
-      { id: "booking-1" },
+      { id: "order-1" },
       expect.objectContaining({
         enabled: true,
       })
     );
   });
 
-  it("should disable smart polling when bookingId is undefined", () => {
+  it("should disable smart polling when orderId is undefined", () => {
     mockUseQuery.mockReturnValue({
       data: undefined,
       isLoading: false,
@@ -145,7 +146,7 @@ describe("useBookingDetail", () => {
       refetch: jest.fn(),
     });
 
-    renderHook(() => useBookingDetail(undefined));
+    renderHook(() => useOrderDetail(undefined));
 
     expect(mockUseSmartPolling).toHaveBeenCalledWith({
       interval: 5000,
@@ -163,7 +164,7 @@ describe("useBookingDetail", () => {
       refetch: mockRefetch,
     });
 
-    const { result } = renderHook(() => useBookingDetail("booking-1"));
+    const { result } = renderHook(() => useOrderDetail("order-1"));
 
     expect(result.current.refetch).toBe(mockRefetch);
   });
@@ -176,10 +177,10 @@ describe("useBookingDetail", () => {
       refetch: jest.fn(),
     });
 
-    renderHook(() => useBookingDetail("booking-1"));
+    renderHook(() => useOrderDetail("order-1"));
 
     expect(mockUseQuery).toHaveBeenCalledWith(
-      { id: "booking-1" },
+      { id: "order-1" },
       expect.objectContaining({
         retry: false,
       })

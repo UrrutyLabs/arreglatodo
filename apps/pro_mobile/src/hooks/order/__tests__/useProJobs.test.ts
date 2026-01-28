@@ -28,8 +28,8 @@ describe("useProJobs", () => {
       unregisterToken: jest.fn(),
     });
 
-    (trpc as any).booking = {
-      proJobs: {
+    (trpc as any).order = {
+      listByPro: {
         useQuery: mockUseQuery,
       },
     };
@@ -46,41 +46,43 @@ describe("useProJobs", () => {
     (supabase.auth.onAuthStateChange as jest.Mock) = mockOnAuthStateChange;
   });
 
-  it("should return bookings array when query succeeds", async () => {
-    const mockBookings = [
+  it("should return orders array when query succeeds", async () => {
+    const mockOrders = [
       {
-        id: "booking-1",
-        clientId: "client-1",
-        proId: "pro-1",
+        id: "order-1",
+        displayId: "ORD-001",
+        clientUserId: "client-1",
+        proProfileId: "pro-1",
         category: "plumbing",
         description: "Fix leak",
         status: "accepted",
-        scheduledAt: new Date(),
-        hourlyRate: 50,
+        scheduledWindowStartAt: new Date(),
         estimatedHours: 2,
         totalAmount: 100,
+        isFirstOrder: false,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        id: "booking-2",
-        clientId: "client-2",
-        proId: "pro-1",
+        id: "order-2",
+        displayId: "ORD-002",
+        clientUserId: "client-2",
+        proProfileId: "pro-1",
         category: "electrical",
         description: "Install outlet",
         status: "completed",
-        scheduledAt: new Date(),
+        scheduledWindowStartAt: new Date(),
         completedAt: new Date(),
-        hourlyRate: 60,
         estimatedHours: 1,
         totalAmount: 60,
+        isFirstOrder: false,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
     ];
 
     mockUseQuery.mockReturnValue({
-      data: mockBookings,
+      data: mockOrders,
       isLoading: false,
       error: null,
     });
@@ -92,7 +94,8 @@ describe("useProJobs", () => {
       expect(mockUseQuery).toHaveBeenCalled();
     });
 
-    expect(result.current.bookings).toEqual(mockBookings);
+    // Should return filtered orders (accepted, in_progress, completed)
+    expect(result.current.orders).toEqual(mockOrders);
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBe(null);
   });
@@ -111,7 +114,7 @@ describe("useProJobs", () => {
       expect(mockUseQuery).toHaveBeenCalled();
     });
 
-    expect(result.current.bookings).toEqual([]);
+    expect(result.current.orders).toEqual([]);
   });
 
   it("should return loading state when query is loading", async () => {

@@ -4,17 +4,14 @@ import { Feather } from "@expo/vector-icons";
 import { Card } from "../ui/Card";
 import { Text } from "../ui/Text";
 import { Badge } from "../ui/Badge";
-import type { Booking } from "@repo/domain";
-import {
-  Category,
-  BookingStatus,
-  getBookingStatusLabel,
-  getBookingStatusVariant,
-} from "@repo/domain";
+import type { Order } from "@repo/domain";
+import { Category, OrderStatus } from "@repo/domain";
+import { getJobStatusLabel, getJobStatusVariant } from "../../utils/jobStatus";
+import { JOB_LABELS } from "../../utils/jobLabels";
 import { theme } from "../../theme";
 
-interface BookingCardProps {
-  booking: Booking;
+interface JobCardProps {
+  job: Order;
   onPress: () => void;
 }
 
@@ -26,21 +23,21 @@ const categoryLabels: Record<string, string> = {
   [Category.PAINTING]: "Pintura",
 };
 
-function BookingCardComponent({ booking, onPress }: BookingCardProps) {
+function JobCardComponent({ job, onPress }: JobCardProps) {
   // Memoize computed values to avoid recalculation on re-renders
   const categoryLabel = useMemo(
-    () => categoryLabels[booking.category] || booking.category,
-    [booking.category]
+    () => categoryLabels[job.category] || job.category,
+    [job.category]
   );
 
   const statusLabel = useMemo(
-    () => getBookingStatusLabel(booking.status),
-    [booking.status]
+    () => getJobStatusLabel(job.status),
+    [job.status]
   );
 
   const statusVariant = useMemo(
-    () => getBookingStatusVariant(booking.status),
-    [booking.status]
+    () => getJobStatusVariant(job.status),
+    [job.status]
   );
 
   const formattedDate = useMemo(
@@ -51,13 +48,13 @@ function BookingCardComponent({ booking, onPress }: BookingCardProps) {
         year: "numeric",
         hour: "2-digit",
         minute: "2-digit",
-      }).format(new Date(booking.scheduledAt)),
-    [booking.scheduledAt]
+      }).format(new Date(job.scheduledWindowStartAt)),
+    [job.scheduledWindowStartAt]
   );
 
   const descriptionLines = useMemo(
-    () => booking.description.split("\n").slice(0, 2).join("\n"),
-    [booking.description]
+    () => (job.description || "").split("\n").slice(0, 2).join("\n"),
+    [job.description]
   );
 
   return (
@@ -70,30 +67,37 @@ function BookingCardComponent({ booking, onPress }: BookingCardProps) {
             </Text>
           </View>
           <View style={styles.badgesContainer}>
-            {booking.isFirstBooking &&
-              booking.status !== BookingStatus.COMPLETED && (
-                <Badge variant="new">Nuevo Cliente</Badge>
-              )}
+            {job.isFirstOrder && job.status !== OrderStatus.COMPLETED && (
+              <Badge variant="new">Nuevo Cliente</Badge>
+            )}
             <Badge variant={statusVariant} showIcon>
               {statusLabel}
             </Badge>
           </View>
         </View>
-        <Text variant="body" style={styles.description} numberOfLines={2}>
-          {descriptionLines}
-        </Text>
+        {job.description && (
+          <Text variant="body" style={styles.description} numberOfLines={2}>
+            {descriptionLines}
+          </Text>
+        )}
         <View style={styles.dateRow}>
           <Feather name="clock" size={14} color={theme.colors.muted} />
           <Text variant="small" style={styles.date}>
             {formattedDate}
           </Text>
         </View>
-        <View style={styles.amountRow}>
-          <Feather name="dollar-sign" size={16} color={theme.colors.primary} />
-          <Text variant="body" style={styles.amount}>
-            Total: ${booking.totalAmount.toFixed(2)}
-          </Text>
-        </View>
+        {job.totalAmount && (
+          <View style={styles.amountRow}>
+            <Feather
+              name="dollar-sign"
+              size={16}
+              color={theme.colors.primary}
+            />
+            <Text variant="body" style={styles.amount}>
+              {JOB_LABELS.totalAmount}: ${job.totalAmount.toFixed(2)}
+            </Text>
+          </View>
+        )}
       </Card>
     </TouchableOpacity>
   );
@@ -150,15 +154,12 @@ const styles = StyleSheet.create({
 });
 
 // Memoize component to prevent unnecessary re-renders
-export const BookingCard = React.memo(
-  BookingCardComponent,
-  (prevProps, nextProps) => {
-    // Only re-render if booking ID or status changes, or onPress reference changes
-    return (
-      prevProps.booking.id === nextProps.booking.id &&
-      prevProps.booking.status === nextProps.booking.status &&
-      prevProps.booking.isFirstBooking === nextProps.booking.isFirstBooking &&
-      prevProps.onPress === nextProps.onPress
-    );
-  }
-);
+export const JobCard = React.memo(JobCardComponent, (prevProps, nextProps) => {
+  // Only re-render if job ID or status changes, or onPress reference changes
+  return (
+    prevProps.job.id === nextProps.job.id &&
+    prevProps.job.status === nextProps.job.status &&
+    prevProps.job.isFirstOrder === nextProps.job.isFirstOrder &&
+    prevProps.onPress === nextProps.onPress
+  );
+});

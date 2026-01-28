@@ -6,14 +6,11 @@ import { Text } from "@components/ui/Text";
 import { Card } from "@components/ui/Card";
 import { Badge } from "@components/ui/Badge";
 import { Button } from "@components/ui/Button";
-import { BookingDetailSkeleton } from "@components/presentational/BookingDetailSkeleton";
-import { useBookingActions, useBookingDetail } from "@hooks/booking";
-import {
-  BookingStatus,
-  Category,
-  getBookingStatusLabel,
-  getBookingStatusVariant,
-} from "@repo/domain";
+import { JobDetailSkeleton } from "@components/presentational/JobDetailSkeleton";
+import { useOrderActions, useOrderDetail } from "@hooks/order";
+import { OrderStatus, Category } from "@repo/domain";
+import { getJobStatusLabel, getJobStatusVariant } from "../../utils/jobStatus";
+import { JOB_LABELS } from "../../utils/jobLabels";
 import { theme } from "../../theme";
 
 const categoryLabels: Record<string, string> = {
@@ -24,151 +21,153 @@ const categoryLabels: Record<string, string> = {
   [Category.PAINTING]: "Pintura",
 };
 
-export function BookingDetailScreen() {
-  const { bookingId } = useLocalSearchParams<{ bookingId: string }>();
-  const [localStatus, setLocalStatus] = useState<BookingStatus | null>(null);
+export function JobDetailScreen() {
+  const { jobId } = useLocalSearchParams<{ jobId: string }>();
+  const [localStatus, setLocalStatus] = useState<OrderStatus | null>(null);
 
-  // Fetch booking by id via hook
-  const { booking, isLoading, error, refetch } = useBookingDetail(bookingId);
+  // Fetch order by id via hook (using jobId from route, but orderId for API)
+  const orderId = jobId; // Route uses jobId, but API uses orderId
+  const { order, isLoading, error, refetch } = useOrderDetail(orderId);
 
   const {
-    acceptBooking,
-    rejectBooking,
+    acceptOrder,
+    rejectOrder,
     markOnMyWay,
-    arriveBooking,
-    completeBooking,
+    arriveOrder,
+    completeOrder,
     isAccepting,
     isRejecting,
     isMarkingOnMyWay,
     isArriving,
     isCompleting,
     error: actionError,
-  } = useBookingActions(() => {
-    // Refetch booking data after successful action
+  } = useOrderActions(() => {
+    // Refetch order data after successful action
     refetch();
   });
 
-  // Use local status if set, otherwise use booking status
-  const displayStatus: BookingStatus | null =
-    localStatus || (booking?.status as BookingStatus) || null;
+  // Use local status if set, otherwise use order status
+  const displayStatus: OrderStatus | null =
+    localStatus || (order?.status as OrderStatus) || null;
 
   // Memoize handlers to prevent unnecessary re-renders
   // Must be called before early returns (React Rules of Hooks)
   const handleAccept = useCallback(async () => {
-    if (!bookingId) return;
+    if (!orderId) return;
     try {
-      await acceptBooking(bookingId);
-      setLocalStatus(BookingStatus.ACCEPTED);
+      await acceptOrder(orderId);
+      setLocalStatus(OrderStatus.ACCEPTED);
     } catch {
       // Error handled by hook
     }
-  }, [bookingId, acceptBooking]);
+  }, [orderId, acceptOrder]);
 
   const handleReject = useCallback(async () => {
-    if (!bookingId) return;
+    if (!orderId) return;
     try {
-      await rejectBooking(bookingId);
-      setLocalStatus(BookingStatus.REJECTED);
+      await rejectOrder(orderId, "Rechazado por el profesional");
+      setLocalStatus(OrderStatus.CANCELED);
     } catch {
       // Error handled by hook
     }
-  }, [bookingId, rejectBooking]);
+  }, [orderId, rejectOrder]);
 
   const handleMarkOnMyWay = useCallback(async () => {
-    if (!bookingId) return;
+    if (!orderId) return;
     try {
-      await markOnMyWay(bookingId);
-      setLocalStatus(BookingStatus.ON_MY_WAY);
+      await markOnMyWay(orderId);
+      setLocalStatus(OrderStatus.IN_PROGRESS);
     } catch {
       // Error handled by hook
     }
-  }, [bookingId, markOnMyWay]);
+  }, [orderId, markOnMyWay]);
 
   const handleArrive = useCallback(async () => {
-    if (!bookingId) return;
+    if (!orderId) return;
     try {
-      await arriveBooking(bookingId);
-      setLocalStatus(BookingStatus.ARRIVED);
+      await arriveOrder(orderId);
+      // markArrived doesn't change status, just sets arrivedAt
+      // Status remains IN_PROGRESS
     } catch {
       // Error handled by hook
     }
-  }, [bookingId, arriveBooking]);
+  }, [orderId, arriveOrder]);
 
   const handleComplete = useCallback(async () => {
-    if (!bookingId) return;
+    if (!orderId || !order) return;
     try {
-      await completeBooking(bookingId);
-      setLocalStatus(BookingStatus.COMPLETED);
+      // submitHours requires finalHours - use estimatedHours as default
+      const finalHours = order.finalHoursSubmitted || order.estimatedHours;
+      await completeOrder(orderId, finalHours);
+      setLocalStatus(OrderStatus.AWAITING_CLIENT_APPROVAL);
     } catch {
       // Error handled by hook
     }
-  }, [bookingId, completeBooking]);
+  }, [orderId, order, completeOrder]);
 
   // Memoize computed values (must be before early returns)
   const statusLabel = useMemo(
-    () =>
-      displayStatus
-        ? getBookingStatusLabel(displayStatus as BookingStatus)
-        : "",
+    () => (displayStatus ? getJobStatusLabel(displayStatus) : ""),
     [displayStatus]
   );
 
   const statusVariant = useMemo(
-    () =>
-      displayStatus
-        ? getBookingStatusVariant(displayStatus as BookingStatus)
-        : "info",
+    () => (displayStatus ? getJobStatusVariant(displayStatus) : "info"),
     [displayStatus]
   );
 
   const categoryLabel = useMemo(
-    () => (booking ? categoryLabels[booking.category] || booking.category : ""),
-    [booking]
+    () => (order ? categoryLabels[order.category] || order.category : ""),
+    [order]
   );
 
   const formattedDate = useMemo(
     () =>
-      booking
+      order
         ? new Intl.DateTimeFormat("es-UY", {
             day: "numeric",
             month: "long",
             year: "numeric",
             hour: "2-digit",
             minute: "2-digit",
-          }).format(new Date(booking.scheduledAt))
+          }).format(new Date(order.scheduledWindowStartAt))
         : "",
-    [booking]
+    [order]
   );
 
   if (isLoading) {
-    return <BookingDetailSkeleton />;
+    return <JobDetailSkeleton />;
   }
 
-  if (error || !booking) {
+  if (error || !order) {
     return (
       <View style={styles.center}>
         <Feather name="alert-circle" size={48} color={theme.colors.danger} />
         <Text variant="body" style={styles.error}>
-          {error?.message || "Reserva no encontrada"}
+          {error?.message || "Trabajo no encontrado"}
         </Text>
       </View>
     );
   }
 
-  const canAccept = displayStatus === BookingStatus.PENDING;
-  const canReject = displayStatus === BookingStatus.PENDING;
-  const canMarkOnMyWay = displayStatus === BookingStatus.ACCEPTED;
-  const canArrive = displayStatus === BookingStatus.ON_MY_WAY;
-  const canComplete = displayStatus === BookingStatus.ARRIVED;
+  const canAccept = displayStatus === OrderStatus.PENDING_PRO_CONFIRMATION;
+  const canReject = displayStatus === OrderStatus.PENDING_PRO_CONFIRMATION;
+  const canMarkOnMyWay = displayStatus === OrderStatus.CONFIRMED;
+  const canArrive =
+    displayStatus === OrderStatus.IN_PROGRESS && !order.arrivedAt;
+  const canComplete =
+    displayStatus === OrderStatus.IN_PROGRESS && !!order.arrivedAt;
   const isReadOnly =
-    displayStatus === BookingStatus.COMPLETED ||
-    displayStatus === BookingStatus.CANCELLED ||
-    displayStatus === BookingStatus.REJECTED;
+    displayStatus === OrderStatus.COMPLETED ||
+    displayStatus === OrderStatus.CANCELED ||
+    displayStatus === OrderStatus.PAID ||
+    displayStatus === OrderStatus.AWAITING_CLIENT_APPROVAL ||
+    displayStatus === OrderStatus.DISPUTED;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
-        <Text variant="h1">Detalle de reserva</Text>
+        <Text variant="h1">{JOB_LABELS.jobDetails}</Text>
         <Badge variant={statusVariant} showIcon>
           {statusLabel}
         </Badge>
@@ -182,22 +181,22 @@ export function BookingDetailScreen() {
               Resumen
             </Text>
           </View>
-          {booking.isFirstBooking && <Badge variant="new">Nuevo Cliente</Badge>}
+          {order.isFirstOrder && <Badge variant="new">Nuevo Cliente</Badge>}
         </View>
         <View style={styles.row}>
           <View style={styles.labelRow}>
             <Feather name="hash" size={14} color={theme.colors.muted} />
             <Text variant="small" style={styles.label}>
-              ID de reserva:
+              {JOB_LABELS.jobNumber}:
             </Text>
           </View>
-          <Text variant="body">#{booking.displayId}</Text>
+          <Text variant="body">#{order.displayId}</Text>
         </View>
         <View style={styles.row}>
           <View style={styles.labelRow}>
             <Feather name="tag" size={14} color={theme.colors.muted} />
             <Text variant="small" style={styles.label}>
-              Categoría:
+              {JOB_LABELS.category}:
             </Text>
           </View>
           <Text variant="body">{categoryLabel}</Text>
@@ -206,7 +205,7 @@ export function BookingDetailScreen() {
           <View style={styles.labelRow}>
             <Feather name="calendar" size={14} color={theme.colors.muted} />
             <Text variant="small" style={styles.label}>
-              Fecha y hora:
+              {JOB_LABELS.scheduledDate} y {JOB_LABELS.scheduledTime}:
             </Text>
           </View>
           <Text variant="body">{formattedDate}</Text>
@@ -215,33 +214,41 @@ export function BookingDetailScreen() {
           <View style={styles.labelRow}>
             <Feather name="clock" size={14} color={theme.colors.muted} />
             <Text variant="small" style={styles.label}>
-              Horas estimadas:
+              {JOB_LABELS.estimatedHours}:
             </Text>
           </View>
-          <Text variant="body">{booking.estimatedHours}</Text>
+          <Text variant="body">{order.estimatedHours}</Text>
         </View>
-        <View style={styles.row}>
-          <View style={styles.labelRow}>
-            <Feather name="file-text" size={14} color={theme.colors.muted} />
-            <Text variant="small" style={styles.label}>
-              Descripción:
+        {order.description && (
+          <View style={styles.row}>
+            <View style={styles.labelRow}>
+              <Feather name="file-text" size={14} color={theme.colors.muted} />
+              <Text variant="small" style={styles.label}>
+                {JOB_LABELS.description}:
+              </Text>
+            </View>
+            <Text variant="body" style={styles.description}>
+              {order.description}
             </Text>
           </View>
-          <Text variant="body" style={styles.description}>
-            {booking.description}
-          </Text>
-        </View>
-        <View style={styles.row}>
-          <View style={styles.labelRow}>
-            <Feather name="dollar-sign" size={14} color={theme.colors.muted} />
-            <Text variant="small" style={styles.label}>
-              Total estimado:
+        )}
+        {order.totalAmount && (
+          <View style={styles.row}>
+            <View style={styles.labelRow}>
+              <Feather
+                name="dollar-sign"
+                size={14}
+                color={theme.colors.muted}
+              />
+              <Text variant="small" style={styles.label}>
+                {JOB_LABELS.totalAmount} estimado:
+              </Text>
+            </View>
+            <Text variant="h2" style={styles.amount}>
+              ${order.totalAmount.toFixed(2)}
             </Text>
           </View>
-          <Text variant="h2" style={styles.amount}>
-            ${booking.totalAmount.toFixed(2)}
-          </Text>
-        </View>
+        )}
       </Card>
 
       {/* Actions */}
@@ -278,7 +285,7 @@ export function BookingDetailScreen() {
               disabled={isAccepting || isRejecting}
               style={styles.actionButton}
             >
-              {isAccepting ? "Aceptando..." : "Aceptar"}
+              {isAccepting ? "Aceptando..." : JOB_LABELS.acceptJob}
             </Button>
           )}
 
@@ -289,7 +296,7 @@ export function BookingDetailScreen() {
               disabled={isAccepting || isRejecting}
               style={styles.actionButton}
             >
-              {isRejecting ? "Rechazando..." : "Rechazar"}
+              {isRejecting ? "Rechazando..." : JOB_LABELS.rejectJob}
             </Button>
           )}
 
@@ -300,7 +307,7 @@ export function BookingDetailScreen() {
               disabled={isMarkingOnMyWay}
               style={styles.actionButton}
             >
-              {isMarkingOnMyWay ? "Marcando..." : "Marcar como en camino"}
+              {isMarkingOnMyWay ? "Marcando..." : JOB_LABELS.markOnMyWay}
             </Button>
           )}
 
@@ -311,7 +318,7 @@ export function BookingDetailScreen() {
               disabled={isArriving}
               style={styles.actionButton}
             >
-              {isArriving ? "Marcando..." : "Marcar como llegado"}
+              {isArriving ? "Marcando..." : JOB_LABELS.markArrived}
             </Button>
           )}
 
@@ -322,7 +329,7 @@ export function BookingDetailScreen() {
               disabled={isCompleting}
               style={styles.actionButton}
             >
-              {isCompleting ? "Completando..." : "Marcar como completado"}
+              {isCompleting ? "Completando..." : JOB_LABELS.completeJob}
             </Button>
           )}
         </Card>

@@ -1,9 +1,9 @@
 import { renderHook, waitFor, act } from "@testing-library/react-native";
 import { trpc } from "@lib/trpc/client";
 import { useQueryClient } from "../../shared/useQueryClient";
-import { useBookingActions } from "../useBookingActions";
-import { BookingStatus } from "@repo/domain";
-import type { Booking } from "@repo/domain";
+import { useOrderActions } from "../useOrderActions";
+import { OrderStatus } from "@repo/domain";
+import type { Order } from "@repo/domain";
 
 jest.mock("@lib/trpc/client");
 jest.mock("../../shared/useQueryClient");
@@ -16,22 +16,22 @@ const mockQueryClient = {
 };
 
 const mockAcceptMutation = jest.fn();
-const mockRejectMutation = jest.fn();
-const mockOnMyWayMutation = jest.fn();
-const mockArriveMutation = jest.fn();
-const mockCompleteMutation = jest.fn();
+const mockCancelMutation = jest.fn();
+const mockMarkInProgressMutation = jest.fn();
+const mockMarkArrivedMutation = jest.fn();
+const mockSubmitHoursMutation = jest.fn();
 
-describe("useBookingActions", () => {
+describe("useOrderActions", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (useQueryClient as jest.Mock).mockReturnValue(mockQueryClient);
 
-    (trpc as any).booking = {
+    (trpc as any).order = {
       accept: { useMutation: mockAcceptMutation },
-      reject: { useMutation: mockRejectMutation },
-      onMyWay: { useMutation: mockOnMyWayMutation },
-      arrive: { useMutation: mockArriveMutation },
-      complete: { useMutation: mockCompleteMutation },
+      cancel: { useMutation: mockCancelMutation },
+      markInProgress: { useMutation: mockMarkInProgressMutation },
+      markArrived: { useMutation: mockMarkArrivedMutation },
+      submitHours: { useMutation: mockSubmitHoursMutation },
     };
   });
 
@@ -41,30 +41,30 @@ describe("useBookingActions", () => {
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockRejectMutation.mockReturnValue({
+      mockCancelMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockOnMyWayMutation.mockReturnValue({
+      mockMarkInProgressMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockArriveMutation.mockReturnValue({
+      mockMarkArrivedMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockCompleteMutation.mockReturnValue({
+      mockSubmitHoursMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
 
-      const { result } = renderHook(() => useBookingActions());
+      const { result } = renderHook(() => useOrderActions());
 
-      expect(typeof result.current.acceptBooking).toBe("function");
-      expect(typeof result.current.rejectBooking).toBe("function");
+      expect(typeof result.current.acceptOrder).toBe("function");
+      expect(typeof result.current.rejectOrder).toBe("function");
       expect(typeof result.current.markOnMyWay).toBe("function");
-      expect(typeof result.current.arriveBooking).toBe("function");
-      expect(typeof result.current.completeBooking).toBe("function");
+      expect(typeof result.current.arriveOrder).toBe("function");
+      expect(typeof result.current.completeOrder).toBe("function");
       expect(result.current.isAccepting).toBe(false);
       expect(result.current.isRejecting).toBe(false);
       expect(result.current.isMarkingOnMyWay).toBe(false);
@@ -74,37 +74,37 @@ describe("useBookingActions", () => {
     });
   });
 
-  describe("acceptBooking", () => {
-    it("should call accept mutation with bookingId", async () => {
+  describe("acceptOrder", () => {
+    it("should call accept mutation with orderId", async () => {
       const mockMutateAsync = jest.fn().mockResolvedValue(undefined);
       mockAcceptMutation.mockReturnValue({
         mutateAsync: mockMutateAsync,
         isPending: false,
       });
-      mockRejectMutation.mockReturnValue({
+      mockCancelMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockOnMyWayMutation.mockReturnValue({
+      mockMarkInProgressMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockArriveMutation.mockReturnValue({
+      mockMarkArrivedMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockCompleteMutation.mockReturnValue({
+      mockSubmitHoursMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
 
-      const { result } = renderHook(() => useBookingActions());
+      const { result } = renderHook(() => useOrderActions());
 
       await act(async () => {
-        await result.current.acceptBooking("booking-1");
+        await result.current.acceptOrder("order-1");
       });
 
-      expect(mockMutateAsync).toHaveBeenCalledWith({ bookingId: "booking-1" });
+      expect(mockMutateAsync).toHaveBeenCalledWith({ orderId: "order-1" });
     });
 
     it("should clear error before accepting", async () => {
@@ -113,34 +113,34 @@ describe("useBookingActions", () => {
         mutateAsync: mockMutateAsync,
         isPending: false,
       });
-      mockRejectMutation.mockReturnValue({
+      mockCancelMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockOnMyWayMutation.mockReturnValue({
+      mockMarkInProgressMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockArriveMutation.mockReturnValue({
+      mockMarkArrivedMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockCompleteMutation.mockReturnValue({
+      mockSubmitHoursMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
 
-      const { result } = renderHook(() => useBookingActions());
+      const { result } = renderHook(() => useOrderActions());
 
       await act(async () => {
-        await result.current.acceptBooking("booking-1");
+        await result.current.acceptOrder("order-1");
       });
 
       expect(result.current.error).toBe(null);
     });
 
     it("should set error and throw when mutation fails", async () => {
-      const errorMessage = "Failed to accept booking";
+      const errorMessage = "Failed to accept order";
       const mockMutateAsync = jest
         .fn()
         .mockRejectedValue(new Error(errorMessage));
@@ -148,28 +148,28 @@ describe("useBookingActions", () => {
         mutateAsync: mockMutateAsync,
         isPending: false,
       });
-      mockRejectMutation.mockReturnValue({
+      mockCancelMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockOnMyWayMutation.mockReturnValue({
+      mockMarkInProgressMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockArriveMutation.mockReturnValue({
+      mockMarkArrivedMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockCompleteMutation.mockReturnValue({
+      mockSubmitHoursMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
 
-      const { result } = renderHook(() => useBookingActions());
+      const { result } = renderHook(() => useOrderActions());
 
       await act(async () => {
         try {
-          await result.current.acceptBooking("booking-1");
+          await result.current.acceptOrder("order-1");
         } catch {
           // Expected to throw
         }
@@ -192,27 +192,27 @@ describe("useBookingActions", () => {
           isPending: false,
         };
       });
-      mockRejectMutation.mockReturnValue({
+      mockCancelMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockOnMyWayMutation.mockReturnValue({
+      mockMarkInProgressMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockArriveMutation.mockReturnValue({
+      mockMarkArrivedMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockCompleteMutation.mockReturnValue({
+      mockSubmitHoursMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
 
-      const { result } = renderHook(() => useBookingActions(onSuccess));
+      const { result } = renderHook(() => useOrderActions(onSuccess));
 
       await act(async () => {
-        await result.current.acceptBooking("booking-1");
+        await result.current.acceptOrder("order-1");
       });
 
       await act(() => {
@@ -229,60 +229,63 @@ describe("useBookingActions", () => {
         mutateAsync: jest.fn(),
         isPending: true,
       });
-      mockRejectMutation.mockReturnValue({
+      mockCancelMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockOnMyWayMutation.mockReturnValue({
+      mockMarkInProgressMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockArriveMutation.mockReturnValue({
+      mockMarkArrivedMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockCompleteMutation.mockReturnValue({
+      mockSubmitHoursMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
 
-      const { result } = renderHook(() => useBookingActions());
+      const { result } = renderHook(() => useOrderActions());
 
       expect(result.current.isAccepting).toBe(true);
     });
   });
 
-  describe("rejectBooking", () => {
-    it("should call reject mutation with bookingId", async () => {
+  describe("rejectOrder", () => {
+    it("should call cancel mutation with orderId", async () => {
       const mockMutateAsync = jest.fn().mockResolvedValue(undefined);
       mockAcceptMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockRejectMutation.mockReturnValue({
+      mockCancelMutation.mockReturnValue({
         mutateAsync: mockMutateAsync,
         isPending: false,
       });
-      mockOnMyWayMutation.mockReturnValue({
+      mockMarkInProgressMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockArriveMutation.mockReturnValue({
+      mockMarkArrivedMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockCompleteMutation.mockReturnValue({
+      mockSubmitHoursMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
 
-      const { result } = renderHook(() => useBookingActions());
+      const { result } = renderHook(() => useOrderActions());
 
       await act(async () => {
-        await result.current.rejectBooking("booking-1");
+        await result.current.rejectOrder("order-1");
       });
 
-      expect(mockMutateAsync).toHaveBeenCalledWith({ bookingId: "booking-1" });
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        orderId: "order-1",
+        reason: undefined,
+      });
     });
 
     it("should return isRejecting true when mutation is pending", () => {
@@ -290,60 +293,60 @@ describe("useBookingActions", () => {
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockRejectMutation.mockReturnValue({
+      mockCancelMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: true,
       });
-      mockOnMyWayMutation.mockReturnValue({
+      mockMarkInProgressMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockArriveMutation.mockReturnValue({
+      mockMarkArrivedMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockCompleteMutation.mockReturnValue({
+      mockSubmitHoursMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
 
-      const { result } = renderHook(() => useBookingActions());
+      const { result } = renderHook(() => useOrderActions());
 
       expect(result.current.isRejecting).toBe(true);
     });
   });
 
   describe("markOnMyWay", () => {
-    it("should call onMyWay mutation with bookingId", async () => {
+    it("should call markInProgress mutation with orderId", async () => {
       const mockMutateAsync = jest.fn().mockResolvedValue(undefined);
       mockAcceptMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockRejectMutation.mockReturnValue({
+      mockCancelMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockOnMyWayMutation.mockReturnValue({
+      mockMarkInProgressMutation.mockReturnValue({
         mutateAsync: mockMutateAsync,
         isPending: false,
       });
-      mockArriveMutation.mockReturnValue({
+      mockMarkArrivedMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockCompleteMutation.mockReturnValue({
+      mockSubmitHoursMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
 
-      const { result } = renderHook(() => useBookingActions());
+      const { result } = renderHook(() => useOrderActions());
 
       await act(async () => {
-        await result.current.markOnMyWay("booking-1");
+        await result.current.markOnMyWay("order-1");
       });
 
-      expect(mockMutateAsync).toHaveBeenCalledWith({ bookingId: "booking-1" });
+      expect(mockMutateAsync).toHaveBeenCalledWith({ orderId: "order-1" });
     });
 
     it("should return isMarkingOnMyWay true when mutation is pending", () => {
@@ -351,60 +354,60 @@ describe("useBookingActions", () => {
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockRejectMutation.mockReturnValue({
+      mockCancelMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockOnMyWayMutation.mockReturnValue({
+      mockMarkInProgressMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: true,
       });
-      mockArriveMutation.mockReturnValue({
+      mockMarkArrivedMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockCompleteMutation.mockReturnValue({
+      mockSubmitHoursMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
 
-      const { result } = renderHook(() => useBookingActions());
+      const { result } = renderHook(() => useOrderActions());
 
       expect(result.current.isMarkingOnMyWay).toBe(true);
     });
   });
 
-  describe("arriveBooking", () => {
-    it("should call arrive mutation with bookingId", async () => {
+  describe("arriveOrder", () => {
+    it("should call markArrived mutation with orderId", async () => {
       const mockMutateAsync = jest.fn().mockResolvedValue(undefined);
       mockAcceptMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockRejectMutation.mockReturnValue({
+      mockCancelMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockOnMyWayMutation.mockReturnValue({
+      mockMarkInProgressMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockArriveMutation.mockReturnValue({
+      mockMarkArrivedMutation.mockReturnValue({
         mutateAsync: mockMutateAsync,
         isPending: false,
       });
-      mockCompleteMutation.mockReturnValue({
+      mockSubmitHoursMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
 
-      const { result } = renderHook(() => useBookingActions());
+      const { result } = renderHook(() => useOrderActions());
 
       await act(async () => {
-        await result.current.arriveBooking("booking-1");
+        await result.current.arriveOrder("order-1");
       });
 
-      expect(mockMutateAsync).toHaveBeenCalledWith({ bookingId: "booking-1" });
+      expect(mockMutateAsync).toHaveBeenCalledWith({ orderId: "order-1" });
     });
 
     it("should return isArriving true when mutation is pending", () => {
@@ -412,60 +415,63 @@ describe("useBookingActions", () => {
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockRejectMutation.mockReturnValue({
+      mockCancelMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockOnMyWayMutation.mockReturnValue({
+      mockMarkInProgressMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockArriveMutation.mockReturnValue({
+      mockMarkArrivedMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: true,
       });
-      mockCompleteMutation.mockReturnValue({
+      mockSubmitHoursMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
 
-      const { result } = renderHook(() => useBookingActions());
+      const { result } = renderHook(() => useOrderActions());
 
       expect(result.current.isArriving).toBe(true);
     });
   });
 
-  describe("completeBooking", () => {
-    it("should call complete mutation with bookingId", async () => {
+  describe("completeOrder", () => {
+    it("should call submitHours mutation with orderId and finalHours", async () => {
       const mockMutateAsync = jest.fn().mockResolvedValue(undefined);
       mockAcceptMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockRejectMutation.mockReturnValue({
+      mockCancelMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockOnMyWayMutation.mockReturnValue({
+      mockMarkInProgressMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockArriveMutation.mockReturnValue({
+      mockMarkArrivedMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockCompleteMutation.mockReturnValue({
+      mockSubmitHoursMutation.mockReturnValue({
         mutateAsync: mockMutateAsync,
         isPending: false,
       });
 
-      const { result } = renderHook(() => useBookingActions());
+      const { result } = renderHook(() => useOrderActions());
 
       await act(async () => {
-        await result.current.completeBooking("booking-1");
+        await result.current.completeOrder("order-1", 2.5);
       });
 
-      expect(mockMutateAsync).toHaveBeenCalledWith({ bookingId: "booking-1" });
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        orderId: "order-1",
+        finalHours: 2.5,
+      });
     });
 
     it("should return isCompleting true when mutation is pending", () => {
@@ -473,50 +479,50 @@ describe("useBookingActions", () => {
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockRejectMutation.mockReturnValue({
+      mockCancelMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockOnMyWayMutation.mockReturnValue({
+      mockMarkInProgressMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockArriveMutation.mockReturnValue({
+      mockMarkArrivedMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockCompleteMutation.mockReturnValue({
+      mockSubmitHoursMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: true,
       });
 
-      const { result } = renderHook(() => useBookingActions());
+      const { result } = renderHook(() => useOrderActions());
 
       expect(result.current.isCompleting).toBe(true);
     });
   });
 
   describe("optimistic updates", () => {
-    it("should cancel queries and update booking status optimistically", async () => {
-      const mockBooking: Booking = {
-        id: "booking-1",
-        displayId: "A1",
-        clientId: "client-1",
-        proId: "pro-1",
+    it("should cancel queries and update order status optimistically", async () => {
+      const mockOrder: Order = {
+        id: "order-1",
+        displayId: "ORD-001",
+        clientUserId: "client-1",
+        proProfileId: "pro-1",
         category: "plumbing" as any,
         description: "Fix leak",
-        status: BookingStatus.PENDING,
-        scheduledAt: new Date(),
-        hourlyRate: 50,
+        status: OrderStatus.PENDING_PRO_CONFIRMATION,
+        scheduledWindowStartAt: new Date(),
         estimatedHours: 2,
         totalAmount: 100,
+        isFirstOrder: false,
         createdAt: new Date(),
         updatedAt: new Date(),
-      };
+      } as Order;
 
-      mockQueryClient.getQueryData.mockReturnValue(mockBooking);
+      mockQueryClient.getQueryData.mockReturnValue(mockOrder);
       const mockMutateAsync = jest.fn().mockResolvedValue(undefined);
-      let onMutateCallback: (variables: { bookingId: string }) => Promise<any>;
+      let onMutateCallback: (variables: { orderId: string }) => Promise<any>;
 
       mockAcceptMutation.mockImplementation((options) => {
         onMutateCallback = options.onMutate;
@@ -525,64 +531,64 @@ describe("useBookingActions", () => {
           isPending: false,
         };
       });
-      mockRejectMutation.mockReturnValue({
+      mockCancelMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockOnMyWayMutation.mockReturnValue({
+      mockMarkInProgressMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockArriveMutation.mockReturnValue({
+      mockMarkArrivedMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockCompleteMutation.mockReturnValue({
+      mockSubmitHoursMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
 
-      const { result } = renderHook(() => useBookingActions());
+      const { result } = renderHook(() => useOrderActions());
 
       await act(async () => {
-        await result.current.acceptBooking("booking-1");
+        await result.current.acceptOrder("order-1");
       });
 
       await act(async () => {
         if (onMutateCallback!) {
-          await onMutateCallback({ bookingId: "booking-1" });
+          await onMutateCallback({ orderId: "order-1" });
         }
       });
 
       expect(mockQueryClient.cancelQueries).toHaveBeenCalled();
       expect(mockQueryClient.setQueryData).toHaveBeenCalledWith(
-        [["booking", "getById"], { id: "booking-1" }],
+        [["order", "getById"], { id: "order-1" }],
         expect.objectContaining({
-          status: BookingStatus.ACCEPTED,
+          status: OrderStatus.ACCEPTED,
         })
       );
     });
 
     it("should provide context for rollback on error", async () => {
-      const mockBooking: Booking = {
-        id: "booking-1",
-        displayId: "A1",
-        clientId: "client-1",
-        proId: "pro-1",
+      const mockOrder: Order = {
+        id: "order-1",
+        displayId: "ORD-001",
+        clientUserId: "client-1",
+        proProfileId: "pro-1",
         category: "plumbing" as any,
         description: "Fix leak",
-        status: BookingStatus.PENDING,
-        scheduledAt: new Date(),
-        hourlyRate: 50,
+        status: OrderStatus.PENDING_PRO_CONFIRMATION,
+        scheduledWindowStartAt: new Date(),
         estimatedHours: 2,
         totalAmount: 100,
+        isFirstOrder: false,
         createdAt: new Date(),
         updatedAt: new Date(),
-      };
+      } as Order;
 
-      mockQueryClient.getQueryData.mockReturnValue(mockBooking);
+      mockQueryClient.getQueryData.mockReturnValue(mockOrder);
       const mockMutateAsync = jest.fn().mockResolvedValue(undefined);
-      let onMutateCallback: (variables: { bookingId: string }) => Promise<any>;
+      let onMutateCallback: (variables: { orderId: string }) => Promise<any>;
 
       mockAcceptMutation.mockImplementation((options) => {
         onMutateCallback = options.onMutate;
@@ -591,36 +597,36 @@ describe("useBookingActions", () => {
           isPending: false,
         };
       });
-      mockRejectMutation.mockReturnValue({
+      mockCancelMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockOnMyWayMutation.mockReturnValue({
+      mockMarkInProgressMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockArriveMutation.mockReturnValue({
+      mockMarkArrivedMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockCompleteMutation.mockReturnValue({
+      mockSubmitHoursMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
 
-      renderHook(() => useBookingActions());
+      renderHook(() => useOrderActions());
 
-      // Call onMutate to verify it returns context with previousBooking
+      // Call onMutate to verify it returns context with previousOrder
       const context = await act(async () => {
         if (onMutateCallback!) {
-          return await onMutateCallback({ bookingId: "booking-1" });
+          return await onMutateCallback({ orderId: "order-1" });
         }
         return null;
       });
 
-      // Verify context contains previousBooking for potential rollback
-      expect(context).toEqual({ previousBooking: mockBooking });
-      expect(context?.previousBooking).toEqual(mockBooking);
+      // Verify context contains previousOrder for potential rollback
+      expect(context).toEqual({ previousOrder: mockOrder });
+      expect(context?.previousOrder).toEqual(mockOrder);
     });
 
     it("should invalidate queries on settled", async () => {
@@ -628,7 +634,7 @@ describe("useBookingActions", () => {
       let onSettledCallback: (
         data: unknown,
         error: unknown,
-        variables: { bookingId: string }
+        variables: { orderId: string }
       ) => void;
 
       mockAcceptMutation.mockImplementation((options) => {
@@ -638,43 +644,40 @@ describe("useBookingActions", () => {
           isPending: false,
         };
       });
-      mockRejectMutation.mockReturnValue({
+      mockCancelMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockOnMyWayMutation.mockReturnValue({
+      mockMarkInProgressMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockArriveMutation.mockReturnValue({
+      mockMarkArrivedMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockCompleteMutation.mockReturnValue({
+      mockSubmitHoursMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
 
-      const { result } = renderHook(() => useBookingActions());
+      const { result } = renderHook(() => useOrderActions());
 
       await act(async () => {
-        await result.current.acceptBooking("booking-1");
+        await result.current.acceptOrder("order-1");
       });
 
       await act(() => {
         if (onSettledCallback!) {
-          onSettledCallback(undefined, null, { bookingId: "booking-1" });
+          onSettledCallback(undefined, null, { orderId: "order-1" });
         }
       });
 
       expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
-        queryKey: [["booking", "getById"], { id: "booking-1" }],
+        queryKey: [["order", "getById"], { id: "order-1" }],
       });
       expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
-        queryKey: [["booking", "proInbox"]],
-      });
-      expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
-        queryKey: [["booking", "proJobs"]],
+        queryKey: [["order", "listByPro"]],
       });
     });
   });
@@ -691,28 +694,28 @@ describe("useBookingActions", () => {
           isPending: false,
         };
       });
-      mockRejectMutation.mockReturnValue({
+      mockCancelMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockOnMyWayMutation.mockReturnValue({
+      mockMarkInProgressMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockArriveMutation.mockReturnValue({
+      mockMarkArrivedMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
-      mockCompleteMutation.mockReturnValue({
+      mockSubmitHoursMutation.mockReturnValue({
         mutateAsync: jest.fn(),
         isPending: false,
       });
 
-      const { result } = renderHook(() => useBookingActions());
+      const { result } = renderHook(() => useOrderActions());
 
       await act(async () => {
         try {
-          await result.current.acceptBooking("booking-1");
+          await result.current.acceptOrder("order-1");
         } catch {
           // Expected to throw
         }
@@ -725,7 +728,7 @@ describe("useBookingActions", () => {
       });
 
       await waitFor(() => {
-        expect(result.current.error).toBe("Error al aceptar la reserva");
+        expect(result.current.error).toBe("Error al aceptar el trabajo");
       });
     });
   });
