@@ -274,7 +274,7 @@ export function ProDetailScreen({ proProfileId }: ProDetailScreenProps) {
             | "PRO_SUSPENDED"
             | "PRO_UNSUSPENDED"
             | "PRO_APPROVED"
-            | "BOOKING_STATUS_FORCED"
+            | "ORDER_STATUS_FORCED"
             | "PAYMENT_SYNCED"
             | "PAYOUT_CREATED"
             | "PAYOUT_SENT"

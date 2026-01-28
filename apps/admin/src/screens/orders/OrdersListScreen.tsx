@@ -1,17 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { BookingStatus } from "@repo/domain";
-import { useBookings } from "@/hooks/useBookings";
-import { BookingsTable } from "@/components/bookings/BookingsTable";
-import { BookingsFilters } from "@/components/bookings/BookingsFilters";
+import { OrderStatus } from "@repo/domain";
+import { useOrders } from "@/hooks/useOrders";
+import { OrdersTable } from "@/components/orders/OrdersTable";
+import { OrdersFilters } from "@/components/orders/OrdersFilters";
 import { Text } from "@repo/ui";
+import { ORDER_LABELS } from "@/utils/orderLabels";
 
-export function BookingsListScreen() {
-  const [statusFilter, setStatusFilter] = useState<BookingStatus | undefined>();
+export function OrdersListScreen() {
+  const [statusFilter, setStatusFilter] = useState<OrderStatus | undefined>();
   const [queryFilter, setQueryFilter] = useState("");
 
-  const { data: bookings, isLoading } = useBookings({
+  const { data: orders, isLoading } = useOrders({
     status: statusFilter,
     query: queryFilter,
     limit: 100,
@@ -25,10 +26,10 @@ export function BookingsListScreen() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <Text variant="h1">Reservas</Text>
+        <Text variant="h1">{ORDER_LABELS.ordersList}</Text>
       </div>
 
-      <BookingsFilters
+      <OrdersFilters
         status={statusFilter}
         query={queryFilter}
         onStatusChange={setStatusFilter}
@@ -36,7 +37,7 @@ export function BookingsListScreen() {
         onClear={handleClearFilters}
       />
 
-      <BookingsTable bookings={bookings || []} isLoading={isLoading} />
+      <OrdersTable orders={orders || []} isLoading={isLoading} />
     </div>
   );
 }

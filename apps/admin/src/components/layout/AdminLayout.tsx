@@ -33,7 +33,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   const navItems = [
     { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/admin/bookings", label: "Reservas", icon: Calendar },
+    { href: "/admin/orders", label: "Pedidos", icon: Calendar },
     { href: "/admin/payments", label: "Pagos", icon: CreditCard },
     { href: "/admin/payouts", label: "Cobros", icon: Wallet },
     { href: "/admin/pros", label: "Profesionales", icon: Users },

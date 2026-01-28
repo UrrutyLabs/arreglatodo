@@ -3,31 +3,34 @@
 import { Card } from "@repo/ui";
 import { Text } from "@repo/ui";
 import { Badge } from "@repo/ui";
+import { OrderStatus } from "@repo/domain";
 import {
-  BookingStatus,
-  getBookingStatusLabel,
-  getBookingStatusVariant,
-} from "@repo/domain";
+  getOrderStatusLabel,
+  getOrderStatusVariant,
+} from "@/utils/orderStatus";
+import { ORDER_LABELS } from "@/utils/orderLabels";
 import { useRouter } from "next/navigation";
 
-interface BookingStatusBreakdownProps {
+interface OrderStatusBreakdownProps {
   breakdown: {
-    pending_payment: number;
-    pending: number;
+    draft: number;
+    pending_pro_confirmation: number;
     accepted: number;
-    on_my_way: number;
-    arrived: number;
+    confirmed: number;
+    in_progress: number;
+    awaiting_client_approval: number;
+    disputed: number;
     completed: number;
-    rejected: number;
-    cancelled: number;
+    paid: number;
+    canceled: number;
   };
   isLoading?: boolean;
 }
 
-export function BookingStatusBreakdown({
+export function OrderStatusBreakdown({
   breakdown,
   isLoading,
-}: BookingStatusBreakdownProps) {
+}: OrderStatusBreakdownProps) {
   const router = useRouter();
 
   if (isLoading) {
@@ -43,15 +46,17 @@ export function BookingStatusBreakdown({
     );
   }
 
-  const statuses: BookingStatus[] = [
-    BookingStatus.PENDING_PAYMENT,
-    BookingStatus.PENDING,
-    BookingStatus.ACCEPTED,
-    BookingStatus.ON_MY_WAY,
-    BookingStatus.ARRIVED,
-    BookingStatus.COMPLETED,
-    BookingStatus.REJECTED,
-    BookingStatus.CANCELLED,
+  const statuses: OrderStatus[] = [
+    OrderStatus.DRAFT,
+    OrderStatus.PENDING_PRO_CONFIRMATION,
+    OrderStatus.ACCEPTED,
+    OrderStatus.CONFIRMED,
+    OrderStatus.IN_PROGRESS,
+    OrderStatus.AWAITING_CLIENT_APPROVAL,
+    OrderStatus.DISPUTED,
+    OrderStatus.COMPLETED,
+    OrderStatus.PAID,
+    OrderStatus.CANCELED,
   ];
 
   const total = Object.values(breakdown).reduce((sum, count) => sum + count, 0);
@@ -59,11 +64,24 @@ export function BookingStatusBreakdown({
   return (
     <Card className="p-6">
       <Text variant="h2" className="mb-4">
-        Estado de Reservas
+        Estado de {ORDER_LABELS.plural}
       </Text>
       <div className="space-y-3">
         {statuses.map((status) => {
-          const statusKey = status as keyof typeof breakdown;
+          // Map OrderStatus enum to breakdown key
+          const statusKeyMap: Record<OrderStatus, keyof typeof breakdown> = {
+            [OrderStatus.DRAFT]: "draft",
+            [OrderStatus.PENDING_PRO_CONFIRMATION]: "pending_pro_confirmation",
+            [OrderStatus.ACCEPTED]: "accepted",
+            [OrderStatus.CONFIRMED]: "confirmed",
+            [OrderStatus.IN_PROGRESS]: "in_progress",
+            [OrderStatus.AWAITING_CLIENT_APPROVAL]: "awaiting_client_approval",
+            [OrderStatus.DISPUTED]: "disputed",
+            [OrderStatus.COMPLETED]: "completed",
+            [OrderStatus.PAID]: "paid",
+            [OrderStatus.CANCELED]: "canceled",
+          };
+          const statusKey = statusKeyMap[status];
           const count = breakdown[statusKey] || 0;
           const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
 
@@ -71,14 +89,14 @@ export function BookingStatusBreakdown({
             <div
               key={status}
               className="flex items-center justify-between p-3 rounded-lg hover:bg-surface/50 cursor-pointer transition-colors"
-              onClick={() => router.push(`/admin/bookings?status=${status}`)}
+              onClick={() => router.push(`/admin/orders?status=${status}`)}
             >
               <div className="flex items-center gap-3">
-                <Badge variant={getBookingStatusVariant(status)} showIcon>
-                  {getBookingStatusLabel(status)}
+                <Badge variant={getOrderStatusVariant(status)} showIcon>
+                  {getOrderStatusLabel(status)}
                 </Badge>
                 <Text variant="small" className="text-muted">
-                  {count} reservas
+                  {count} {ORDER_LABELS.plural.toLowerCase()}
                 </Text>
               </div>
               <Text variant="small" className="text-muted font-medium">
@@ -94,7 +112,7 @@ export function BookingStatusBreakdown({
             Total
           </Text>
           <Text variant="body" className="font-semibold">
-            {total} reservas
+            {total} {ORDER_LABELS.plural.toLowerCase()}
           </Text>
         </div>
       </div>

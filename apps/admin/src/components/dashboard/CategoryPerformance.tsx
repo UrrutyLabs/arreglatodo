@@ -9,7 +9,7 @@ import { Category } from "@repo/domain";
 interface CategoryPerformanceProps {
   performance: Array<{
     category: Category;
-    bookings: number;
+    orders: number;
     revenue: number;
   }>;
   isLoading?: boolean;
@@ -43,7 +43,7 @@ export function CategoryPerformance({
   // Sort by revenue descending
   const sorted = [...performance].sort((a, b) => b.revenue - a.revenue);
   const maxRevenue = Math.max(...sorted.map((p) => p.revenue), 1);
-  const totalBookings = sorted.reduce((sum, p) => sum + p.bookings, 0);
+  const totalOrders = sorted.reduce((sum, p) => sum + p.orders, 0);
   const totalRevenue = sorted.reduce((sum, p) => sum + p.revenue, 0);
 
   if (performance.length === 0) {
@@ -70,8 +70,8 @@ export function CategoryPerformance({
         {sorted.map((item) => {
           const revenuePercentage =
             maxRevenue > 0 ? (item.revenue / maxRevenue) * 100 : 0;
-          const bookingsPercentage =
-            totalBookings > 0 ? (item.bookings / totalBookings) * 100 : 0;
+          const ordersPercentage =
+            totalOrders > 0 ? (item.orders / totalOrders) * 100 : 0;
 
           return (
             <div key={item.category}>
@@ -84,7 +84,7 @@ export function CategoryPerformance({
                     {formatCurrency(item.revenue, "UYU", true)}
                   </Text>
                   <Text variant="xs" className="text-muted">
-                    {item.bookings} reservas
+                    {item.orders} pedidos
                   </Text>
                 </div>
               </div>
@@ -96,7 +96,7 @@ export function CategoryPerformance({
                   />
                 </div>
                 <div className="flex items-center justify-between text-xs text-muted">
-                  <span>{Math.round(bookingsPercentage)}% reservas</span>
+                  <span>{Math.round(ordersPercentage)}% pedidos</span>
                   <span>{Math.round(revenuePercentage)}% ingresos</span>
                 </div>
               </div>
@@ -111,7 +111,7 @@ export function CategoryPerformance({
           </Text>
           <div className="text-right">
             <Text variant="body" className="font-semibold">
-              {totalBookings} reservas
+              {totalOrders} pedidos
             </Text>
             <Text variant="small" className="text-muted">
               {formatCurrency(totalRevenue, "UYU", true)}

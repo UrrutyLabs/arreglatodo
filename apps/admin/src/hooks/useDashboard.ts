@@ -1,14 +1,14 @@
 import { useMemo } from "react";
-import { useBookings } from "./useBookings";
+import { useOrders } from "./useOrders";
 import { usePayments } from "./usePayments";
 import { usePayouts } from "./usePayouts";
 import { usePros } from "./usePros";
-import { BookingStatus, PaymentStatus, Category } from "@repo/domain";
+import { OrderStatus, PaymentStatus, Category } from "@repo/domain";
 
 export function useDashboard() {
   // Fetch all data (we'll aggregate on the frontend for Phase 1)
-  // Note: API limits bookings/payments/pros to 100, payouts allows up to 1000
-  const { data: bookings, isLoading: bookingsLoading } = useBookings({
+  // Note: API limits orders/payments/pros to 100, payouts allows up to 1000
+  const { data: orders, isLoading: ordersLoading } = useOrders({
     limit: 100,
   });
   const { data: payments, isLoading: paymentsLoading } = usePayments({
@@ -18,11 +18,11 @@ export function useDashboard() {
   const { data: pros, isLoading: prosLoading } = usePros({ limit: 100 });
 
   const isLoading =
-    bookingsLoading || paymentsLoading || payoutsLoading || prosLoading;
+    ordersLoading || paymentsLoading || payoutsLoading || prosLoading;
 
   // Calculate stats
   const stats = useMemo(() => {
-    if (!bookings || !payments || !payouts || !pros) {
+    if (!orders || !payments || !payouts || !pros) {
       return null;
     }
 
@@ -33,15 +33,15 @@ export function useDashboard() {
     const monthAgo = new Date(today);
     monthAgo.setMonth(monthAgo.getMonth() - 1);
 
-    // Bookings stats
-    const bookingsToday = bookings.filter(
-      (b) => new Date(b.createdAt) >= today
+    // Orders stats
+    const ordersToday = orders.filter(
+      (o) => new Date(o.createdAt) >= today
     ).length;
-    const bookingsThisWeek = bookings.filter(
-      (b) => new Date(b.createdAt) >= weekAgo
+    const ordersThisWeek = orders.filter(
+      (o) => new Date(o.createdAt) >= weekAgo
     ).length;
-    const bookingsThisMonth = bookings.filter(
-      (b) => new Date(b.createdAt) >= monthAgo
+    const ordersThisMonth = orders.filter(
+      (o) => new Date(o.createdAt) >= monthAgo
     ).length;
 
     // Revenue stats (from captured payments)
@@ -70,29 +70,29 @@ export function useDashboard() {
     // Active pros
     const activePros = pros.filter((p) => p.status === "active").length;
 
-    // Booking status breakdown
-    const bookingStatusBreakdown = {
-      pending_payment: bookings.filter(
-        (b) => b.status === BookingStatus.PENDING_PAYMENT
+    // Order status breakdown (will be fully migrated in Phase 12.5)
+    const orderStatusBreakdown = {
+      draft: orders.filter((o) => o.status === OrderStatus.DRAFT).length,
+      pending_pro_confirmation: orders.filter(
+        (o) => o.status === OrderStatus.PENDING_PRO_CONFIRMATION
       ).length,
-      pending: bookings.filter((b) => b.status === BookingStatus.PENDING)
+      accepted: orders.filter((o) => o.status === OrderStatus.ACCEPTED).length,
+      confirmed: orders.filter((o) => o.status === OrderStatus.CONFIRMED)
         .length,
-      accepted: bookings.filter((b) => b.status === BookingStatus.ACCEPTED)
+      in_progress: orders.filter((o) => o.status === OrderStatus.IN_PROGRESS)
         .length,
-      on_my_way: bookings.filter((b) => b.status === BookingStatus.ON_MY_WAY)
+      awaiting_client_approval: orders.filter(
+        (o) => o.status === OrderStatus.AWAITING_CLIENT_APPROVAL
+      ).length,
+      disputed: orders.filter((o) => o.status === OrderStatus.DISPUTED).length,
+      completed: orders.filter((o) => o.status === OrderStatus.COMPLETED)
         .length,
-      arrived: bookings.filter((b) => b.status === BookingStatus.ARRIVED)
-        .length,
-      completed: bookings.filter((b) => b.status === BookingStatus.COMPLETED)
-        .length,
-      rejected: bookings.filter((b) => b.status === BookingStatus.REJECTED)
-        .length,
-      cancelled: bookings.filter((b) => b.status === BookingStatus.CANCELLED)
-        .length,
+      paid: orders.filter((o) => o.status === OrderStatus.PAID).length,
+      canceled: orders.filter((o) => o.status === OrderStatus.CANCELED).length,
     };
 
     // Recent activity (last 10 items)
-    const recentBookings = [...bookings]
+    const recentOrders = [...orders]
       .sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -203,20 +203,39 @@ export function useDashboard() {
         .reduce((sum, p) => sum + p.amount, 0),
     };
 
-    // Category performance (note: category not available in adminList response, placeholder for future)
-    // Will need to update API to include category in adminList response
+    // Category performance
+    // TODO: Once adminListOrders returns full Order objects with category field, uncomment:
+    // const categoryMap = new Map<Category, { orders: number; revenue: number }>();
+    // orders.forEach((order) => {
+    //   const category = order.category;
+    //   const existing = categoryMap.get(category) || { orders: 0, revenue: 0 };
+    //   const orderRevenue = order.totalAmount || 0;
+    //   categoryMap.set(category, {
+    //     orders: existing.orders + 1,
+    //     revenue: existing.revenue + orderRevenue,
+    //   });
+    // });
+    // const categoryPerformance: Array<{
+    //   category: Category;
+    //   orders: number;
+    //   revenue: number;
+    // }> = Array.from(categoryMap.entries()).map(([category, data]) => ({
+    //   category,
+    //   orders: data.orders,
+    //   revenue: data.revenue,
+    // }));
     const categoryPerformance: Array<{
       category: Category;
-      bookings: number;
+      orders: number;
       revenue: number;
     }> = [];
 
     return {
-      bookings: {
-        today: bookingsToday,
-        thisWeek: bookingsThisWeek,
-        thisMonth: bookingsThisMonth,
-        total: bookings.length,
+      orders: {
+        today: ordersToday,
+        thisWeek: ordersThisWeek,
+        thisMonth: ordersThisMonth,
+        total: orders.length,
       },
       revenue: {
         today: revenueToday,
@@ -232,18 +251,18 @@ export function useDashboard() {
         active: activePros,
         total: pros.length,
       },
-      bookingStatusBreakdown,
+      orderStatusBreakdown,
       revenueTrends,
       paymentStatusBreakdown,
       paymentStatusAmounts,
       payoutStatusBreakdown,
       payoutStatusAmounts,
       categoryPerformance,
-      recentBookings,
+      recentOrders,
       recentPayments,
       recentPayouts,
     };
-  }, [bookings, payments, payouts, pros]);
+  }, [orders, payments, payouts, pros]);
 
   return {
     stats,

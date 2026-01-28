@@ -2,33 +2,63 @@
 
 import { Input } from "@repo/ui";
 import { Button } from "@repo/ui";
-import { BookingStatus } from "@repo/domain";
+import { OrderStatus } from "@repo/domain";
+import { getOrderStatusLabel } from "@/utils/orderStatus";
 
-interface BookingsFiltersProps {
-  status: BookingStatus | undefined;
+interface OrdersFiltersProps {
+  status: OrderStatus | undefined;
   query: string;
-  onStatusChange: (status: BookingStatus | undefined) => void;
+  onStatusChange: (status: OrderStatus | undefined) => void;
   onQueryChange: (query: string) => void;
   onClear: () => void;
 }
 
-export function BookingsFilters({
+export function OrdersFilters({
   status,
   query,
   onStatusChange,
   onQueryChange,
   onClear,
-}: BookingsFiltersProps) {
-  const statusOptions: Array<{ value: BookingStatus | ""; label: string }> = [
+}: OrdersFiltersProps) {
+  const statusOptions: Array<{ value: OrderStatus | ""; label: string }> = [
     { value: "", label: "Todos" },
-    { value: BookingStatus.PENDING_PAYMENT, label: "Pago pendiente" },
-    { value: BookingStatus.PENDING, label: "Pendiente" },
-    { value: BookingStatus.ACCEPTED, label: "Aceptada" },
-    { value: BookingStatus.ON_MY_WAY, label: "En camino" },
-    { value: BookingStatus.ARRIVED, label: "Llegó" },
-    { value: BookingStatus.COMPLETED, label: "Completada" },
-    { value: BookingStatus.REJECTED, label: "Rechazada" },
-    { value: BookingStatus.CANCELLED, label: "Cancelada" },
+    { value: OrderStatus.DRAFT, label: getOrderStatusLabel(OrderStatus.DRAFT) },
+    {
+      value: OrderStatus.PENDING_PRO_CONFIRMATION,
+      label: getOrderStatusLabel(OrderStatus.PENDING_PRO_CONFIRMATION),
+    },
+    {
+      value: OrderStatus.ACCEPTED,
+      label: getOrderStatusLabel(OrderStatus.ACCEPTED),
+    },
+    {
+      value: OrderStatus.CONFIRMED,
+      label: getOrderStatusLabel(OrderStatus.CONFIRMED),
+    },
+    {
+      value: OrderStatus.IN_PROGRESS,
+      label: getOrderStatusLabel(OrderStatus.IN_PROGRESS),
+    },
+    {
+      value: OrderStatus.AWAITING_CLIENT_APPROVAL,
+      label: getOrderStatusLabel(OrderStatus.AWAITING_CLIENT_APPROVAL),
+    },
+    {
+      value: OrderStatus.DISPUTED,
+      label: getOrderStatusLabel(OrderStatus.DISPUTED),
+    },
+    {
+      value: OrderStatus.COMPLETED,
+      label: getOrderStatusLabel(OrderStatus.COMPLETED),
+    },
+    {
+      value: OrderStatus.PAID,
+      label: getOrderStatusLabel(OrderStatus.PAID),
+    },
+    {
+      value: OrderStatus.CANCELED,
+      label: getOrderStatusLabel(OrderStatus.CANCELED),
+    },
   ];
 
   const hasFilters = status || query;
@@ -42,7 +72,7 @@ export function BookingsFilters({
           </label>
           <Input
             type="text"
-            placeholder="Email cliente o nombre profesional"
+            placeholder="ID de pedido o categoría"
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
           />
@@ -55,7 +85,7 @@ export function BookingsFilters({
             value={status || ""}
             onChange={(e) =>
               onStatusChange(
-                e.target.value ? (e.target.value as BookingStatus) : undefined
+                e.target.value ? (e.target.value as OrderStatus) : undefined
               )
             }
             className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"

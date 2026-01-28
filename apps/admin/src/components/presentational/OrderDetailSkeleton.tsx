@@ -1,6 +1,6 @@
 import { Card } from "@repo/ui";
 
-export function BookingDetailSkeleton() {
+export function OrderDetailSkeleton() {
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -12,7 +12,7 @@ export function BookingDetailSkeleton() {
         <div className="h-10 bg-muted/30 rounded w-24 animate-pulse" />
       </div>
 
-      {/* Booking Summary */}
+      {/* Order Summary */}
       <Card className="p-6 animate-pulse">
         <div className="h-6 bg-muted/30 rounded w-32 mb-4" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -45,19 +45,6 @@ export function BookingDetailSkeleton() {
       <Card className="p-6 animate-pulse">
         <div className="h-6 bg-muted/30 rounded w-32 mb-4" />
         <div className="h-5 bg-muted/30 rounded w-full" />
-      </Card>
-
-      {/* Client Info */}
-      <Card className="p-6 animate-pulse">
-        <div className="h-6 bg-muted/30 rounded w-24 mb-4" />
-        <div className="space-y-2">
-          {[...Array(3)].map((_, i) => (
-            <div key={i}>
-              <div className="h-4 bg-muted/30 rounded w-20 mb-1" />
-              <div className="h-5 bg-muted/30 rounded w-48" />
-            </div>
-          ))}
-        </div>
       </Card>
 
       {/* Actions */}
