@@ -103,19 +103,28 @@ describe("SearchHero", () => {
   });
 
   describe("URL sync", () => {
-    it("should sync with URL when preserveParams is true", () => {
+    it("should sync with URL when preserveParams is true", async () => {
       mockGet.mockReturnValue("plumber");
       const { rerender } = render(<SearchHero preserveParams={true} />);
       const input = screen.getByPlaceholderText(
         "¿Qué necesitás?"
       ) as HTMLInputElement;
 
-      expect(input.value).toBe("plumber");
+      await waitFor(() => {
+        expect(input.value).toBe("plumber");
+      });
 
       mockGet.mockReturnValue("electrician");
+      // Create a new mock searchParams object to trigger useEffect
+      (useSearchParams as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+        get: mockGet,
+        toString: mockToString,
+      });
       rerender(<SearchHero preserveParams={true} />);
 
-      expect(input.value).toBe("electrician");
+      await waitFor(() => {
+        expect(input.value).toBe("electrician");
+      });
     });
 
     it("should not sync with URL when preserveParams is false", () => {

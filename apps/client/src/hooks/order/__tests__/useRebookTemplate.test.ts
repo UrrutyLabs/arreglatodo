@@ -53,7 +53,7 @@ describe("useRebookTemplate", () => {
       renderHook(() => useRebookTemplate(undefined));
 
       expect(mockTrpcOrderGetById).toHaveBeenCalledWith(
-        { id: "" },
+        { id: undefined },
         {
           enabled: false,
           retry: false,

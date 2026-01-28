@@ -51,6 +51,10 @@ const mockTrpcReviewByOrder = vi.fn();
 const mockTrpcPaymentGetByOrder = vi.fn();
 const mockTrpcPaymentCreatePreauthForOrder = vi.fn();
 const mockTrpcContactSubmit = vi.fn();
+const mockTrpcSubcategoryGetByCategory = vi.fn();
+const mockTrpcSubcategoryGetBySlug = vi.fn();
+const mockTrpcSubcategoryGetById = vi.fn();
+const mockTrpcSubcategoryGetAll = vi.fn();
 
 vi.mock("@/lib/trpc/client", () => {
   return {
@@ -160,6 +164,22 @@ vi.mock("@/lib/trpc/client", () => {
           useMutation: (...args: unknown[]) => mockTrpcContactSubmit(...args),
         },
       },
+      subcategory: {
+        getByCategory: {
+          useQuery: (...args: unknown[]) =>
+            mockTrpcSubcategoryGetByCategory(...args),
+        },
+        getBySlug: {
+          useQuery: (...args: unknown[]) =>
+            mockTrpcSubcategoryGetBySlug(...args),
+        },
+        getById: {
+          useQuery: (...args: unknown[]) => mockTrpcSubcategoryGetById(...args),
+        },
+        getAll: {
+          useQuery: (...args: unknown[]) => mockTrpcSubcategoryGetAll(...args),
+        },
+      },
     },
   };
 });
@@ -192,6 +212,10 @@ export {
   mockTrpcPaymentGetByOrder,
   mockTrpcPaymentCreatePreauthForOrder,
   mockTrpcContactSubmit,
+  mockTrpcSubcategoryGetByCategory,
+  mockTrpcSubcategoryGetBySlug,
+  mockTrpcSubcategoryGetById,
+  mockTrpcSubcategoryGetAll,
 };
 
 // Mock logger

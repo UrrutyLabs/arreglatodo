@@ -320,8 +320,8 @@ describe("useSettingsStats", () => {
     });
 
     it("should return undefined when no bookings", () => {
-      mockUseMyBookings.mockReturnValue({
-        bookings: [],
+      mockUseMyOrders.mockReturnValue({
+        orders: [],
         isLoading: false,
         error: null,
         reviewStatusMap: {},
@@ -378,7 +378,7 @@ describe("useSettingsStats", () => {
   });
 
   describe("loading state", () => {
-    it("should return loading state from useMyBookings", () => {
+    it("should return loading state from useMyOrders", () => {
       mockUseMyOrders.mockReturnValue({
         orders: [],
         isLoading: true,

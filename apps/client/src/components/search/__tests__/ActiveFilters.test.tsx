@@ -4,7 +4,13 @@ import { ActiveFilters } from "../ActiveFilters";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Category } from "@repo/domain";
 
+const mockUseSubcategoryBySlug = vi.fn();
+
 vi.mock("next/navigation");
+vi.mock("@/hooks/subcategory", () => ({
+  useSubcategoryBySlug: (...args: unknown[]) =>
+    mockUseSubcategoryBySlug(...args),
+}));
 
 const mockPush = vi.fn();
 const mockGet = vi.fn();
@@ -23,6 +29,12 @@ describe("ActiveFilters", () => {
       delete: mockDelete,
     });
     mockToString.mockReturnValue("");
+    // Mock subcategory hook to return null by default
+    mockUseSubcategoryBySlug.mockReturnValue({
+      subcategory: null,
+      isLoading: false,
+      error: null,
+    });
   });
 
   describe("rendering", () => {
@@ -56,6 +68,15 @@ describe("ActiveFilters", () => {
         if (key === "subcategory") return "fugas-goteras";
         return null;
       });
+      mockUseSubcategoryBySlug.mockReturnValue({
+        subcategory: {
+          id: "sub-1",
+          name: "Fugas y goteras",
+          slug: "fugas-goteras",
+        },
+        isLoading: false,
+        error: null,
+      });
       render(<ActiveFilters onFilterRemove={vi.fn()} />);
       expect(screen.getByText("Fugas y goteras")).toBeInTheDocument();
     });
@@ -66,6 +87,15 @@ describe("ActiveFilters", () => {
         if (key === "category") return Category.PLUMBING;
         if (key === "subcategory") return "fugas-goteras";
         return null;
+      });
+      mockUseSubcategoryBySlug.mockReturnValue({
+        subcategory: {
+          id: "sub-1",
+          name: "Fugas y goteras",
+          slug: "fugas-goteras",
+        },
+        isLoading: false,
+        error: null,
       });
       render(<ActiveFilters onFilterRemove={vi.fn()} />);
       expect(screen.getByText('"plumber"')).toBeInTheDocument();
@@ -100,14 +130,22 @@ describe("ActiveFilters", () => {
       mockToString.mockReturnValue(
         "category=PLUMBING&subcategory=fugas-goteras"
       );
+      mockUseSubcategoryBySlug.mockReturnValue({
+        subcategory: {
+          id: "sub-1",
+          name: "Fugas y goteras",
+          slug: "fugas-goteras",
+        },
+        isLoading: false,
+        error: null,
+      });
       render(<ActiveFilters onFilterRemove={vi.fn()} />);
 
       const removeButton = screen.getByLabelText("Remover categoría Plomería");
       fireEvent.click(removeButton);
 
       await waitFor(() => {
-        expect(mockDelete).toHaveBeenCalledWith("category");
-        expect(mockDelete).toHaveBeenCalledWith("subcategory");
+        expect(mockPush).toHaveBeenCalledWith("/search/results");
       });
     });
 
@@ -120,6 +158,15 @@ describe("ActiveFilters", () => {
       mockToString.mockReturnValue(
         "category=PLUMBING&subcategory=fugas-goteras"
       );
+      mockUseSubcategoryBySlug.mockReturnValue({
+        subcategory: {
+          id: "sub-1",
+          name: "Fugas y goteras",
+          slug: "fugas-goteras",
+        },
+        isLoading: false,
+        error: null,
+      });
       render(<ActiveFilters onFilterRemove={vi.fn()} />);
 
       const removeButton = screen.getByLabelText(
@@ -128,7 +175,15 @@ describe("ActiveFilters", () => {
       fireEvent.click(removeButton);
 
       await waitFor(() => {
-        expect(mockDelete).toHaveBeenCalledWith("subcategory");
+        expect(mockPush).toHaveBeenCalledWith(
+          expect.stringContaining("/search/results")
+        );
+        expect(mockPush).toHaveBeenCalledWith(
+          expect.stringContaining("category=PLUMBING")
+        );
+        expect(mockPush).not.toHaveBeenCalledWith(
+          expect.stringContaining("subcategory=")
+        );
       });
     });
   });

@@ -84,12 +84,30 @@ describe("useCheckout", () => {
       });
 
       const mockMutateAsync = vi.fn().mockResolvedValue(mockPreauthResult);
+      let onSuccessCallback:
+        | ((data: typeof mockPreauthResult) => void)
+        | undefined;
 
-      mockTrpcPaymentCreatePreauthForOrder.mockImplementation(() => ({
-        mutateAsync: mockMutateAsync,
-        isPending: false,
-        error: null,
-      }));
+      mockTrpcPaymentCreatePreauthForOrder.mockImplementation(
+        (options?: {
+          onSuccess?: (data: typeof mockPreauthResult) => void;
+        }) => {
+          if (options?.onSuccess) {
+            onSuccessCallback = options.onSuccess;
+          }
+          return {
+            mutateAsync: async (input: { orderId: string }) => {
+              const result = await mockMutateAsync(input);
+              if (onSuccessCallback) {
+                onSuccessCallback(result);
+              }
+              return result;
+            },
+            isPending: false,
+            error: null,
+          };
+        }
+      );
 
       const { result } = renderHook(() => useCheckout("order-1"));
 
@@ -125,9 +143,10 @@ describe("useCheckout", () => {
       renderHook(() => useCheckout(undefined));
 
       expect(mockTrpcOrderGetById).toHaveBeenCalledWith(
-        { id: "" },
+        { id: undefined },
         expect.objectContaining({
           enabled: false,
+          retry: false,
         })
       );
     });
