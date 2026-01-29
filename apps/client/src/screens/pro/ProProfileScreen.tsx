@@ -22,17 +22,9 @@ import { ProProfileSkeleton } from "@/components/presentational/ProProfileSkelet
 import { AuthPromptModal } from "@/components/auth/AuthPromptModal";
 import { useProDetail } from "@/hooks/pro";
 import { useAuth } from "@/hooks/auth";
-import { Category } from "@repo/domain";
 import { useTodayDate } from "@/hooks/shared/useTodayDate";
 import { getAvailabilityHint } from "@/utils/proAvailability";
-
-const CATEGORY_LABELS: Record<string, string> = {
-  plumbing: "Plomería",
-  electrical: "Electricidad",
-  cleaning: "Limpieza",
-  handyman: "Arreglos generales",
-  painting: "Pintura",
-};
+import { useCategories } from "@/hooks/category";
 
 export function ProProfileScreen() {
   const params = useParams();
@@ -42,7 +34,13 @@ export function ProProfileScreen() {
 
   const { pro, isLoading, error } = useProDetail(proId);
   const { user, loading: authLoading } = useAuth();
+  const { categories } = useCategories();
   const today = useTodayDate();
+
+  // Map categoryIds to Category objects for display
+  const proCategories = pro?.categoryIds
+    ? categories.filter((cat) => pro.categoryIds.includes(cat.id))
+    : [];
 
   // Calculate derived states
   const isActive = useMemo(
@@ -69,7 +67,7 @@ export function ProProfileScreen() {
     if (!pro?.id) {
       return;
     }
-    // Authenticated, proceed to booking
+    // Authenticated, proceed to job creation
     router.push(`/book?proId=${pro.id}`);
   };
 
@@ -77,7 +75,7 @@ export function ProProfileScreen() {
     return (
       <div className="min-h-screen bg-bg">
         <Navigation showLogin={false} showProfile={true} />
-        <div className="px-4 py-8">
+        <div className="px-4 py-4 md:py-8">
           <ProProfileSkeleton />
         </div>
       </div>
@@ -117,10 +115,10 @@ export function ProProfileScreen() {
   return (
     <div className="min-h-screen bg-bg">
       <Navigation showLogin={true} showProfile={true} />
-      <div className="px-4 py-8">
+      <div className="px-4 py-4 md:py-8">
         <div className="max-w-4xl mx-auto">
           {/* Pro Header */}
-          <Card className="p-6 mb-6">
+          <Card className="p-4 md:p-6 mb-4 md:mb-6">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -161,9 +159,9 @@ export function ProProfileScreen() {
                   </div>
                 )}
                 <div className="flex flex-wrap gap-2 mb-3">
-                  {pro.categories.map((category: Category | string) => (
-                    <Badge key={category} variant="info">
-                      {CATEGORY_LABELS[category] || category}
+                  {proCategories.map((category) => (
+                    <Badge key={category.id} variant="info">
+                      {category.name}
                     </Badge>
                   ))}
                 </div>
@@ -197,13 +195,13 @@ export function ProProfileScreen() {
                 className="w-full md:w-auto flex items-center gap-2"
               >
                 <Calendar className="w-4 h-4" />
-                Reservar
+                Contratar
               </Button>
             )}
           </Card>
 
           {/* About Section */}
-          <Card className="p-6 mb-6">
+          <Card className="p-4 md:p-6 mb-4 md:mb-6">
             <div className="flex items-center gap-2 mb-4">
               <FileText className="w-5 h-5 text-primary" />
               <Text variant="h2" className="text-text">
@@ -219,22 +217,12 @@ export function ProProfileScreen() {
                 {pro.serviceArea ? (
                   <Text variant="body" className="text-muted">
                     Profesional en {pro.serviceArea} con experiencia en{" "}
-                    {pro.categories
-                      .map(
-                        (cat: Category | string) => CATEGORY_LABELS[cat] || cat
-                      )
-                      .join(", ")}
-                    .
+                    {proCategories.map((cat) => cat.name).join(", ")}.
                   </Text>
                 ) : (
                   <Text variant="body" className="text-muted">
                     Profesional con experiencia en{" "}
-                    {pro.categories
-                      .map(
-                        (cat: Category | string) => CATEGORY_LABELS[cat] || cat
-                      )
-                      .join(", ")}
-                    .
+                    {proCategories.map((cat) => cat.name).join(", ")}.
                   </Text>
                 )}
               </>
@@ -242,7 +230,7 @@ export function ProProfileScreen() {
           </Card>
 
           {/* Reviews Section */}
-          <Card className="p-6">
+          <Card className="p-4 md:p-6">
             <div className="flex items-center gap-2 mb-4">
               <Star className="w-5 h-5 text-primary" />
               <Text variant="h2" className="text-text">
@@ -279,8 +267,8 @@ export function ProProfileScreen() {
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         returnUrl={`/book?proId=${pro.id}`}
-        title="Iniciá sesión para reservar"
-        message="Necesitás iniciar sesión para reservar un servicio con este profesional."
+        title="Iniciá sesión para contratar"
+        message="Necesitás iniciar sesión para contratar un servicio con este profesional."
       />
     </div>
   );
