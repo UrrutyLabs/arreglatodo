@@ -30,8 +30,8 @@ export const SubcategoryGrid = memo(function SubcategoryGrid({
         >
           {categoryLabel}
         </Text>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
             <div key={i} className="animate-pulse">
               <div className="aspect-video bg-muted/30 rounded-lg mb-2" />
               <div className="h-4 bg-muted/30 rounded w-3/4 mx-auto" />
@@ -54,7 +54,7 @@ export const SubcategoryGrid = memo(function SubcategoryGrid({
       >
         {categoryLabel}
       </Text>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {subcategories.map((subcategory) => (
           <SubcategoryCard
             key={subcategory.id}

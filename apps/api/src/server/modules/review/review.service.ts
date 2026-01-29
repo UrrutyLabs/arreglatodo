@@ -230,6 +230,7 @@ export class ReviewService {
       rating: review.rating,
       comment: review.comment,
       createdAt: review.createdAt,
+      clientDisplayName: review.clientDisplayName,
     }));
   }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, memo, useRef, useState, useEffect } from "react";
+import { memo, useRef, useState, useEffect } from "react";
 import type { Category } from "@repo/domain";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getCategoryIcon, getCategoryLabel } from "@/lib/search/categoryIcons";
@@ -24,42 +24,67 @@ export const CategoryCarousel = memo(function CategoryCarousel({
   const checkScrollButtons = () => {
     if (!scrollContainerRef.current) return;
     const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-    setShowLeftArrow(scrollLeft > 0);
-    setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 1);
+    const isScrollable = scrollWidth > clientWidth;
+    const isAtStart = scrollLeft <= 5; // Small threshold for rounding
+    const isAtEnd = scrollLeft >= scrollWidth - clientWidth - 5; // Small threshold for rounding
+
+    setShowLeftArrow(isScrollable && !isAtStart);
+    setShowRightArrow(isScrollable && !isAtEnd);
   };
 
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    checkScrollButtons();
-    container.addEventListener("scroll", checkScrollButtons);
+    // Defer initial check to avoid synchronous setState in effect
+    setTimeout(() => {
+      checkScrollButtons();
+    }, 0);
+
+    container.addEventListener("scroll", checkScrollButtons, { passive: true });
     window.addEventListener("resize", checkScrollButtons);
 
     return () => {
       container.removeEventListener("scroll", checkScrollButtons);
       window.removeEventListener("resize", checkScrollButtons);
     };
-  }, []);
+  }, [categories, isLoading]);
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollContainerRef.current) return;
     const scrollAmount = 300; // Adjust scroll distance as needed
-    const currentScroll = scrollContainerRef.current.scrollLeft;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+    const maxScroll = scrollWidth - clientWidth;
+
     const newScroll =
       direction === "left"
-        ? currentScroll - scrollAmount
-        : currentScroll + scrollAmount;
+        ? Math.max(0, scrollLeft - scrollAmount)
+        : Math.min(maxScroll, scrollLeft + scrollAmount);
+
     scrollContainerRef.current.scrollTo({
       left: newScroll,
       behavior: "smooth",
     });
+
+    // Update button visibility after scroll animation completes
+    // Smooth scroll typically takes ~300ms, but we check multiple times for reliability
+    const checkInterval = setInterval(() => {
+      checkScrollButtons();
+    }, 50);
+
+    setTimeout(() => {
+      clearInterval(checkInterval);
+      checkScrollButtons();
+    }, 350);
   };
 
   // Update scroll buttons when categories change
   useEffect(() => {
     if (!isLoading && categories.length > 0) {
-      checkScrollButtons();
+      // Use setTimeout to ensure DOM is updated
+      setTimeout(() => {
+        checkScrollButtons();
+      }, 0);
     }
   }, [categories, isLoading]);
 
@@ -67,24 +92,34 @@ export const CategoryCarousel = memo(function CategoryCarousel({
   if (isLoading) {
     return (
       <div className="w-full flex justify-center">
+        {/* Mobile: Horizontal Scroll Skeleton */}
         <div className="md:hidden w-full overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
           <div className="flex gap-3">
-            {[1, 2, 3, 4, 5].map((i) => (
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
               <div
                 key={i}
-                className="w-[120px] h-[100px] bg-muted/30 rounded-lg animate-pulse shrink-0"
-              />
+                className="flex flex-col items-center gap-2 px-6 py-3 w-[120px] min-h-[100px] bg-surface border-2 border-transparent rounded-lg animate-pulse shrink-0"
+              >
+                <div className="w-12 h-12 rounded-full bg-muted/30" />
+                <div className="h-4 bg-muted/30 rounded w-16" />
+              </div>
             ))}
           </div>
         </div>
-        <div className="hidden md:block w-full">
-          <div className="flex gap-4 px-2">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div
-                key={i}
-                className="w-[140px] h-[120px] bg-muted/30 rounded-lg animate-pulse shrink-0"
-              />
-            ))}
+        {/* Desktop: Horizontal Scroll Skeleton with Arrows */}
+        <div className="hidden md:block relative w-full">
+          <div className="overflow-x-auto scrollbar-hide pb-4">
+            <div className="flex gap-4 px-2">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+                <div
+                  key={i}
+                  className="flex flex-col items-center gap-2 px-6 py-4 w-[140px] min-h-[120px] bg-surface border-2 border-transparent rounded-lg animate-pulse shrink-0"
+                >
+                  <div className="w-14 h-14 rounded-full bg-muted/30" />
+                  <div className="h-4 bg-muted/30 rounded w-20" />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

@@ -10,10 +10,15 @@ import { theme } from "../../theme";
 import { useOnboarding, useAuth } from "@hooks/auth";
 import { Category } from "@repo/domain";
 import { supabase } from "@lib/supabase/client";
+import { trpc } from "@lib/trpc/client";
 
 export function OnboardingScreen() {
   const { session, loading: sessionLoading } = useAuth();
   const { submitOnboarding, isLoading, error } = useOnboarding();
+
+  // Fetch categories from API
+  const { data: categories = [], isLoading: isLoadingCategories } =
+    trpc.category.getAll.useQuery();
 
   // Form state
   const [name, setName] = useState("");
@@ -187,7 +192,9 @@ export function OnboardingScreen() {
         )}
 
         <CategorySelector
+          categories={categories}
           selected={selectedCategories}
+          isLoading={isLoadingCategories}
           onSelectionChange={(categories) => {
             setSelectedCategories(categories);
             if (errors.categories) {

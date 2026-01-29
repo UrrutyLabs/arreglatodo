@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Navigation } from "@/components/presentational/Navigation";
+import { Container } from "@/components/presentational/Container";
 import { SearchHero } from "@/components/search/SearchHero";
 import { CategoryCarousel } from "@/components/search/CategoryCarousel";
 import { SubcategoryGrid } from "@/components/search/SubcategoryGrid";
@@ -73,7 +74,7 @@ export function SearchScreen() {
     <div className="min-h-screen bg-bg">
       <Navigation showLogin={true} showProfile={true} />
       <div className="px-4 py-6 md:py-12">
-        <div className="max-w-6xl mx-auto">
+        <Container maxWidth="4xl">
           {/* Search Hero - Centered */}
           <div className="flex justify-center mb-8 md:mb-12">
             <SearchHero />
@@ -96,7 +97,7 @@ export function SearchScreen() {
               />
             </div>
           )}
-        </div>
+        </Container>
       </div>
     </div>
   );

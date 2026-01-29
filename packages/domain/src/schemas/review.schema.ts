@@ -9,6 +9,7 @@ export const reviewSchema = z.object({
   rating: z.number().int().min(1).max(5),
   comment: z.string().nullable(),
   createdAt: z.date(),
+  clientDisplayName: z.string().optional(), // Format: "FirstName L." (first letter of surname)
 });
 
 export type Review = z.infer<typeof reviewSchema>;

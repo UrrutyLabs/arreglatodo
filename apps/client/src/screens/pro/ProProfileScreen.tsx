@@ -2,55 +2,53 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import {
-  MapPin,
-  Star,
-  User,
-  FileText,
-  Calendar,
-  AlertCircle,
-  ArrowLeft,
-  Clock,
-} from "lucide-react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { AlertCircle, ArrowLeft } from "lucide-react";
 import { Text } from "@repo/ui";
 import { Card } from "@repo/ui";
 import { Button } from "@repo/ui";
-import { Badge } from "@repo/ui";
 import { Navigation } from "@/components/presentational/Navigation";
+import { SearchBar } from "@/components/search/SearchBar";
 import { ProProfileSkeleton } from "@/components/presentational/ProProfileSkeleton";
 import { AuthPromptModal } from "@/components/auth/AuthPromptModal";
 import { useProDetail } from "@/hooks/pro";
 import { useAuth } from "@/hooks/auth";
-import { useTodayDate } from "@/hooks/shared/useTodayDate";
-import { getAvailabilityHint } from "@/utils/proAvailability";
 import { useCategories } from "@/hooks/category";
+import {
+  ProProfileHeader,
+  ProBio,
+  ProOverview,
+  ProAvailability,
+  ProServicesOffered,
+  ProReviews,
+  ProRequestForm,
+} from "@/components/pro";
 
 export function ProProfileScreen() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const proId = params.proId as string;
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const searchQuery = searchParams.get("q") || "";
 
   const { pro, isLoading, error } = useProDetail(proId);
   const { user, loading: authLoading } = useAuth();
   const { categories } = useCategories();
-  const today = useTodayDate();
 
   // Map categoryIds to Category objects for display
-  const proCategories = pro?.categoryIds
-    ? categories.filter((cat) => pro.categoryIds.includes(cat.id))
-    : [];
+  const proCategories = useMemo(
+    () =>
+      pro?.categoryIds
+        ? categories.filter((cat) => pro.categoryIds.includes(cat.id))
+        : [],
+    [pro, categories]
+  );
 
   // Calculate derived states
   const isActive = useMemo(
     () => pro?.isApproved && !pro?.isSuspended,
     [pro?.isApproved, pro?.isSuspended]
-  );
-  const availabilityHint = useMemo(
-    () => (pro ? getAvailabilityHint(pro.availabilitySlots, today) : null),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pro?.availabilitySlots, today]
   );
 
   const handleReserveClick = () => {
@@ -74,7 +72,13 @@ export function ProProfileScreen() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-bg">
-        <Navigation showLogin={false} showProfile={true} />
+        <Navigation
+          showLogin={false}
+          showProfile={true}
+          centerContent={
+            <SearchBar initialQuery={searchQuery} preserveParams={true} />
+          }
+        />
         <div className="px-4 py-4 md:py-8">
           <ProProfileSkeleton />
         </div>
@@ -85,7 +89,13 @@ export function ProProfileScreen() {
   if (error || !pro) {
     return (
       <div className="min-h-screen bg-bg">
-        <Navigation showLogin={false} showProfile={true} />
+        <Navigation
+          showLogin={false}
+          showProfile={true}
+          centerContent={
+            <SearchBar initialQuery={searchQuery} preserveParams={true} />
+          }
+        />
         <div className="px-4 py-8">
           <div className="max-w-4xl mx-auto">
             <Card className="p-8 text-center">
@@ -114,153 +124,85 @@ export function ProProfileScreen() {
 
   return (
     <div className="min-h-screen bg-bg">
-      <Navigation showLogin={true} showProfile={true} />
-      <div className="px-4 py-4 md:py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Pro Header */}
-          <Card className="p-4 md:p-6 mb-4 md:mb-6">
-            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  <User className="w-6 h-6 text-primary" />
-                  <Text variant="h1" className="text-primary">
-                    {pro.name}
-                  </Text>
-                  <div className="flex gap-1 flex-wrap">
-                    {pro.isSuspended && (
-                      <Badge variant="danger">Suspendido</Badge>
-                    )}
-                    {isActive && <Badge variant="info">Verificado</Badge>}
-                  </div>
-                </div>
+      <Navigation
+        showLogin={true}
+        showProfile={true}
+        centerContent={
+          <SearchBar initialQuery={searchQuery} preserveParams={true} />
+        }
+      />
+      <div className="px-4 py-4 md:py-8 pb-24 lg:pb-4 md:pb-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left: Scrollable Profile (2 columns on lg+) */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Pro Profile Header */}
+              <ProProfileHeader
+                name={pro.name}
+                avatarUrl={pro.avatarUrl}
+                rating={pro.rating}
+                reviewCount={pro.reviewCount}
+              />
 
-                {/* Availability Hint */}
-                {availabilityHint && (
-                  <div className="flex items-center gap-2 mb-3">
-                    {availabilityHint === "today" ? (
-                      <Clock className="w-4 h-4 text-primary" />
-                    ) : (
-                      <Calendar className="w-4 h-4 text-primary" />
-                    )}
-                    <Text variant="body" className="text-muted">
-                      {availabilityHint === "today"
-                        ? "Disponible hoy"
-                        : "Disponible mañana"}
-                    </Text>
-                  </div>
-                )}
+              {/* Bio Section */}
+              <ProBio bio={pro.bio} />
 
-                {pro.serviceArea && (
-                  <div className="flex items-center gap-2 mb-3">
-                    <MapPin className="w-4 h-4 text-muted" />
-                    <Text variant="body" className="text-muted">
-                      {pro.serviceArea}
-                    </Text>
-                  </div>
-                )}
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {proCategories.map((category) => (
-                    <Badge key={category.id} variant="info">
-                      {category.name}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="mb-1">
-                  <Text variant="h2" className="text-primary">
-                    ${pro.hourlyRate.toFixed(0)}/hora
-                  </Text>
-                </div>
-                {pro.rating ? (
-                  <div className="flex items-center justify-end gap-1">
-                    <Star className="w-4 h-4 text-warning fill-warning" />
-                    <Text variant="body" className="text-muted">
-                      {pro.rating.toFixed(1)} ({pro.reviewCount}{" "}
-                      {pro.reviewCount === 1 ? "reseña" : "reseñas"})
-                    </Text>
-                  </div>
-                ) : (
-                  <Text variant="body" className="text-muted">
-                    Sin reseñas aún
-                  </Text>
+              {/* Overview Section */}
+              <ProOverview
+                completedJobsCount={pro.completedJobsCount}
+                serviceArea={pro.serviceArea}
+              />
+
+              {/* Availability Section */}
+              {pro.availabilitySlots && pro.availabilitySlots.length > 0 && (
+                <ProAvailability availabilitySlots={pro.availabilitySlots} />
+              )}
+
+              {/* Services Offered Section */}
+              {proCategories.length > 0 && (
+                <ProServicesOffered categories={proCategories} />
+              )}
+
+              {/* Reviews Section */}
+              <ProReviews
+                proId={pro.id}
+                rating={pro.rating}
+                reviewCount={pro.reviewCount}
+              />
+            </div>
+
+            {/* Right: Fixed Request Form (1 column on lg+) */}
+            <div className="hidden lg:block lg:col-span-1">
+              <div className="lg:sticky lg:top-4">
+                {isActive && !pro.isSuspended && (
+                  <ProRequestForm
+                    hourlyRate={pro.hourlyRate}
+                    proId={pro.id}
+                    onContratar={handleReserveClick}
+                    disabled={authLoading}
+                    isMobileFooter={false}
+                  />
                 )}
               </div>
             </div>
-            {isActive && !pro.isSuspended && (
-              <Button
-                variant="primary"
-                onClick={handleReserveClick}
-                disabled={authLoading}
-                className="w-full md:w-auto flex items-center gap-2"
-              >
-                <Calendar className="w-4 h-4" />
-                Contratar
-              </Button>
-            )}
-          </Card>
-
-          {/* About Section */}
-          <Card className="p-4 md:p-6 mb-4 md:mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <FileText className="w-5 h-5 text-primary" />
-              <Text variant="h2" className="text-text">
-                Acerca de
-              </Text>
-            </div>
-            {pro.bio ? (
-              <Text variant="body" className="text-text whitespace-pre-line">
-                {pro.bio}
-              </Text>
-            ) : (
-              <>
-                {pro.serviceArea ? (
-                  <Text variant="body" className="text-muted">
-                    Profesional en {pro.serviceArea} con experiencia en{" "}
-                    {proCategories.map((cat) => cat.name).join(", ")}.
-                  </Text>
-                ) : (
-                  <Text variant="body" className="text-muted">
-                    Profesional con experiencia en{" "}
-                    {proCategories.map((cat) => cat.name).join(", ")}.
-                  </Text>
-                )}
-              </>
-            )}
-          </Card>
-
-          {/* Reviews Section */}
-          <Card className="p-4 md:p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Star className="w-5 h-5 text-primary" />
-              <Text variant="h2" className="text-text">
-                Reseñas
-              </Text>
-            </div>
-            {pro.reviewCount > 0 ? (
-              <div className="flex items-center gap-2">
-                <Text variant="body" className="text-muted">
-                  {pro.reviewCount}{" "}
-                  {pro.reviewCount === 1 ? "reseña" : "reseñas"}
-                </Text>
-                {pro.rating && (
-                  <>
-                    <span className="text-muted">-</span>
-                    <Star className="w-4 h-4 text-warning fill-warning" />
-                    <Text variant="body" className="text-muted">
-                      Promedio: {pro.rating.toFixed(1)}
-                    </Text>
-                  </>
-                )}
-              </div>
-            ) : (
-              <Text variant="body" className="text-muted">
-                Aún no hay reseñas para este profesional.
-              </Text>
-            )}
-          </Card>
+          </div>
         </div>
       </div>
+
+      {/* Mobile: Sticky Footer */}
+      {isActive && !pro.isSuspended && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden border-t border-border bg-surface shadow-lg">
+          <div className="px-4 py-3">
+            <ProRequestForm
+              hourlyRate={pro.hourlyRate}
+              proId={pro.id}
+              onContratar={handleReserveClick}
+              disabled={authLoading}
+              isMobileFooter={true}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Auth Prompt Modal */}
       <AuthPromptModal

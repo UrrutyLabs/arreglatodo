@@ -69,7 +69,7 @@ describe("ReviewService", () => {
       displayId: "O0001",
       clientUserId: "client-1",
       proProfileId: "pro-1",
-      category: "PLUMBING",
+      categoryId: "cat-plumbing",
       subcategoryId: null,
       title: null,
       description: null,
@@ -113,6 +113,8 @@ describe("ReviewService", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
       ...overrides,
+      // Ensure categoryMetadataJson is never undefined (convert to null if needed)
+      categoryMetadataJson: overrides?.categoryMetadataJson ?? null,
     };
   }
 
@@ -122,6 +124,9 @@ describe("ReviewService", () => {
       orderId: string;
       rating: number;
       comment: string | null;
+      proProfileId: string;
+      clientUserId: string;
+      createdAt: Date;
     }>
   ) {
     return {
@@ -148,7 +153,7 @@ describe("ReviewService", () => {
       bio: null,
       avatarUrl: null,
       hourlyRate: 100,
-      categories: [],
+      categoryIds: [],
       serviceArea: null,
       status: "active",
       profileCompleted: false,
@@ -556,12 +561,26 @@ describe("ReviewService", () => {
   });
 
   describe("listForPro", () => {
-    it("should return reviews for a pro", async () => {
+    it("should return reviews for a pro with client display names", async () => {
       // Arrange
       const proProfileId = "pro-1";
       const reviews = [
-        createMockReview({ id: "review-1", rating: 5 }),
-        createMockReview({ id: "review-2", rating: 4 }),
+        {
+          ...createMockReview({
+            id: "review-1",
+            rating: 5,
+            clientUserId: "client-1",
+          }),
+          clientDisplayName: "Juan P.",
+        },
+        {
+          ...createMockReview({
+            id: "review-2",
+            rating: 4,
+            clientUserId: "client-2",
+          }),
+          clientDisplayName: "María G.",
+        },
       ];
 
       mockReviewRepository.listForPro.mockResolvedValue(reviews);
@@ -581,6 +600,89 @@ describe("ReviewService", () => {
         orderId: "order-1",
         rating: 5,
         createdAt: expect.any(Date),
+        clientDisplayName: "Juan P.",
+      });
+      expect(result[1]).toMatchObject({
+        id: "review-2",
+        orderId: "order-1",
+        rating: 4,
+        createdAt: expect.any(Date),
+        clientDisplayName: "María G.",
+      });
+    });
+
+    it("should handle missing lastName in client profile", async () => {
+      // Arrange
+      const proProfileId = "pro-1";
+      const reviews = [
+        {
+          ...createMockReview({
+            id: "review-1",
+            rating: 5,
+            clientUserId: "client-1",
+          }),
+          clientDisplayName: "Juan",
+        },
+      ];
+
+      mockReviewRepository.listForPro.mockResolvedValue(reviews);
+
+      // Act
+      const result = await service.listForPro(proProfileId);
+
+      // Assert
+      expect(result[0]).toMatchObject({
+        clientDisplayName: "Juan",
+      });
+    });
+
+    it("should handle missing firstName in client profile", async () => {
+      // Arrange
+      const proProfileId = "pro-1";
+      const reviews = [
+        {
+          ...createMockReview({
+            id: "review-1",
+            rating: 5,
+            clientUserId: "client-1",
+          }),
+          clientDisplayName: "Cliente",
+        },
+      ];
+
+      mockReviewRepository.listForPro.mockResolvedValue(reviews);
+
+      // Act
+      const result = await service.listForPro(proProfileId);
+
+      // Assert
+      expect(result[0]).toMatchObject({
+        clientDisplayName: "Cliente",
+      });
+    });
+
+    it("should handle missing client profile", async () => {
+      // Arrange
+      const proProfileId = "pro-1";
+      const reviews = [
+        {
+          ...createMockReview({
+            id: "review-1",
+            rating: 5,
+            clientUserId: "client-1",
+          }),
+          clientDisplayName: "Cliente",
+        },
+      ];
+
+      mockReviewRepository.listForPro.mockResolvedValue(reviews);
+
+      // Act
+      const result = await service.listForPro(proProfileId);
+
+      // Assert
+      expect(result[0]).toMatchObject({
+        clientDisplayName: "Cliente",
       });
     });
 
@@ -614,6 +716,39 @@ describe("ReviewService", () => {
 
       // Assert
       expect(result).toEqual([]);
+    });
+
+    it("should return client display names from repository join", async () => {
+      // Arrange
+      const proProfileId = "pro-1";
+      const reviews = [
+        {
+          ...createMockReview({
+            id: "review-1",
+            rating: 5,
+            clientUserId: "client-1",
+          }),
+          clientDisplayName: "Juan P.",
+        },
+        {
+          ...createMockReview({
+            id: "review-2",
+            rating: 4,
+            clientUserId: "client-1", // Same client
+          }),
+          clientDisplayName: "Juan P.",
+        },
+      ];
+
+      mockReviewRepository.listForPro.mockResolvedValue(reviews);
+
+      // Act
+      const result = await service.listForPro(proProfileId);
+
+      // Assert
+      // Repository handles the join and formatting, service just passes through
+      expect(result[0].clientDisplayName).toBe("Juan P.");
+      expect(result[1].clientDisplayName).toBe("Juan P.");
     });
   });
 

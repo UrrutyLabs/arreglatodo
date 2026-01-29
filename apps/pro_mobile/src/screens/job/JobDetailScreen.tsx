@@ -8,18 +8,10 @@ import { Badge } from "@components/ui/Badge";
 import { Button } from "@components/ui/Button";
 import { JobDetailSkeleton } from "@components/presentational/JobDetailSkeleton";
 import { useOrderActions, useOrderDetail } from "@hooks/order";
-import { OrderStatus, Category } from "@repo/domain";
+import { OrderStatus } from "@repo/domain";
 import { getJobStatusLabel, getJobStatusVariant } from "../../utils/jobStatus";
 import { JOB_LABELS } from "../../utils/jobLabels";
 import { theme } from "../../theme";
-
-const categoryLabels: Record<string, string> = {
-  [Category.PLUMBING]: "Plomería",
-  [Category.ELECTRICAL]: "Electricidad",
-  [Category.CLEANING]: "Limpieza",
-  [Category.HANDYMAN]: "Arreglos generales",
-  [Category.PAINTING]: "Pintura",
-};
 
 export function JobDetailScreen() {
   const { jobId } = useLocalSearchParams<{ jobId: string }>();
@@ -116,10 +108,12 @@ export function JobDetailScreen() {
     [displayStatus]
   );
 
-  const categoryLabel = useMemo(
-    () => (order ? categoryLabels[order.category] || order.category : ""),
-    [order]
-  );
+  const categoryLabel = useMemo(() => {
+    if (!order) return "";
+    // Try to get category name from metadata, fallback to categoryId
+    const categoryName = order.categoryMetadataJson?.name as string | undefined;
+    return categoryName || order.categoryId || "";
+  }, [order]);
 
   const formattedDate = useMemo(
     () =>

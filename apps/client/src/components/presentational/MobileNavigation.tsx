@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Menu, Search, Calendar, User, Settings, LogOut } from "lucide-react";
@@ -16,11 +17,13 @@ import { MobileDrawer } from "./MobileDrawer";
 interface MobileNavigationProps {
   showLogin?: boolean;
   onNavigate?: () => void;
+  centerContent?: ReactNode;
 }
 
 export function MobileNavigation({
   showLogin = true,
   onNavigate,
+  centerContent,
 }: MobileNavigationProps) {
   const router = useRouter();
   const { signOut, user } = useAuth();
@@ -107,6 +110,13 @@ export function MobileNavigation({
         onClose={() => setIsDrawerOpen(false)}
       >
         <div className="py-4">
+          {/* Search Bar (if provided) */}
+          {centerContent && (
+            <div className="px-4 pb-4 border-b border-border">
+              {centerContent}
+            </div>
+          )}
+
           {isAuthenticated && user && (
             <>
               {/* User Info */}
@@ -125,14 +135,16 @@ export function MobileNavigation({
 
               {/* Navigation Links */}
               <div className="py-2">
-                <Link
-                  href="/search"
-                  onClick={handleLinkClick}
-                  className="flex items-center gap-3 px-4 py-4 min-h-[44px] hover:bg-surface/80 active:bg-surface/60 transition-colors touch-manipulation"
-                >
-                  <Search className="w-5 h-5 text-muted" />
-                  <Text variant="body">Buscar</Text>
-                </Link>
+                {!centerContent && (
+                  <Link
+                    href="/search"
+                    onClick={handleLinkClick}
+                    className="flex items-center gap-3 px-4 py-4 min-h-[44px] hover:bg-surface/80 active:bg-surface/60 transition-colors touch-manipulation"
+                  >
+                    <Search className="w-5 h-5 text-muted" />
+                    <Text variant="body">Buscar</Text>
+                  </Link>
+                )}
 
                 <Link
                   href="/my-jobs"

@@ -5,7 +5,7 @@ import { Card } from "../ui/Card";
 import { Text } from "../ui/Text";
 import { Badge } from "../ui/Badge";
 import type { Order } from "@repo/domain";
-import { Category, OrderStatus } from "@repo/domain";
+import { OrderStatus } from "@repo/domain";
 import { getJobStatusLabel, getJobStatusVariant } from "../../utils/jobStatus";
 import { JOB_LABELS } from "../../utils/jobLabels";
 import { theme } from "../../theme";
@@ -15,20 +15,13 @@ interface JobCardProps {
   onPress: () => void;
 }
 
-const categoryLabels: Record<string, string> = {
-  [Category.PLUMBING]: "Plomería",
-  [Category.ELECTRICAL]: "Electricidad",
-  [Category.CLEANING]: "Limpieza",
-  [Category.HANDYMAN]: "Arreglos generales",
-  [Category.PAINTING]: "Pintura",
-};
-
 function JobCardComponent({ job, onPress }: JobCardProps) {
   // Memoize computed values to avoid recalculation on re-renders
-  const categoryLabel = useMemo(
-    () => categoryLabels[job.category] || job.category,
-    [job.category]
-  );
+  const categoryLabel = useMemo(() => {
+    // Try to get category name from metadata, fallback to categoryId
+    const categoryName = job.categoryMetadataJson?.name as string | undefined;
+    return categoryName || job.categoryId || "";
+  }, [job.categoryMetadataJson, job.categoryId]);
 
   const statusLabel = useMemo(
     () => getJobStatusLabel(job.status),

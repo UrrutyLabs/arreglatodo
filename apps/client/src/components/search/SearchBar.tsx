@@ -4,30 +4,32 @@ import { useState, FormEvent, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { Input } from "@repo/ui";
-import { HeroTitle } from "@/components/presentational/HeroTitle";
 
 /**
- * SearchHero Component
+ * SearchBar Component
  *
- * A prominent, centered search bar component for searching professionals.
+ * A compact search bar component for use in navigation headers.
  * Supports preserving existing query parameters when navigating.
  *
  * @example
  * ```tsx
- * <SearchHero initialQuery="plumber" preserveParams={true} />
+ * <SearchBar initialQuery="plumber" preserveParams={true} />
  * ```
  */
-interface SearchHeroProps {
+interface SearchBarProps {
   /** Initial search query value */
   initialQuery?: string;
   /** If true, preserve existing query params when navigating */
   preserveParams?: boolean;
+  /** Additional CSS classes */
+  className?: string;
 }
 
-export function SearchHero({
+export function SearchBar({
   initialQuery = "",
   preserveParams = false,
-}: SearchHeroProps) {
+  className = "",
+}: SearchBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(initialQuery);
@@ -68,34 +70,33 @@ export function SearchHero({
   );
 
   return (
-    <div className="w-full max-w-2xl mx-auto mb-8 md:mb-12">
-      <HeroTitle className="mb-6 md:mb-8 px-8">
-        ¿Qué hacemos por vos hoy?
-      </HeroTitle>
-      <form onSubmit={handleSubmit} className="relative" role="search">
-        <div className="relative">
-          <Search
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted pointer-events-none z-10"
-            aria-hidden="true"
-          />
-          <Input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => {
-              // Submit on Enter key
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleSubmit(e as unknown as FormEvent<HTMLFormElement>);
-              }
-            }}
-            placeholder="Describí lo que estás precisando"
-            className="px-0! pl-12! pr-4! py-4 md:py-3 text-lg md:text-base border-2 border-border focus:border-border focus:outline-none focus:ring-0 rounded-xl md:rounded-lg bg-surface shadow-md focus:shadow-lg transition-shadow"
-            aria-label="Buscar profesionales"
-            autoComplete="off"
-          />
-        </div>
-      </form>
-    </div>
+    <form
+      onSubmit={handleSubmit}
+      className={`relative flex-1 max-w-2xl ${className}`}
+      role="search"
+    >
+      <div className="relative">
+        <Search
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none z-10"
+          aria-hidden="true"
+        />
+        <Input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={(e) => {
+            // Submit on Enter key
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleSubmit(e as unknown as FormEvent<HTMLFormElement>);
+            }
+          }}
+          placeholder="Describí lo que estás precisando"
+          className="!pl-10 !pr-4 py-2 text-sm border-2 border-border focus:border-border focus:outline-none !focus:ring-0 rounded-lg bg-surface shadow-sm focus:shadow-md transition-shadow"
+          aria-label="Buscar profesionales"
+          autoComplete="off"
+        />
+      </div>
+    </form>
   );
 }

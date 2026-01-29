@@ -9,20 +9,17 @@ import {
   useRef,
 } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Calendar, Clock, ChevronDown, ChevronUp } from "lucide-react";
 import { Text } from "@repo/ui";
-import { Card } from "@repo/ui";
-import { Input } from "@repo/ui";
 import { Navigation } from "@/components/presentational/Navigation";
-import { SearchHero } from "@/components/search/SearchHero";
+import { SearchBar } from "@/components/search/SearchBar";
 import { ActiveFilters } from "@/components/search/ActiveFilters";
 import { ProList } from "@/components/search/ProList";
 import { EmptyState } from "@/components/presentational/EmptyState";
 import { SearchError } from "@/components/search/SearchError";
+import { SearchFiltersSidebar } from "@/components/search/SearchFiltersSidebar";
 import { useSearchPros } from "@/hooks/pro";
-import { useTodayDate } from "@/hooks/shared";
-import { useAvailableTimeWindows } from "@/hooks/search";
-import { useCategoryBySlug } from "@/hooks/category";
+import { useCategoryBySlug, useCategoryConfig } from "@/hooks/category";
+import { useSubcategoryBySlugAndCategoryId } from "@/hooks/subcategory";
 import type { TimeWindow } from "@repo/domain";
 
 /**
@@ -39,7 +36,6 @@ import type { TimeWindow } from "@repo/domain";
 function SearchResultsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [showFilters, setShowFilters] = useState(false);
 
   const searchQuery = searchParams.get("q") || "";
   const categorySlug = searchParams.get("category") || undefined;
@@ -54,8 +50,6 @@ function SearchResultsContent() {
   const [timeWindow, setTimeWindow] = useState<TimeWindow | "">(
     () => (timeWindowParam as TimeWindow) || ""
   );
-
-  const today = useTodayDate();
 
   // Refs to track previous URL params for syncing with browser history
   const prevDateParamRef = useRef(dateParam);
@@ -84,62 +78,29 @@ function SearchResultsContent() {
     }
   }, [timeWindowParam]);
 
-  const { availableTimeWindows, handleDateChange: handleTimeWindowDateChange } =
-    useAvailableTimeWindows(date, today, timeWindow, setTimeWindow);
-
-  // Update URL when filters change (debounced to avoid too many navigations)
-  const updateFiltersInUrl = useCallback(
-    (updates: { date?: string; timeWindow?: string }) => {
-      const params = new URLSearchParams(searchParams.toString());
-
-      // Remove retry param if it exists
-      params.delete("_retry");
-
-      if (updates.date !== undefined) {
-        if (updates.date) {
-          params.set("date", updates.date);
-        } else {
-          params.delete("date");
-        }
-      }
-
-      if (updates.timeWindow !== undefined) {
-        if (updates.timeWindow) {
-          params.set("timeWindow", updates.timeWindow);
-        } else {
-          params.delete("timeWindow");
-        }
-      }
-
-      const queryString = params.toString();
-      router.push(`/search/results${queryString ? `?${queryString}` : ""}`, {
-        scroll: false, // Don't scroll to top on filter changes
-      });
-    },
-    [searchParams, router]
-  );
-
-  const handleDateChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newDate = e.target.value;
-      setDate(newDate);
-      handleTimeWindowDateChange(e);
-      updateFiltersInUrl({ date: newDate });
-    },
-    [handleTimeWindowDateChange, updateFiltersInUrl]
-  );
-
-  const handleTimeWindowChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const newTimeWindow = e.target.value as TimeWindow | "";
-      setTimeWindow(newTimeWindow);
-      updateFiltersInUrl({ timeWindow: newTimeWindow });
-    },
-    [updateFiltersInUrl]
-  );
-
   // Get subcategory slug from URL
   const subcategorySlug = searchParams.get("subcategory") || undefined;
+
+  // Get subcategory for config fetching
+  const { subcategory } = useSubcategoryBySlugAndCategoryId(
+    subcategorySlug,
+    category?.id
+  );
+
+  // Fetch config for dynamic filters
+  const { config } = useCategoryConfig(category?.id, subcategory?.id);
+
+  // Get all filter_* params from URL
+  const filterValues = useMemo(() => {
+    const values: Record<string, unknown> = {};
+    searchParams.forEach((value, key) => {
+      if (key.startsWith("filter_")) {
+        const filterKey = key.replace("filter_", "");
+        values[filterKey] = value;
+      }
+    });
+    return values;
+  }, [searchParams]);
 
   // Memoize filters
   const filters = useMemo(
@@ -154,7 +115,19 @@ function SearchResultsContent() {
     [category, subcategorySlug, date, timeWindow]
   );
 
-  const { pros, isLoading, error } = useSearchPros(filters);
+  const { pros: allPros, isLoading, error } = useSearchPros(filters);
+
+  // Client-side filtering based on filter_* params
+  const pros = useMemo(() => {
+    if (!config?.quick_questions || Object.keys(filterValues).length === 0) {
+      return allPros;
+    }
+
+    // For MVP, we don't filter pros client-side since they don't have this metadata
+    // The filters are stored in URL and will be used when creating orders
+    // This is a placeholder for future filtering logic
+    return allPros;
+  }, [allPros, config, filterValues]);
 
   const handleFilterRemove = useCallback(() => {
     // Navigation handled by ActiveFilters component
@@ -199,154 +172,68 @@ function SearchResultsContent() {
 
   return (
     <div className="min-h-screen bg-bg">
-      <Navigation showLogin={true} showProfile={true} />
-
-      {/* Sticky Search Bar */}
-      <div className="sticky top-0 z-30 bg-bg border-b border-border px-4 py-3 md:py-4">
-        <div className="max-w-6xl mx-auto">
-          <SearchHero initialQuery={searchQuery} preserveParams={true} />
-        </div>
-      </div>
+      <Navigation
+        showLogin={true}
+        showProfile={true}
+        centerContent={
+          <SearchBar initialQuery={searchQuery} preserveParams={true} />
+        }
+      />
 
       <div className="px-4 py-4 md:py-8">
-        <div className="max-w-6xl mx-auto">
-          {/* Active Filters */}
-          <ActiveFilters onFilterRemove={handleFilterRemove} />
+        {/* Active Filters */}
+        <ActiveFilters onFilterRemove={handleFilterRemove} />
 
-          {/* Collapsible Filters - Mobile */}
-          <div className="md:hidden mb-4">
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="w-full flex items-center justify-between px-4 py-3 bg-surface border border-border rounded-lg hover:bg-surface/80 transition-colors touch-manipulation"
-              aria-expanded={showFilters}
-              aria-controls="mobile-filters"
-              type="button"
-            >
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-muted" />
-                <Text variant="body" className="font-medium">
-                  Filtros
-                </Text>
+        {/* Layout: Sidebar + Results (lg+) */}
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Left Sidebar - Filters (Desktop lg+) */}
+          {category?.id && (
+            <aside className="hidden lg:block lg:w-80 lg:shrink-0">
+              <div className="sticky top-24">
+                <SearchFiltersSidebar
+                  categoryId={category.id}
+                  subcategorySlug={subcategorySlug}
+                />
               </div>
-              {showFilters ? (
-                <ChevronUp className="w-4 h-4 text-muted" />
-              ) : (
-                <ChevronDown className="w-4 h-4 text-muted" />
-              )}
-            </button>
-
-            {showFilters && (
-              <Card
-                id="mobile-filters"
-                className="p-4 mt-2"
-                role="region"
-                aria-label="Filtros de búsqueda"
-              >
-                <div className="space-y-4">
-                  <div>
-                    <label className="flex items-center gap-2 text-sm font-medium text-text mb-2">
-                      <Calendar className="w-4 h-4 text-primary" />
-                      Fecha
-                    </label>
-                    <Input
-                      type="date"
-                      value={date}
-                      onChange={handleDateChange}
-                      min={today}
-                    />
-                  </div>
-                  <div>
-                    <label className="flex items-center gap-2 text-sm font-medium text-text mb-2">
-                      <Clock className="w-4 h-4 text-primary" />
-                      Horario
-                    </label>
-                    <select
-                      value={timeWindow}
-                      onChange={handleTimeWindowChange}
-                      className="w-full px-4 py-3 border border-border rounded-lg bg-surface text-text text-base focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
-                    >
-                      <option value="">Cualquier horario</option>
-                      {availableTimeWindows.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </Card>
-            )}
-          </div>
-
-          {/* Filters - Desktop */}
-          <div className="hidden md:block mb-6">
-            <Card className="p-4 md:p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-text mb-2">
-                    <Calendar className="w-4 h-4 text-primary" />
-                    Fecha
-                  </label>
-                  <Input
-                    type="date"
-                    value={date}
-                    onChange={handleDateChange}
-                    min={today}
-                  />
-                </div>
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-medium text-text mb-2">
-                    <Clock className="w-4 h-4 text-primary" />
-                    Horario
-                  </label>
-                  <select
-                    value={timeWindow}
-                    onChange={handleTimeWindowChange}
-                    className="w-full px-4 py-3 md:px-3 md:py-2 border border-border rounded-lg md:rounded-md bg-surface text-text text-base md:text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent touch-manipulation"
-                  >
-                    <option value="">Cualquier horario</option>
-                    {availableTimeWindows.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {/* Results */}
-          {error ? (
-            <SearchError
-              error={
-                error instanceof Error
-                  ? error
-                  : new Error(error?.message || "Error desconocido")
-              }
-              onRetry={handleRetry}
-            />
-          ) : isLoading ? (
-            <ProList pros={[]} isLoading={true} />
-          ) : pros.length === 0 ? (
-            <EmptyState
-              title="No se encontraron profesionales"
-              description="Intentá ajustar los filtros o buscar otra categoría."
-              icon="filter"
-              suggestions={emptyStateSuggestions}
-              onClearFilters={handleClearFilters}
-            />
-          ) : (
-            <>
-              <Text variant="h2" className="mb-4 md:mb-6 text-text">
-                {pros.length}{" "}
-                {pros.length === 1
-                  ? "profesional encontrado"
-                  : "profesionales encontrados"}
-              </Text>
-              <ProList pros={pros} />
-            </>
+            </aside>
           )}
+
+          {/* Main Content - Results */}
+          <div className="flex-1 min-w-0">
+            {/* Results Container - Centered with max-width */}
+            <div className="max-w-4xl mx-auto">
+              {error ? (
+                <SearchError
+                  error={
+                    error instanceof Error
+                      ? error
+                      : new Error(error?.message || "Error desconocido")
+                  }
+                  onRetry={handleRetry}
+                />
+              ) : isLoading ? (
+                <ProList pros={[]} isLoading={true} />
+              ) : pros.length === 0 ? (
+                <EmptyState
+                  title="No se encontraron profesionales"
+                  description="Intentá ajustar los filtros o buscar otra categoría."
+                  icon="filter"
+                  suggestions={emptyStateSuggestions}
+                  onClearFilters={handleClearFilters}
+                />
+              ) : (
+                <>
+                  <Text variant="h2" className="mb-4 md:mb-6 text-text">
+                    {pros.length}{" "}
+                    {pros.length === 1
+                      ? "profesional encontrado"
+                      : "profesionales encontrados"}
+                  </Text>
+                  <ProList pros={pros} />
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

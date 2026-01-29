@@ -26,6 +26,13 @@ export interface ReviewCreateInput {
 }
 
 /**
+ * Review entity with client profile data (for listForPro)
+ */
+export interface ReviewWithClientEntity extends ReviewEntity {
+  clientDisplayName?: string; // Formatted as "FirstName L."
+}
+
+/**
  * Review repository interface
  * Handles all data access for reviews
  */
@@ -39,7 +46,7 @@ export interface ReviewRepository {
     proProfileId: string,
     limit?: number,
     cursor?: string
-  ): Promise<ReviewEntity[]>;
+  ): Promise<ReviewWithClientEntity[]>;
 }
 
 /**
@@ -109,7 +116,7 @@ export class ReviewRepositoryImpl implements ReviewRepository {
     proProfileId: string,
     limit: number = 20,
     cursor?: string
-  ): Promise<ReviewEntity[]> {
+  ): Promise<ReviewWithClientEntity[]> {
     const reviews = await prisma.review.findMany({
       where: {
         proProfileId,
@@ -119,11 +126,18 @@ export class ReviewRepositoryImpl implements ReviewRepository {
           },
         }),
       },
+      include: {
+        client: {
+          include: {
+            clientProfile: true,
+          },
+        },
+      },
       take: limit,
       orderBy: { createdAt: "desc" },
     });
 
-    return reviews.map(this.mapPrismaToDomain);
+    return reviews.map((review) => this.mapPrismaToDomainWithClient(review));
   }
 
   private mapPrismaToDomain(prismaReview: {
@@ -143,6 +157,52 @@ export class ReviewRepositoryImpl implements ReviewRepository {
       rating: prismaReview.rating,
       comment: prismaReview.comment,
       createdAt: prismaReview.createdAt,
+    };
+  }
+
+  /**
+   * Map Prisma review with client profile to domain entity with formatted display name
+   */
+  private mapPrismaToDomainWithClient(prismaReview: {
+    id: string;
+    orderId: string;
+    proProfileId: string;
+    clientUserId: string;
+    rating: number;
+    comment: string | null;
+    createdAt: Date;
+    client: {
+      clientProfile: {
+        firstName: string | null;
+        lastName: string | null;
+      } | null;
+    };
+  }): ReviewWithClientEntity {
+    const baseEntity = this.mapPrismaToDomain(prismaReview);
+
+    // Format client display name: "FirstName L." (first letter of surname)
+    let clientDisplayName: string | undefined;
+    if (prismaReview.client?.clientProfile) {
+      const profile = prismaReview.client.clientProfile;
+      const firstName = profile.firstName?.trim() || "";
+      const lastNameInitial = profile.lastName
+        ? profile.lastName.trim()[0]?.toUpperCase()
+        : "";
+
+      if (firstName && lastNameInitial) {
+        clientDisplayName = `${firstName} ${lastNameInitial}.`;
+      } else if (firstName) {
+        clientDisplayName = firstName;
+      } else {
+        clientDisplayName = "Cliente";
+      }
+    } else {
+      clientDisplayName = "Cliente";
+    }
+
+    return {
+      ...baseEntity,
+      clientDisplayName,
     };
   }
 }

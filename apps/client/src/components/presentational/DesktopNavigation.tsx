@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, Calendar, User, Settings, LogOut } from "lucide-react";
 import { Button } from "@repo/ui";
 import { Text } from "@repo/ui";
+import { Container } from "./Container";
 import { useAuth } from "@/hooks/auth";
 import { useUserRole } from "@/hooks/auth";
 import { Role } from "@repo/domain";
@@ -14,10 +16,12 @@ import { logger } from "@/lib/logger";
 
 interface DesktopNavigationProps {
   showLogin?: boolean;
+  centerContent?: ReactNode;
 }
 
 export function DesktopNavigation({
   showLogin = true,
+  centerContent,
 }: DesktopNavigationProps) {
   const router = useRouter();
   const { signOut, user } = useAuth();
@@ -75,17 +79,30 @@ export function DesktopNavigation({
 
   return (
     <nav className="hidden md:block px-4 py-4 border-b border-border bg-surface">
-      <div className="max-w-6xl mx-auto flex justify-between items-center">
-        <Link href={homeLink}>
+      <Container
+        maxWidth={centerContent ? "full" : "4xl"}
+        className="flex items-center gap-4"
+      >
+        {/* Left: Logo */}
+        <Link href={homeLink} className="shrink-0">
           <Text variant="h2">Arreglatodo</Text>
         </Link>
-        <div className="flex items-center gap-4">
-          <Link href="/search">
-            <Button variant="ghost" className="px-4 flex items-center gap-2">
-              <Search className="w-4 h-4" />
-              Buscar
-            </Button>
-          </Link>
+
+        {/* Center: Search Bar (always reserve space) */}
+        <div className="flex-1 flex justify-center px-4">
+          {centerContent || null}
+        </div>
+
+        {/* Right: Actions */}
+        <div className="flex items-center gap-4 shrink-0">
+          {!centerContent && (
+            <Link href="/search">
+              <Button variant="ghost" className="px-4 flex items-center gap-2">
+                <Search className="w-4 h-4" />
+                Buscar
+              </Button>
+            </Link>
+          )}
           {isAuthenticated && (
             <Link href="/my-jobs">
               <Button variant="ghost" className="px-4 flex items-center gap-2">
@@ -143,7 +160,7 @@ export function DesktopNavigation({
             </div>
           )}
         </div>
-      </div>
+      </Container>
     </nav>
   );
 }
