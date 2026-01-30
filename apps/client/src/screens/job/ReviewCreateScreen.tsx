@@ -33,7 +33,7 @@ export function ReviewCreateScreen() {
   } = useReviewForm(orderId);
 
   // Use job variable for display (type is Order)
-  const job: Order | undefined = order;
+  const job: Order | undefined = order ?? undefined;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

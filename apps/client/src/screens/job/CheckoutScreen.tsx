@@ -219,7 +219,7 @@ function CheckoutContent() {
   };
 
   // Use job variable for display (type is Order)
-  const job: Order | undefined = order;
+  const job: Order | undefined = order ?? undefined;
 
   // Calculate amount: use payment if exists (minor units), otherwise use order (major units)
   const amountEstimated = payment?.amountEstimated ?? job?.totalAmount ?? 0;

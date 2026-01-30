@@ -100,6 +100,14 @@ vi.mock("@/lib/trpc/client", () => {
           useQuery: (...args: unknown[]) =>
             mockTrpcSubcategoryGetBySlugAndCategoryId(...args),
         },
+        getByCategory: {
+          useQuery: (...args: unknown[]) =>
+            mockTrpcSubcategoryGetByCategory(...args),
+        },
+        getBySlug: {
+          useQuery: (...args: unknown[]) =>
+            mockTrpcSubcategoryGetBySlug(...args),
+        },
         getById: {
           useQuery: (...args: unknown[]) => mockTrpcSubcategoryGetById(...args),
         },
@@ -200,22 +208,6 @@ vi.mock("@/lib/trpc/client", () => {
       contact: {
         submit: {
           useMutation: (...args: unknown[]) => mockTrpcContactSubmit(...args),
-        },
-      },
-      subcategory: {
-        getByCategory: {
-          useQuery: (...args: unknown[]) =>
-            mockTrpcSubcategoryGetByCategory(...args),
-        },
-        getBySlug: {
-          useQuery: (...args: unknown[]) =>
-            mockTrpcSubcategoryGetBySlug(...args),
-        },
-        getById: {
-          useQuery: (...args: unknown[]) => mockTrpcSubcategoryGetById(...args),
-        },
-        getAll: {
-          useQuery: (...args: unknown[]) => mockTrpcSubcategoryGetAll(...args),
         },
       },
     },

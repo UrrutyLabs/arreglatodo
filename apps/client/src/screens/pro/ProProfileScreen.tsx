@@ -77,7 +77,9 @@ export function ProProfileScreen() {
 
   // Build breadcrumbs
   const breadcrumbItems = useMemo(() => {
-    const items = [{ label: "Home", href: "/" }];
+    const items: Array<{ label: string; href?: string }> = [
+      { label: "Home", href: "/" },
+    ];
 
     if (category) {
       items.push({
