@@ -10,6 +10,7 @@ import {
 } from "@modules/order/orderLineItem.repo";
 import { OrderService } from "@modules/order/order.service";
 import { OrderCreationService } from "@modules/order/order.creation.service";
+import { OrderEstimationService } from "@modules/order/order.estimation.service";
 import { OrderFinalizationService } from "@modules/order/order.finalization.service";
 import { OrderLifecycleService } from "@modules/order/order.lifecycle.service";
 import { OrderAdminService } from "@modules/order/order.admin.service";
@@ -35,6 +36,10 @@ export function registerOrderModule(container: DependencyContainer): void {
 
   container.register<OrderCreationService>(TOKENS.OrderCreationService, {
     useClass: OrderCreationService,
+  });
+
+  container.register<OrderEstimationService>(TOKENS.OrderEstimationService, {
+    useClass: OrderEstimationService,
   });
 
   container.register<OrderFinalizationService>(

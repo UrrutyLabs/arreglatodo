@@ -9,17 +9,17 @@ import { JobCreateSkeleton } from "@/components/presentational/JobCreateSkeleton
 function BookPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const proId = searchParams.get("proId");
-  const rebookFrom = searchParams.get("rebookFrom");
 
   useEffect(() => {
-    // Redirect to wizard first step with existing query params
+    // Redirect to wizard first step with ALL existing query params
+    // Preserve category, subcategory, proId, rebookFrom, and any other params
     const params = new URLSearchParams();
-    if (proId) params.set("proId", proId);
-    if (rebookFrom) params.set("rebookFrom", rebookFrom);
+    searchParams.forEach((value, key) => {
+      params.set(key, value);
+    });
 
     router.replace(`/book/wizard/service-details?${params.toString()}`);
-  }, [proId, rebookFrom, router]);
+  }, [searchParams, router]);
 
   return (
     <div className="min-h-screen bg-bg">

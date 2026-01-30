@@ -48,6 +48,7 @@ export const TOKENS = {
   SubcategoryService: "SubcategoryService",
   OrderService: "OrderService",
   OrderCreationService: "OrderCreationService",
+  OrderEstimationService: "OrderEstimationService",
   OrderFinalizationService: "OrderFinalizationService",
   OrderLifecycleService: "OrderLifecycleService",
   OrderAdminService: "OrderAdminService",

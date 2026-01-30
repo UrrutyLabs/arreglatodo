@@ -21,11 +21,17 @@ interface ProListProps {
   pros: Pro[];
   /** Whether the list is currently loading */
   isLoading?: boolean;
+  /** Category slug to pass to pro profile URLs */
+  categorySlug?: string;
+  /** Subcategory slug to pass to pro profile URLs */
+  subcategorySlug?: string;
 }
 
 export const ProList = memo(function ProList({
   pros,
   isLoading,
+  categorySlug,
+  subcategorySlug,
 }: ProListProps) {
   if (isLoading) {
     return (
@@ -49,7 +55,11 @@ export const ProList = memo(function ProList({
     <div className="space-y-4" role="list">
       {pros.map((pro) => (
         <div key={pro.id} role="listitem">
-          <ProCard pro={pro} />
+          <ProCard
+            pro={pro}
+            categorySlug={categorySlug}
+            subcategorySlug={subcategorySlug}
+          />
         </div>
       ))}
     </div>

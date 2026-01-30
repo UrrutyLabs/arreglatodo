@@ -112,12 +112,18 @@ export {
   orderLineItemSchema,
   orderLineItemCreateInputSchema,
   categoryMetadataInputSchema,
+  orderEstimateInputSchema,
+  orderEstimateOutputSchema,
+  orderEstimateLineItemSchema,
   type Order,
   type OrderCreateInput,
   type OrderUpdateInput,
   type OrderLineItem,
   type OrderLineItemCreateInput,
   type CategoryMetadataInput,
+  type OrderEstimateInput,
+  type OrderEstimateOutput,
+  type OrderEstimateLineItem,
 } from "./schemas/order.schema";
 
 // Format utilities

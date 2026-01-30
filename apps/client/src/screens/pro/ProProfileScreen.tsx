@@ -11,9 +11,11 @@ import { Navigation } from "@/components/presentational/Navigation";
 import { SearchBar } from "@/components/search/SearchBar";
 import { ProProfileSkeleton } from "@/components/presentational/ProProfileSkeleton";
 import { AuthPromptModal } from "@/components/auth/AuthPromptModal";
+import { Breadcrumbs } from "@/components/presentational/Breadcrumbs";
 import { useProDetail } from "@/hooks/pro";
 import { useAuth } from "@/hooks/auth";
-import { useCategories } from "@/hooks/category";
+import { useCategories, useCategoryBySlug } from "@/hooks/category";
+import { useSubcategoryBySlugAndCategoryId } from "@/hooks/subcategory";
 import {
   ProProfileHeader,
   ProBio,
@@ -32,9 +34,20 @@ export function ProProfileScreen() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const searchQuery = searchParams.get("q") || "";
 
+  // Get category/subcategory from URL params
+  const categorySlug = searchParams.get("category") || undefined;
+  const subcategorySlug = searchParams.get("subcategory") || undefined;
+
   const { pro, isLoading, error } = useProDetail(proId);
   const { user, loading: authLoading } = useAuth();
   const { categories } = useCategories();
+
+  // Fetch category and subcategory from slugs
+  const { category } = useCategoryBySlug(categorySlug);
+  const { subcategory } = useSubcategoryBySlugAndCategoryId(
+    subcategorySlug,
+    category?.id
+  );
 
   // Map categoryIds to Category objects for display
   const proCategories = useMemo(
@@ -44,6 +57,51 @@ export function ProProfileScreen() {
         : [],
     [pro, categories]
   );
+
+  // Check if pro offers the selected service
+  const serviceValidationError = useMemo(() => {
+    if (!category || !pro) {
+      return null; // No category selected or pro not loaded yet
+    }
+
+    // Check if pro offers this category
+    if (!pro.categoryIds.includes(category.id)) {
+      return "Este profesional no ofrece servicios en esta categoría.";
+    }
+
+    // If subcategory is provided, check if pro offers it
+    // Note: We don't have subcategoryIds on Pro yet, so we'll rely on backend validation
+    // For now, we only validate category match
+    return null;
+  }, [category, pro]);
+
+  // Build breadcrumbs
+  const breadcrumbItems = useMemo(() => {
+    const items = [{ label: "Home", href: "/" }];
+
+    if (category) {
+      items.push({
+        label: category.name,
+        href: `/search/results?category=${category.slug}`,
+      });
+    }
+
+    if (subcategory && category) {
+      items.push({
+        label: subcategory.name,
+        href: `/search/results?category=${category.slug}&subcategory=${subcategory.slug}`,
+      });
+    }
+
+    // Current page (pro name) - not clickable
+    if (pro) {
+      items.push({
+        label: pro.name,
+      });
+    }
+
+    return items;
+  }, [category, subcategory, pro]);
 
   // Calculate derived states
   const isActive = useMemo(
@@ -65,8 +123,19 @@ export function ProProfileScreen() {
     if (!pro?.id) {
       return;
     }
+
+    // Build wizard URL with category/subcategory if present
+    const params = new URLSearchParams();
+    params.set("proId", pro.id);
+    if (categorySlug) {
+      params.set("category", categorySlug);
+    }
+    if (subcategorySlug) {
+      params.set("subcategory", subcategorySlug);
+    }
+
     // Authenticated, proceed to job creation
-    router.push(`/book?proId=${pro.id}`);
+    router.push(`/book?${params.toString()}`);
   };
 
   if (isLoading) {
@@ -133,6 +202,35 @@ export function ProProfileScreen() {
       />
       <div className="px-4 py-4 md:py-8 pb-24 lg:pb-4 md:pb-8">
         <div className="max-w-7xl mx-auto">
+          {/* Breadcrumbs */}
+          {breadcrumbItems.length > 1 && (
+            <div className="mb-4 md:mb-6">
+              <Breadcrumbs items={breadcrumbItems} />
+            </div>
+          )}
+
+          {/* Service Validation Error */}
+          {serviceValidationError && (
+            <div className="mb-4 md:mb-6">
+              <Card className="p-4 border-warning bg-warning/10">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+                  <div>
+                    <Text
+                      variant="body"
+                      className="font-medium text-warning mb-1"
+                    >
+                      Servicio no disponible
+                    </Text>
+                    <Text variant="small" className="text-muted">
+                      {serviceValidationError}
+                    </Text>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left: Scrollable Profile (2 columns on lg+) */}
             <div className="lg:col-span-2 space-y-6">
@@ -174,7 +272,7 @@ export function ProProfileScreen() {
             {/* Right: Fixed Request Form (1 column on lg+) */}
             <div className="hidden lg:block lg:col-span-1">
               <div className="lg:sticky lg:top-4">
-                {isActive && !pro.isSuspended && (
+                {isActive && !pro.isSuspended && !serviceValidationError && (
                   <ProRequestForm
                     hourlyRate={pro.hourlyRate}
                     proId={pro.id}
@@ -190,7 +288,7 @@ export function ProProfileScreen() {
       </div>
 
       {/* Mobile: Sticky Footer */}
-      {isActive && !pro.isSuspended && (
+      {isActive && !pro.isSuspended && !serviceValidationError && (
         <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden border-t border-border bg-surface shadow-lg">
           <div className="px-4 py-3">
             <ProRequestForm
@@ -208,7 +306,13 @@ export function ProProfileScreen() {
       <AuthPromptModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
-        returnUrl={`/book?proId=${pro.id}`}
+        returnUrl={(() => {
+          const params = new URLSearchParams();
+          params.set("proId", pro.id);
+          if (categorySlug) params.set("category", categorySlug);
+          if (subcategorySlug) params.set("subcategory", subcategorySlug);
+          return `/book?${params.toString()}`;
+        })()}
         title="Iniciá sesión para contratar"
         message="Necesitás iniciar sesión para contratar un servicio con este profesional."
       />

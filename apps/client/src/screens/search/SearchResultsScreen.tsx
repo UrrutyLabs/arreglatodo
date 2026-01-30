@@ -229,7 +229,11 @@ function SearchResultsContent() {
                       ? "profesional encontrado"
                       : "profesionales encontrados"}
                   </Text>
-                  <ProList pros={pros} />
+                  <ProList
+                    pros={pros}
+                    categorySlug={category?.slug}
+                    subcategorySlug={subcategorySlug}
+                  />
                 </>
               )}
             </div>

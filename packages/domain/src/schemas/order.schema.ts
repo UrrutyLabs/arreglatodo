@@ -177,3 +177,42 @@ export const orderLineItemCreateInputSchema = z.object({
 export type OrderLineItemCreateInput = z.infer<
   typeof orderLineItemCreateInputSchema
 >;
+
+/**
+ * Order cost estimation input schema
+ */
+export const orderEstimateInputSchema = z.object({
+  proProfileId: z.string(),
+  estimatedHours: z.number().positive(),
+  categoryId: z.string().optional(), // Optional: for future use
+});
+
+export type OrderEstimateInput = z.infer<typeof orderEstimateInputSchema>;
+
+/**
+ * Order cost estimation line item schema
+ */
+export const orderEstimateLineItemSchema = z.object({
+  type: z.string(),
+  description: z.string(),
+  amount: z.number().nonnegative(),
+});
+
+export type OrderEstimateLineItem = z.infer<typeof orderEstimateLineItemSchema>;
+
+/**
+ * Order cost estimation output schema
+ */
+export const orderEstimateOutputSchema = z.object({
+  laborAmount: z.number().nonnegative(),
+  platformFeeAmount: z.number().nonnegative(),
+  platformFeeRate: z.number().nonnegative(),
+  taxAmount: z.number().nonnegative(),
+  taxRate: z.number().nonnegative(),
+  subtotalAmount: z.number().nonnegative(),
+  totalAmount: z.number().nonnegative(),
+  currency: z.string(),
+  lineItems: z.array(orderEstimateLineItemSchema),
+});
+
+export type OrderEstimateOutput = z.infer<typeof orderEstimateOutputSchema>;

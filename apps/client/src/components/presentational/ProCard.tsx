@@ -10,10 +10,12 @@ import { RatingStars } from "./RatingStars";
 
 interface ProCardProps {
   pro: Pro;
+  categorySlug?: string;
+  subcategorySlug?: string;
 }
 
 export const ProCard = memo(
-  function ProCard({ pro }: ProCardProps) {
+  function ProCard({ pro, categorySlug, subcategorySlug }: ProCardProps) {
     const today = useTodayDate();
     const availabilityHint = useMemo(
       () => getAvailabilityHint(pro.availabilitySlots, today),
@@ -29,8 +31,21 @@ export const ProCard = memo(
       [pro.completedJobsCount]
     );
 
+    // Build URL with category/subcategory query params if provided
+    const proUrl = useMemo(() => {
+      const params = new URLSearchParams();
+      if (categorySlug) {
+        params.set("category", categorySlug);
+      }
+      if (subcategorySlug) {
+        params.set("subcategory", subcategorySlug);
+      }
+      const queryString = params.toString();
+      return `/pros/${pro.id}${queryString ? `?${queryString}` : ""}`;
+    }, [pro.id, categorySlug, subcategorySlug]);
+
     return (
-      <Link href={`/pros/${pro.id}`} className="block">
+      <Link href={proUrl} className="block">
         <Card className="shadow-md hover:shadow-lg active:shadow-xl transition-shadow h-full cursor-pointer">
           <div className="flex gap-4 p-4">
             {/* Left: Avatar */}
@@ -129,10 +144,8 @@ export const ProCard = memo(
               </div>
 
               {/* Bottom: View Profile button */}
-              <div onClick={(e) => e.stopPropagation()}>
-                <Button variant="primary" className="w-full">
-                  Ver perfil
-                </Button>
+              <div className="w-full min-h-[44px] md:min-h-0 px-4 py-3 md:px-4 md:py-2 bg-primary text-white rounded-lg font-medium text-base md:text-sm transition-colors hover:opacity-90 active:opacity-75 text-center flex items-center justify-center">
+                Ver perfil
               </div>
             </div>
           </div>
@@ -154,7 +167,9 @@ export const ProCard = memo(
       prevProps.pro.hourlyRate === nextProps.pro.hourlyRate &&
       prevProps.pro.serviceArea === nextProps.pro.serviceArea &&
       prevProps.pro.availabilitySlots?.length ===
-        nextProps.pro.availabilitySlots?.length
+        nextProps.pro.availabilitySlots?.length &&
+      prevProps.categorySlug === nextProps.categorySlug &&
+      prevProps.subcategorySlug === nextProps.subcategorySlug
     );
   }
 );

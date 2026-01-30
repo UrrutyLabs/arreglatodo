@@ -8,6 +8,7 @@ import {
 } from "@infra/trpc";
 import { container, TOKENS } from "@/server/container";
 import { OrderCreationService } from "./order.creation.service";
+import { OrderEstimationService } from "./order.estimation.service";
 import { OrderLifecycleService } from "./order.lifecycle.service";
 import { OrderFinalizationService } from "./order.finalization.service";
 import { OrderService } from "./order.service";
@@ -15,6 +16,8 @@ import { OrderAdminService } from "./order.admin.service";
 import type { ProRepository } from "@modules/pro/pro.repo";
 import {
   orderCreateInputSchema,
+  orderEstimateInputSchema,
+  orderEstimateOutputSchema,
   orderSchema,
   orderStatusSchema,
   ApprovalMethod,
@@ -24,6 +27,9 @@ import { mapDomainErrorToTRPCError } from "@shared/errors/error-mapper";
 // Resolve services from container
 const orderCreationService = container.resolve<OrderCreationService>(
   TOKENS.OrderCreationService
+);
+const orderEstimationService = container.resolve<OrderEstimationService>(
+  TOKENS.OrderEstimationService
 );
 const orderLifecycleService = container.resolve<OrderLifecycleService>(
   TOKENS.OrderLifecycleService
@@ -48,6 +54,21 @@ export const orderRouter = router({
     .mutation(async ({ input, ctx }) => {
       try {
         return await orderCreationService.createOrderRequest(ctx.actor, input);
+      } catch (error) {
+        throw mapDomainErrorToTRPCError(error);
+      }
+    }),
+
+  /**
+   * Estimate order cost before creation
+   * Returns breakdown of labor, platform fee, tax, and totals
+   */
+  estimateCost: publicProcedure
+    .input(orderEstimateInputSchema)
+    .output(orderEstimateOutputSchema)
+    .query(async ({ input }) => {
+      try {
+        return await orderEstimationService.estimateOrderCost(input);
       } catch (error) {
         throw mapDomainErrorToTRPCError(error);
       }

@@ -33,59 +33,30 @@ export function WizardLayout({
     <div className="min-h-screen bg-bg">
       <div className="px-4 py-4 md:py-8">
         <div className="max-w-4xl mx-auto">
-          {/* Step Indicator - Mobile */}
+          {/* Step Indicator - Mobile (dots only) */}
           <div className="md:hidden mb-4 md:mb-6">
-            <div className="flex items-center justify-between">
-              {steps.map((step, index) => (
-                <div key={step.number} className="flex items-center flex-1">
-                  <div className="flex flex-col items-center flex-1">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                        step.isComplete
-                          ? "bg-primary text-white"
-                          : step.isActive
-                            ? "bg-primary text-white"
-                            : "bg-surface border-2 border-border text-muted"
-                      }`}
-                    >
-                      {step.isComplete ? (
-                        <Check className="w-4 h-4" />
-                      ) : (
-                        step.number
-                      )}
-                    </div>
-                    <Text
-                      variant="xs"
-                      className={`mt-1 text-center ${
-                        step.isActive
-                          ? "text-primary font-medium"
-                          : "text-muted"
-                      }`}
-                    >
-                      {step.label}
-                    </Text>
-                  </div>
-                  {index < steps.length - 1 && (
-                    <div className="flex-1 mx-2">
-                      <div
-                        className={`h-0.5 ${
-                          step.isComplete ? "bg-primary" : "bg-border"
-                        }`}
-                      />
-                    </div>
-                  )}
-                </div>
+            <div className="flex items-center justify-center gap-2">
+              {steps.map((step) => (
+                <div
+                  key={step.number}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    step.isComplete || step.isActive
+                      ? "bg-primary"
+                      : "bg-surface border border-border"
+                  } ${step.isActive ? "w-3 h-3" : ""}`}
+                  aria-label={`Paso ${step.number}: ${step.label}`}
+                />
               ))}
             </div>
           </div>
 
           {/* Step Indicator - Desktop */}
-          <div className="hidden md:flex items-center mb-8">
+          <div className="hidden md:flex items-center justify-center mb-8">
             {steps.map((step, index) => (
-              <div key={step.number} className="flex items-center flex-1">
-                <div className="flex items-center flex-1">
+              <div key={step.number} className="flex items-center">
+                <div className="flex items-center shrink-0">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                    className={`w-12 h-12 rounded-full flex items-center justify-center text-base font-medium transition-colors shrink-0 ${
                       step.isComplete
                         ? "bg-primary text-white"
                         : step.isActive
@@ -94,12 +65,12 @@ export function WizardLayout({
                     }`}
                   >
                     {step.isComplete ? (
-                      <Check className="w-5 h-5" />
+                      <Check className="w-6 h-6" />
                     ) : (
                       step.number
                     )}
                   </div>
-                  <div className="ml-3">
+                  <div className="ml-3 shrink-0">
                     <Text
                       variant="small"
                       className={`${
@@ -121,7 +92,7 @@ export function WizardLayout({
                   </div>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className="flex-1 mx-4">
+                  <div className="flex-1 mx-6 min-w-[60px]">
                     <div
                       className={`h-0.5 ${
                         step.isComplete ? "bg-primary" : "bg-border"
